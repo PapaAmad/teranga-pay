@@ -67,7 +67,7 @@ npm run repo:check
 
 La CI reprend les contrôles de format, lint, types, tests, titre de PR et secrets. Husky et lint-staged vérifient les fichiers indexés ; commitlint contrôle les messages. Le ruleset de `main` prévu dans les fichiers n'est pas actif : GitHub refuse cette fonction pour ce dépôt privé avec l'offre actuelle. L'analyse native des secrets et la protection au push ne sont pas activées ; le contrôle Gitleaks de la CI est distinct. La règle d'équipe reste une PR verte et relue par l'autre membre.
 
-L'installation par lockfile, les contrôles de code, les 18 tests locaux et l'export Android ont été vérifiés. Les hooks ont contrôlé les fichiers indexés lors du premier commit. La CI distante a été tentée, mais son démarrage est bloqué avant les jobs ; aucun résultat vert distant n'est annoncé. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
+L'installation par lockfile, les contrôles de code, les 18 tests locaux et l'export Android ont été vérifiés. Les hooks ont contrôlé les fichiers indexés lors du premier commit. Après le déverrouillage du compte par le support GitHub, la [CI distante sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris les tests et Gitleaks. Ce lancement manuel ne vérifie pas le titre d'une PR ; ce contrôle s'exécute lors d'un événement `pull_request`. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
 
 ## Travail d'équipe et GitHub
 

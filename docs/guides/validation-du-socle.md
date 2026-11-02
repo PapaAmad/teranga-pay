@@ -1,6 +1,6 @@
 # Vérification du socle T01 à T07
 
-Vérifications locales du 2 novembre 2026, sous Windows avec Node.js 24.22.0 et npm 12.2.1. Ce relevé décrit le socle présent ; il ne constitue ni une approbation de Salam ni un résultat de GitHub Actions.
+Vérifications du 2 novembre 2026 : contrôles locaux sous Windows avec Node.js 24.22.0 et npm 12.2.1, puis CI distante sur Linux après le déverrouillage du compte par le support GitHub. Ce relevé décrit les résultats observés ; il ne constitue pas une approbation de Salam.
 
 | Vérification                 | Résultat observé                                                                                                                                         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,8 +19,9 @@ Les sorties temporaires et l'export sont ignorés par Git. L'export Android ne r
 
 Les 18 tests locaux sont verts. Le premier commit du socle est
 `2024572407e2df6e6d8b9d0de34fd277e27d61c9`, publié sur `chore/T01-fondations`.
-Le socle est livré via la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion en exception selon la [décision 0003](../decisions/0003-initialisation-main.md) ; aucune approbation de Salam n’est inventée. Le lancement de CI
-distante a rencontré un `startup_failure` avant l'exécution des jobs. Un workflow minimal indépendant faisant seulement `echo` échoue également avant les jobs. L'API ne précise pas la cause exacte ; aucun résultat de test ni de Gitleaks distant n'est présenté comme réussi. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
+Le socle est livré via la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion en exception selon la [décision 0003](../decisions/0003-initialisation-main.md) ; aucune approbation de Salam n’est inventée. Les premiers lancements distants, dont un workflow minimal faisant seulement `echo`, avaient échoué en `startup_failure` avant les jobs. Le support GitHub a ensuite confirmé et levé le verrouillage du compte lié à un échec d'autorisation du moyen de paiement.
+
+La [CI manuelle du 2 novembre 2026 sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961), commit `31c94ab16de3e863276ffc076beec643497d9d24`, a terminé avec `conclusion: success`. Les jobs **Format**, **Lint**, **Types**, **Tests** et **Secrets** ont réussi. Le job **Titre PR** est également vert, mais a seulement exécuté son étape de passage hors PR : la validation réelle du titre demande un événement `pull_request`. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
 
 ## Audit des dépendances
 
@@ -35,8 +36,8 @@ Les alertes modérées se propagent notamment par les dépendances `glob` et `mi
 ## Contrôles encore nécessaires
 
 - Installer et ouvrir l'application sur un téléphone Android ou un émulateur.
-- Résoudre le blocage de démarrage GitHub Actions de la PR #36 et obtenir les résultats distants. Les rulesets et l'analyse native des secrets ont été refusés sur l'offre actuelle et ne sont pas actifs.
-- Faire passer la recherche de secrets Gitleaks et vérifier les protections sur une PR de test.
+- Vérifier les six contrôles sur une PR, dont le titre réellement contrôlé lors d'un événement `pull_request`. Le lancement manuel sur `main` a déjà validé les cinq autres contrôles, dont Gitleaks.
+- Conserver les limites de l'offre visibles : les rulesets et l'analyse native des secrets ont été refusés et ne sont pas actifs. La levée du verrouillage de facturation ne les active pas.
 - Obtenir la relecture humaine de Salam ; les hooks ont déjà été observés sur les premiers changements indexés.
 - Réévaluer les alertes de dépendances avant les étapes de sécurité et de livraison.
 
