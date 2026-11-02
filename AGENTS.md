@@ -20,7 +20,7 @@
 - Utiliser `|` comme séparateur dans les titres et les libellés. Écrire les plages de tâches avec « à » et les dates avec « du ... au ... » ; conserver les tirets nécessaires à la syntaxe du code et aux commandes.
 - Avant de proposer un commit : `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test -- --ci`, `npm run test:tooling`, `npm run repo:check`.
 - Tester la logique ajoutée avec des cas qui échouent si son comportement est faux. Pour les écrans, fournir une capture ou une vérification de parcours adaptée.
-- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Le dossier réservé `.github` utilise `GUIDE.md` : ne pas y créer de fichier `README`, qui masquerait le README principal sur GitHub. Les dossiers générés sont exclus.
+- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Le dossier `.github` et ses sous-dossiers utilisent `GUIDE.md`, sauf `.github/ISSUE_TEMPLATE` qui utilise `GUIDE.txt` pour éviter un modèle Markdown involontaire. Aucun `README` dans cet arbre réservé. Les dossiers générés sont exclus.
 - Garder le lockfile npm à jour. Ne pas ajouter Nx, Turbo, backend, SDK Lightning ou infrastructure exécutables sans tâche correspondante.
 
 ## Sécurité

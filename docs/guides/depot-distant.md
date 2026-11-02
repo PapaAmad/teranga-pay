@@ -9,7 +9,7 @@ remplace la visibilité publique prévue dans les PDF.
 Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](../decisions/0003-initialisation-main.md). Salam a accepté l’invitation et son accès en écriture est confirmé ; son approbation de la PR n’est pas prétendue. Les 16 labels et 35 issues
 T06 à T40 (#1 à #35) sont créés et affectés. Le
 [Project privé #3](https://github.com/users/PapaAmad/projects/3) est créé et lié,
-avec 35 cartes et l'accès `WRITER` de Salam. Après la levée du verrouillage du compte par le support GitHub, la [CI manuelle sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris Gitleaks. Les six contrôles ont ensuite réussi [sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41491000731), dont la vérification réelle du titre sur événement `pull_request`. Les rulesets
+avec 35 cartes et l'accès `WRITER` de Salam. Après la levée du verrouillage du compte par le support GitHub, la [CI manuelle sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris Gitleaks. Les six contrôles ont ensuite réussi [sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41497845298), dont la vérification réelle du titre sur événement `pull_request`. Les rulesets
 et l'analyse native des secrets sont refusés avec l'offre actuelle. Le
 [relevé GitHub](../planning/publication-github.md) est la référence pour l'état
 vérifié et les liens réels : ne pas rejouer une création déjà effectuée.
@@ -192,3 +192,5 @@ git switch -c feat/T08-charte-visuelle origin/main
 Les [scripts GitHub](../../scripts/github/README.md) détaillent leur comportement
 actuel. Le relevé de publication reste la source de vérité pour ce qui a été
 appliqué, refusé ou laissé en attente.
+
+La preuve CI citée pour la PR #38 couvre précisément le commit `e0124c184052d5529dc306f184bc764ef7ac0f8b`, avant les correctifs de revue. Elle ne valide pas les commits suivants. Pour la version courante, consulter les [contrôles de la PR #38](https://github.com/PapaAmad/teranga-pay/pull/38/checks) et vérifier leur SHA.

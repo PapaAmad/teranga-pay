@@ -48,8 +48,12 @@ node scripts/github/setup.mjs --apply --section=project
 ```
 
 `--section=all` applique ces quatre sections dans l’ordre réglages, labels, issues,
-Project. Les labels sont mis à jour sans suppression ; le ruleset du même nom est
-mis à jour ; les issues existantes TXX sont conservées avec leurs discussions et
+Project. Les labels sont reconnus sans tenir compte de la casse et mis à jour sans suppression.
+Les anciens noms de rulesets et de Projects utilisant le séparateur historique
+sont reconnus par la même normalisation que les titres d'issues. La ressource
+existante est réutilisée et renommée avec `|` ; si plusieurs variantes existent,
+le script s'arrête avant de créer une autre ressource.
+Les issues existantes TXX sont conservées avec leurs discussions et
 leur état, y compris fermé. Un doublon interrompt l’exécution. Un échec arrête le
 script mais n’annule pas les étapes précédentes : il est possible de relancer la
 section après correction. Les règles appliquées n’accordent aucun contournement.
@@ -58,7 +62,7 @@ trace dans la PR, jamais automatiquement.
 
 Le [Project privé n°3](https://github.com/users/PapaAmad/projects/3) existe déjà
 avec ses 35 cartes et l’accès de Salam en écriture. Ne pas le recréer : le script
-le retrouve par le titre de la configuration et ajoute seulement les issues
+le retrouve par le titre de la configuration ou sa variante historique et ajoute seulement les issues
 absentes. Son champ intégré `Status` porte les quatre étapes françaises :
 À faire → En cours → En revue → Terminé.
 
@@ -75,6 +79,13 @@ GitHub. Le jeton doit autoriser les Projects. Au-delà de 100 Projects ou 1 000
 cartes, vérifier les limites avant de relancer la section Project.
 
 ## Vérification humaine restante
+
+Les relances incluent les Projects fermés et refusent leur réouverture implicite.
+Un Project public ou de visibilité inconnue est refusé avant modification.
+Si les listes de Projects ou de cartes sont tronquées, le script s'arrête :
+il faut compléter la pagination avant de déduire qu'un élément est absent.
+Le mode `--section=project` vérifie les doublons sur l'ensemble des issues,
+même sans lancer la section `issues`.
 
 - Conserver le dépôt et le Project privés, vérifier le collaborateur et la branche `main`.
 - Confirmer squash seul, suppression automatique et protection contre force push.

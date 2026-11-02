@@ -23,7 +23,7 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspace @teranga-pay/mobile --",
-    "test:tooling": "node --test scripts/github/*.test.mjs",
+    "test:tooling": "node --test scripts/*.test.mjs scripts/github/*.test.mjs",
     "repo:check": "node scripts/check-repository.mjs",
     "prepare": "husky"
   },

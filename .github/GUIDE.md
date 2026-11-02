@@ -4,6 +4,10 @@ Ce dossier utilise `GUIDE.md` pour sa documentation locale. GitHub donnerait
 priorité à un `.github/README.md` sur le README du projet à la racine ; ne pas
 recréer ce fichier réservé.
 
+Les [workflows](workflows/GUIDE.md) utilisent aussi `GUIDE.md`.
+Les [modèles d'issues](ISSUE_TEMPLATE/GUIDE.txt) utilisent `GUIDE.txt` pour que
+leur documentation ne soit pas traitée comme un modèle Markdown.
+
 Modèles d'issues et de PR, responsables de relecture, mises à jour de dépendances,
 labels, protection de `main` et contrôles automatiques.
 

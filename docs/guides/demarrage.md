@@ -51,7 +51,7 @@ Après installation dans un dépôt Git, un commit déclenche les contrôles des
 
 ## Préparer GitHub
 
-Le dépôt et le Project #3 sont privés ; les accès en écriture de Salam sont confirmés. Le socle et la correction du README sont intégrés à `main` par les PR #36 et #37, avec les exceptions de fusion autorisées par PAN. Après le déverrouillage du compte par le support, la [CI sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) et les [six contrôles sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41491578241) ont réussi. La PR #38 conserve les mises à jour de suivi et attend la relecture humaine. Les rulesets et l'analyse native des secrets restent inactifs avec l'offre actuelle du dépôt privé. Lire le [guide du dépôt distant](depot-distant.md), le [suivi T01 à T07](../planning/suivi-t01-t07.md) et le [relevé GitHub vérifié](../planning/publication-github.md).
+Le dépôt et le Project #3 sont privés ; les accès en écriture de Salam sont confirmés. Le socle et la correction du README sont intégrés à `main` par les PR #36 et #37, avec les exceptions de fusion autorisées par PAN. Après le déverrouillage du compte par le support, la [CI sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) et les [six contrôles sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41497845298) ont réussi. La PR #38 conserve les mises à jour de suivi et attend la relecture humaine. Les rulesets et l'analyse native des secrets restent inactifs avec l'offre actuelle du dépôt privé. Lire le [guide du dépôt distant](depot-distant.md), le [suivi T01 à T07](../planning/suivi-t01-t07.md) et le [relevé GitHub vérifié](../planning/publication-github.md).
 
 ## En cas de difficulté
 
@@ -62,3 +62,5 @@ Le dépôt et le Project #3 sont privés ; les accès en écriture de Salam sont
 | L'appareil ne joint pas Expo | Vérifier le réseau local et le pare-feu ; utiliser l'émulateur si le Wi-Fi du lieu bloque les connexions. |
 | Les hooks ne démarrent pas   | Vérifier qu'un dépôt Git existe, puis relancer la préparation npm.                                        |
 | Une route est encore vide    | Consulter la feuille de route : les fonctions T08 à T40 ne sont pas livrées par ce socle.                 |
+
+La preuve CI citée pour la PR #38 couvre précisément le commit `e0124c184052d5529dc306f184bc764ef7ac0f8b`, avant les correctifs de revue. Elle ne valide pas les commits suivants. Pour la version courante, consulter les [contrôles de la PR #38](https://github.com/PapaAmad/teranga-pay/pull/38/checks) et vérifier leur SHA.

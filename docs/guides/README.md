@@ -8,3 +8,5 @@ Guides pratiques maintenus par PAN pour le socle, puis par le responsable de cha
 - [Validation du socle](validation-du-socle.md) : preuves locales, limites des vérifications et état des dépendances.
 
 Actualiser un guide dès qu'une commande ou une règle de travail change. Les valeurs secrètes restent dans les fichiers locaux ignorés par Git.
+
+- [Autoreview de la PR #38](autoreview-pr38.md) : risques supplémentaires reproduits, correctifs et limites de validation.

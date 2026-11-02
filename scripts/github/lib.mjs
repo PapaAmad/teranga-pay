@@ -1,12 +1,64 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const root = fileURLToPath(new URL('../../', import.meta.url));
+export const NO_REVIEWER = null;
+const DEFAULT_VISIBILITY = 'private';
+const titleSeparators = ['|', '\u2014'];
+
+export function normalizeDisplayName(value) {
+  if (typeof value !== 'string') return undefined;
+  return titleSeparators.reduce(
+    (name, separator) => name.replaceAll(` ${separator} `, ' | '),
+    value,
+  );
+}
+
+export function existingNamedResource(resources, expectedName, field, kind) {
+  if (typeof expectedName !== 'string' || !expectedName.trim())
+    throw new Error(`Nom attendu invalide pour ${kind}.`);
+  const expected = normalizeDisplayName(expectedName);
+  const matches = resources.filter(
+    (resource) => normalizeDisplayName(resource[field]) === expected,
+  );
+  if (matches.length > 1) {
+    throw new Error(`Plusieurs ${kind} correspondent à « ${expectedName} » ; résoudre le doublon.`);
+  }
+  return matches[0];
+}
+
+export function assertCompleteInventory(inventory, field, kind) {
+  const values = inventory[field];
+  if (
+    !Array.isArray(values) ||
+    !Number.isInteger(inventory.totalCount) ||
+    inventory.totalCount !== values.length
+  ) {
+    throw new Error(
+      `Inventaire ${kind} incomplet ; compléter la pagination avant toute modification.`,
+    );
+  }
+  return values;
+}
+
+export function assertReusableProject(project) {
+  if (!project) return;
+  if (project.closed) throw new Error('Le Project existant est fermé ; le rouvrir explicitement.');
+  if (project.public !== false)
+    throw new Error(
+      'Le Project doit être privé ; corriger sa visibilité avant toute modification.',
+    );
+}
+
+export function existingLabel(labels, name) {
+  const matches = labels.filter((label) => label.name.toLowerCase() === name.toLowerCase());
+  if (matches.length > 1) throw new Error(`Plusieurs labels correspondent à « ${name} ».`);
+  return matches[0];
+}
 
 export function readJson(relativePath) {
-  return JSON.parse(
-    readFileSync(new URL(relativePath, new URL('../../', import.meta.url)), 'utf8'),
-  );
+  return JSON.parse(readFileSync(resolve(root, relativePath), 'utf8'));
 }
 
 export function validateConfig(config) {
@@ -29,7 +81,7 @@ export function validateConfig(config) {
   if (typeof config.projectTitle !== 'string' || !config.projectTitle.trim()) {
     throw new Error('projectTitle est nécessaire.');
   }
-  const visibility = config.visibility === undefined ? 'private' : config.visibility;
+  const visibility = config.visibility === undefined ? DEFAULT_VISIBILITY : config.visibility;
   if (!['private', 'public'].includes(visibility)) {
     throw new Error('visibility doit être private ou public.');
   }
@@ -37,7 +89,7 @@ export function validateConfig(config) {
 }
 
 export function assertRepositoryTarget(info, config) {
-  const expectedVisibility = config.visibility ?? 'private';
+  const expectedVisibility = config.visibility ?? DEFAULT_VISIBILITY;
   if (info.default_branch !== 'main') {
     throw new Error(
       'Le dépôt doit avoir main comme branche par défaut. Suivre le bootstrap documenté.',
@@ -64,11 +116,11 @@ export function validateBacklog(backlog, labels) {
     if (!['PAN', 'Salam', 'Les deux'].includes(task.responsible)) {
       throw new Error(`Responsable incorrect : ${id}`);
     }
-    if (!['PAN', 'Salam', '\u2014'].includes(task.reviewer)) {
+    if (!['PAN', 'Salam', NO_REVIEWER].includes(task.reviewer)) {
       throw new Error(`Relecteur incorrect : ${id}`);
     }
     const expectedReviewer =
-      task.responsible === 'Les deux' ? '\u2014' : task.responsible === 'PAN' ? 'Salam' : 'PAN';
+      task.responsible === 'Les deux' ? NO_REVIEWER : task.responsible === 'PAN' ? 'Salam' : 'PAN';
     if (task.reviewer !== expectedReviewer) {
       throw new Error(`La relecture doit être croisée : ${id}`);
     }
@@ -153,7 +205,7 @@ export function hasFrenchTrackingOptions(field) {
 
 export function buildIssueBody(task, config) {
   const reviewer =
-    task.reviewer === '\u2014'
+    task.reviewer === NO_REVIEWER
       ? 'validation commune'
       : `@${task.reviewer === 'PAN' ? config.pan : config.salam}`;
   return [
@@ -188,12 +240,16 @@ export function existingTaskIssue(task, issues) {
   const matches = issues.filter(
     (issue) =>
       issue.body?.includes(`<!-- teranga-task:${task.id} -->`) ||
-      issue.title?.startsWith(`${task.id} | `) ||
-      issue.title?.startsWith(`${task.id} \u2014 `),
+      normalizeDisplayName(issue.title)?.startsWith(`${task.id} | `),
   );
   if (matches.length > 1)
     throw new Error(
       `Plusieurs issues correspondent à ${task.id} : résoudre le doublon avant de continuer.`,
     );
   return matches[0];
+}
+
+export function selectTaskIssues(backlog, issues) {
+  const candidates = issues.filter((issue) => !issue.pull_request);
+  return backlog.map((task) => existingTaskIssue(task, candidates)).filter(Boolean);
 }

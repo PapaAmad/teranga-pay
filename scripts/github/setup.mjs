@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   assertRepositoryTarget,
+  assertCompleteInventory,
+  assertReusableProject,
   buildIssueBody,
+  existingLabel,
+  existingNamedResource,
   existingTaskIssue,
   hasFrenchTrackingOptions,
   labelPayload,
@@ -11,6 +15,7 @@ import {
   readJson,
   root,
   selectTrackingField,
+  selectTaskIssues,
   validateBacklog,
   validateConfig,
 } from './lib.mjs';
@@ -97,28 +102,28 @@ function ensureSettings(config) {
     );
   }
   const ruleset = readJson('.github/main-ruleset.json');
-  const matches = apiList(`repos/${repo}/rulesets?per_page=100`).filter(
-    ({ name }) => name === ruleset.name,
+  const existing = existingNamedResource(
+    apiList(`repos/${repo}/rulesets?per_page=100`),
+    ruleset.name,
+    'name',
+    'rulesets',
   );
-  if (matches.length > 1)
-    throw new Error('Plusieurs rulesets ont le nom prévu ; résoudre le doublon.');
   api(
-    `repos/${repo}/rulesets${matches[0] ? `/${matches[0].id}` : ''}`,
-    matches[0] ? 'PUT' : 'POST',
+    `repos/${repo}/rulesets${existing ? `/${existing.id}` : ''}`,
+    existing ? 'PUT' : 'POST',
     ruleset,
   );
   console.info(`Réglages et protection main appliqués : ${repo}`);
 }
 
 function ensureLabels(config, labels) {
-  const current = new Set(
-    apiList(`repos/${config.repository}/labels?per_page=100`).map(({ name }) => name),
-  );
+  const current = apiList(`repos/${config.repository}/labels?per_page=100`);
   for (const label of labels) {
+    const existing = existingLabel(current, label.name);
     api(
-      `repos/${config.repository}/labels${current.has(label.name) ? `/${encodeURIComponent(label.name)}` : ''}`,
-      current.has(label.name) ? 'PATCH' : 'POST',
-      labelPayload(label, current.has(label.name)),
+      `repos/${config.repository}/labels${existing ? `/${encodeURIComponent(existing.name)}` : ''}`,
+      existing ? 'PATCH' : 'POST',
+      labelPayload(label, Boolean(existing)),
     );
   }
   console.info(`${labels.length} labels synchronisés.`);
@@ -131,6 +136,7 @@ function ensureIssues(config, backlog) {
   const assignableLogins = apiList(`repos/${config.repository}/assignees?per_page=100`).map(
     ({ login }) => login,
   );
+  selectTaskIssues(backlog, issues);
   const pendingAssignees = new Set();
   const result = [];
   for (const task of backlog) {
@@ -172,21 +178,22 @@ function ensureIssues(config, backlog) {
 
 function ensureProject(config, issues) {
   const owner = config.repository.split('/')[0];
-  const projects = ghJson([
+  const inventory = ghJson([
     'project',
     'list',
     '--owner',
     owner,
     '--limit',
     '100',
+    '--closed',
     '--format',
     'json',
-  ]).projects;
-  const matches = projects.filter((project) => project.title === config.projectTitle);
-  if (matches.length > 1)
-    throw new Error('Plusieurs Projects portent ce titre ; résoudre le doublon.');
+  ]);
+  const projects = assertCompleteInventory(inventory, 'projects', 'des Projects');
+  const existing = existingNamedResource(projects, config.projectTitle, 'title', 'Projects');
+  assertReusableProject(existing);
   const project =
-    matches[0] ??
+    existing ??
     ghJson([
       'project',
       'create',
@@ -197,7 +204,35 @@ function ensureProject(config, issues) {
       '--format',
       'json',
     ]);
-  if (project.closed) throw new Error('Le Project existant est fermé ; le rouvrir explicitement.');
+  assertReusableProject(project);
+  const itemInventory = ghJson([
+    'project',
+    'item-list',
+    String(project.number),
+    '--owner',
+    owner,
+    '--limit',
+    '1000',
+    '--format',
+    'json',
+  ]);
+  const items = assertCompleteInventory(itemInventory, 'items', 'des cartes');
+  if (project.title !== config.projectTitle) {
+    const result = ghJson(
+      ['api', 'graphql', '--input', '-'],
+      JSON.stringify({
+        query:
+          'mutation($input: UpdateProjectV2Input!) { updateProjectV2(input: $input) { projectV2 { id title } } }',
+        variables: { input: { projectId: project.id, title: config.projectTitle } },
+      }),
+    );
+    if (result.errors?.length)
+      throw new Error(result.errors.map(({ message }) => message).join(' | '));
+    const renamed = result.data?.updateProjectV2?.projectV2;
+    if (renamed?.id !== project.id || renamed.title !== config.projectTitle) {
+      throw new Error('Le renommage du Project existant n’a pas été confirmé.');
+    }
+  }
   gh(['project', 'link', String(project.number), '--owner', owner, '--repo', config.repository]);
   const fields = ghJson([
     'project',
@@ -231,17 +266,6 @@ function ensureProject(config, issues) {
       'Le champ Status existant est conservé. Finaliser ses options À faire, En cours, En revue et Terminé dans GitHub ; aucun second champ de suivi n’est créé.',
     );
   }
-  const items = ghJson([
-    'project',
-    'item-list',
-    String(project.number),
-    '--owner',
-    owner,
-    '--limit',
-    '1000',
-    '--format',
-    'json',
-  ]).items;
   const urls = new Set(items.map((item) => item.content?.url));
   for (const issue of issues) {
     if (!urls.has(issue.html_url)) {
@@ -305,9 +329,9 @@ try {
       let issues;
       if (selected.includes('issues')) issues = ensureIssues(config, backlog);
       if (selected.includes('project')) {
-        issues ??= apiList(`repos/${config.repository}/issues?state=all&per_page=100`).filter(
-          (issue) =>
-            !issue.pull_request && backlog.some((task) => existingTaskIssue(task, [issue])),
+        issues ??= selectTaskIssues(
+          backlog,
+          apiList(`repos/${config.repository}/issues?state=all&per_page=100`),
         );
         ensureProject(config, issues);
       }
