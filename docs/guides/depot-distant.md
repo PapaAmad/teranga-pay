@@ -9,7 +9,7 @@ remplace la visibilité publique prévue dans les PDF.
 Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](../decisions/0003-initialisation-main.md). Salam a accepté l’invitation et son accès en écriture est confirmé ; son approbation de la PR n’est pas prétendue. Les 16 labels et 35 issues
 T06 à T40 (#1 à #35) sont créés et affectés. Le
 [Project privé #3](https://github.com/users/PapaAmad/projects/3) est créé et lié,
-avec 35 cartes et l'accès `WRITER` de Salam. Après la levée du verrouillage du compte par le support GitHub, la [CI manuelle sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris Gitleaks. Le titre de PR doit être vérifié sur un événement `pull_request`. Les rulesets
+avec 35 cartes et l'accès `WRITER` de Salam. Après la levée du verrouillage du compte par le support GitHub, la [CI manuelle sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris Gitleaks. Les six contrôles ont ensuite réussi [sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41491000731), dont la vérification réelle du titre sur événement `pull_request`. Les rulesets
 et l'analyse native des secrets sont refusés avec l'offre actuelle. Le
 [relevé GitHub](../planning/publication-github.md) est la référence pour l'état
 vérifié et les liens réels : ne pas rejouer une création déjà effectuée.
@@ -109,7 +109,7 @@ La PR #36 représente la livraison initiale autorisée par PAN. Vérifier son st
 identifiants TXX ; ne pas fermer une tâche dont les critères restent incomplets.
 
 Les contrôles attendus sont **Format**, **Lint**, **Types**, **Tests**, **Titre PR**
-et **Secrets**. Les premiers lancements avaient échoué en `startup_failure` avant les jobs. Le support GitHub a levé le verrouillage du compte ; la CI manuelle sur `main` a ensuite réussi. Le job **Titre PR** n'y vérifie aucun titre : une PR doit confirmer les six contrôles réellement applicables. Vérifier ses résultats et la relecture humaine avant fusion.
+et **Secrets**. Les premiers lancements avaient échoué en `startup_failure` avant les jobs. Le support GitHub a levé le verrouillage du compte ; la CI manuelle sur `main` a ensuite réussi. Le job **Titre PR** n'y vérifie aucun titre : l'exécution sur la PR #38 a confirmé les six contrôles, avec son titre réellement validé. Pour chaque nouvelle version, vérifier les résultats correspondants et la relecture humaine avant fusion.
 
 Pour relancer les contrôles du code présent sur `main` sans créer de commit :
 

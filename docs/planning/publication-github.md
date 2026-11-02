@@ -1,6 +1,6 @@
 # Publication GitHub | état vérifié
 
-Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub et des contrôles réellement exécutés. Le socle est livré sur `main` via la PR #36, avec l’exception d’initialisation autorisée explicitement par PAN et décrite dans la [décision 0003](../decisions/0003-initialisation-main.md). Après le déverrouillage du compte par le support, le lancement manuel de la CI sur `main` a réussi ; la validation sur événement de PR et la relecture humaine restent à obtenir.
+Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub et des contrôles réellement exécutés. Le socle est livré sur `main` via la PR #36, avec l’exception d’initialisation autorisée explicitement par PAN et décrite dans la [décision 0003](../decisions/0003-initialisation-main.md). Après le déverrouillage du compte par le support, la CI a réussi sur `main` en lancement manuel, puis sur la PR #38 avec le contrôle du titre réellement exécuté. La relecture humaine reste à obtenir.
 
 | Élément                    | État constaté                                                                                                                                                                                    |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -10,7 +10,7 @@ Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennen
 | Premier commit du socle    | [2024572](https://github.com/PapaAmad/teranga-pay/commit/2024572407e2df6e6d8b9d0de34fd277e27d61c9), `chore(repo): initialise le socle de Teranga Pay`.                                           |
 | Salam                      | `AliouneKane` a accepté l'invitation ; accès `write` au dépôt confirmé et relecture demandée sur la PR.                                                                                          |
 | Fusion                     | Squash seul, fusion classique et rebase désactivés, suppression automatique des branches fusionnées active.                                                                                      |
-| Actions                    | Activé, toutes les actions autorisées, permissions de workflow par défaut en lecture ; lancement manuel sur `main` réussi après intervention du support.                                         |
+| Actions                    | Activé, toutes les actions autorisées, permissions de workflow par défaut en lecture ; exécutions réussies sur `main` en lancement manuel et sur la PR #38 après intervention du support.        |
 | Labels                     | Les 16 labels du plan sont créés.                                                                                                                                                                |
 | Issues                     | Les 35 tâches T06 à T40 sont créées et assignées à leurs responsables ; correspondance ci-dessous.                                                                                               |
 | Project                    | [Project #3](https://github.com/users/PapaAmad/projects/3), **privé**, lié au dépôt ; accès `WRITER` de Salam accordé.                                                                           |
@@ -18,7 +18,7 @@ Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennen
 | Dependabot                 | Alertes et corrections de sécurité automatiques activées. Configuration des mises à jour régulières présente sur `main` et reconnue ; workflow Dependabot actif confirmé.                        |
 | Contrôles locaux           | Format, lint, types, 17 tests des outils et 1 parcours mobile réussis. Hooks observés sur les fichiers indexés et le premier commit.                                                             |
 | Gitleaks local             | Version 8.30.1 officielle, archive vérifiée par SHA256 ; scan de l'historique Git avec `--redact` réussi, aucun secret détecté.                                                                  |
-| CI et Gitleaks distants    | **Lancement manuel réussi** : [41490101961](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961), six jobs verts. Le titre de PR n'est pas contrôlé hors événement `pull_request`.  |
+| CI et Gitleaks distants    | **Validés sur PR** : [41491000731](https://github.com/PapaAmad/teranga-pay/actions/runs/41491000731), six jobs verts, dont le contrôle du titre réellement exécuté.                              |
 | Protection de `main`       | **Non activée** : HTTP 403, GitHub demande une offre compatible, notamment GitHub Pro pour cette fonction sur ce dépôt privé.                                                                    |
 | Analyse native des secrets | **Indisponible** : HTTP 422, « Secret scanning is not available for this repository. »                                                                                                           |
 
@@ -63,7 +63,9 @@ PAN a transmis la réponse de GitHub Support du **2 novembre 2026 à 16 h 54 UTC
 
 Après cette intervention, le workflow **CI** a été lancé manuellement sur `main`, au commit `31c94ab16de3e863276ffc076beec643497d9d24`. L'exécution [41490101961](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) s'est terminée avec la conclusion `success` et les six jobs verts : `Format`, `Lint`, `Types`, `Tests`, `Titre PR` et `Secrets`. Les commandes de qualité et le scan Gitleaks ont donc réellement tourné sur GitHub.
 
-Ce lancement utilise `workflow_dispatch`. Le job `Titre PR` y exécute seulement le message indiquant que le contrôle s'applique aux PR : il ne valide aucun titre sur cet événement. Une exécution déclenchée par `pull_request` reste nécessaire pour vérifier ce parcours. Aucun résultat de relecture humaine ni aucune clôture de T07 ne sont déduits du lancement manuel réussi.
+Ce premier lancement utilisait `workflow_dispatch`. Le job `Titre PR` y a seulement exécuté le message indiquant que le contrôle s'applique aux PR : il n'a validé aucun titre sur cet événement.
+
+La [PR #38](https://github.com/PapaAmad/teranga-pay/pull/38) a ensuite déclenché une vraie exécution `pull_request`. Le run [41491000731](https://github.com/PapaAmad/teranga-pay/actions/runs/41491000731), au commit `03e7f24ecf56dbc9c9b2f792f8f53ed69d5410bf`, a terminé avec la conclusion `success` et les six jobs verts. Dans `Titre PR`, l'étape `Vérifier le titre` a réussi et l'étape `Sans PR` a été ignorée : le contrôle du titre est donc réellement validé sur cette PR. T07 reste en revue jusqu'à la relecture humaine ; les résultats CI ne constituent ni une approbation de Salam ni une clôture de la tâche.
 
 La [PR #37](https://github.com/PapaAmad/teranga-pay/pull/37), fusionnée avec l'autorisation explicite de PAN, corrige également l'accueil du dépôt : `.github/GUIDE.md` documente la configuration GitHub et le README racine `README.md` est celui présenté pour le projet. Cette correction est incluse dans le commit validé ci-dessus.
 

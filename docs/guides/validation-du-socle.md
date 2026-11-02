@@ -21,7 +21,9 @@ Les 18 tests locaux sont verts. Le premier commit du socle est
 `2024572407e2df6e6d8b9d0de34fd277e27d61c9`, publié sur `chore/T01-fondations`.
 Le socle est livré via la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion en exception selon la [décision 0003](../decisions/0003-initialisation-main.md) ; aucune approbation de Salam n’est inventée. Les premiers lancements distants, dont un workflow minimal faisant seulement `echo`, avaient échoué en `startup_failure` avant les jobs. Le support GitHub a ensuite confirmé et levé le verrouillage du compte lié à un échec d'autorisation du moyen de paiement.
 
-La [CI manuelle du 2 novembre 2026 sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961), commit `31c94ab16de3e863276ffc076beec643497d9d24`, a terminé avec `conclusion: success`. Les jobs **Format**, **Lint**, **Types**, **Tests** et **Secrets** ont réussi. Le job **Titre PR** est également vert, mais a seulement exécuté son étape de passage hors PR : la validation réelle du titre demande un événement `pull_request`. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
+La [CI manuelle du 2 novembre 2026 sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961), commit `31c94ab16de3e863276ffc076beec643497d9d24`, a terminé avec `conclusion: success`. Les jobs **Format**, **Lint**, **Types**, **Tests** et **Secrets** ont réussi. Le job **Titre PR** y a seulement exécuté son étape de passage hors PR.
+
+La [CI de la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41491000731), au commit `03e7f24ecf56dbc9c9b2f792f8f53ed69d5410bf`, a ensuite réussi les six contrôles sur événement `pull_request`. L'étape **Vérifier le titre** est passée et **Sans PR** a été ignorée : le titre a donc été réellement validé. Les logs distants confirment 1 test mobile, 17 tests des outils et aucune fuite trouvée par Gitleaks sur `main`. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
 
 ## Audit des dépendances
 
@@ -36,7 +38,7 @@ Les alertes modérées se propagent notamment par les dépendances `glob` et `mi
 ## Contrôles encore nécessaires
 
 - Installer et ouvrir l'application sur un téléphone Android ou un émulateur.
-- Vérifier les six contrôles sur une PR, dont le titre réellement contrôlé lors d'un événement `pull_request`. Le lancement manuel sur `main` a déjà validé les cinq autres contrôles, dont Gitleaks.
+- Maintenir les six contrôles verts sur chaque nouvelle version des PR ; la PR #38 a validé les six, y compris son titre sur événement `pull_request`.
 - Conserver les limites de l'offre visibles : les rulesets et l'analyse native des secrets ont été refusés et ne sont pas actifs. La levée du verrouillage de facturation ne les active pas.
 - Obtenir la relecture humaine de Salam ; les hooks ont déjà été observés sur les premiers changements indexés.
 - Réévaluer les alertes de dépendances avant les étapes de sécurité et de livraison.
