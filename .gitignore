@@ -1,0 +1,34 @@
+# Dépendances et outils locaux
+node_modules/
+.tmp/
+.npm-cache/
+.cache/
+# Variables privées (les exemples restent versionnés)
+.env
+.env.*
+!.env.example
+!.env.*.example
+# Expo, compilation et tests
+.expo/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+apps/mobile/android/
+apps/mobile/ios/
+# Données et secrets Lightning / signature Android
+*.jks
+*.keystore
+*.pem
+*.key
+*.macaroon
+*.sqlite
+*.sqlite-*
+infrastructure/data/
+# IDE et système
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+.husky/_/

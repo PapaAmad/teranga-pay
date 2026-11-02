@@ -1,0 +1,42 @@
+{
+  "name": "teranga-pay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo Teranga Pay — application mobile Lightning et services de démonstration.",
+  "license": "MIT",
+  "packageManager": "npm@12.2.1",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=12 <13"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace @teranga-pay/mobile",
+    "mobile:android": "npm run android --workspace @teranga-pay/mobile",
+    "mobile:ios": "npm run ios --workspace @teranga-pay/mobile",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace @teranga-pay/mobile --",
+    "test:tooling": "node --test scripts/github/*.test.mjs",
+    "repo:check": "node scripts/check-repository.mjs",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.14.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "typescript-eslint": "8.72.1"
+  }
+}

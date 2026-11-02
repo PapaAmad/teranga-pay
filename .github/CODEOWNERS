@@ -1,0 +1,4 @@
+# Les deux membres ont accès en écriture au dépôt.
+# GitHub exclut automatiquement l'auteur de la PR des demandes de relecture.
+# Une approbation de l'autre membre est exigée par le ruleset de main.
+* @PapaAmad @AliouneKane
