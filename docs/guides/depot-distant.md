@@ -6,10 +6,7 @@ mise en place GitHub le 2 novembre 2026, puis précisé que le dépôt et son ta
 doivent rester privés. La [décision 0002](../decisions/0002-visibilite-privee.md)
 remplace la visibilité publique prévue dans les PDF.
 
-Le socle est publié sur `chore/T01-fondations` dans la
-[PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), ouverte pour revue,
-non brouillon et non fusionnée. Salam a accepté l'invitation ; son accès en
-écriture et sa demande de relecture sont confirmés. Les 16 labels et 35 issues
+Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](../decisions/0003-initialisation-main.md). Salam a accepté l’invitation et son accès en écriture est confirmé ; son approbation de la PR n’est pas prétendue. Les 16 labels et 35 issues
 T06 à T40 (#1 à #35) sont créés et affectés. Le
 [Project privé #3](https://github.com/users/PapaAmad/projects/3) est créé et lié,
 avec 35 cartes et l'accès `WRITER` de Salam. La CI distante rencontre un
@@ -109,9 +106,7 @@ créer une seconde PR :
 gh pr view 36 --repo PapaAmad/teranga-pay
 ```
 
-La PR #36 est prête pour revue et `AliouneKane` a été demandé comme relecteur.
-Elle n'est pas fusionnée. Les mises à jour du socle restent sur sa branche de
-tâche. Utiliser les vrais numéros d'issues dans les liens de PR, distincts des
+La PR #36 représente la livraison initiale autorisée par PAN. Vérifier son statut réel sur GitHub. Les changements suivants partent de `origin/main` dans une nouvelle branche de tâche. Utiliser les vrais numéros d'issues dans les liens de PR, distincts des
 identifiants TXX ; ne pas fermer une tâche dont les critères restent incomplets.
 
 Les contrôles attendus sont **Format**, **Lint**, **Types**, **Tests**, **Titre PR**
@@ -177,8 +172,7 @@ Vérifier la reconnaissance de la configuration Dependabot après sa présence s
 
 ## 7. Relecture, fusion et suivi
 
-La PR reste en attente tant que la CI, les conversations et la relecture humaine
-requises ne sont pas satisfaites. Une limitation du compte GitHub doit être
+Pour les prochaines PR, attendre la CI verte, les conversations résolues et la relecture humaine. La première initialisation de main bénéficie uniquement de l’exception explicite décrite dans la décision 0003. Une limitation du compte GitHub doit être
 visible dans le [suivi T01 à T07](../planning/suivi-t01-t07.md) et le
 [relevé de publication](../planning/publication-github.md). Le dépôt demeure
 privé pendant ces opérations.

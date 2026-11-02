@@ -3,7 +3,7 @@
 - Date : 2 novembre 2026, Dakar.
 - Tâches : T01–T07.
 - Auteur : PAN, assisté de Codex.
-- État : organisation publiée dans la PR #36, ouverte et non fusionnée ; relecture de Salam demandée. Voir la décision 0002 et le relevé de publication.
+- État : organisation livrée par la PR #36 pour initialiser main. Voir les décisions 0002 et 0003 ainsi que le relevé de publication.
 
 ## Contexte
 

@@ -19,8 +19,7 @@ Les sorties temporaires et l'export sont ignorés par Git. L'export Android ne r
 
 Les 18 tests locaux sont verts. Le premier commit du socle est
 `2024572407e2df6e6d8b9d0de34fd277e27d61c9`, publié sur `chore/T01-fondations`.
-La [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36) est ouverte pour revue,
-avec Salam demandé comme relecteur ; elle n'est pas fusionnée. Le lancement de CI
+Le socle est livré via la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion en exception selon la [décision 0003](../decisions/0003-initialisation-main.md) ; aucune approbation de Salam n’est inventée. Le lancement de CI
 distante a rencontré un `startup_failure` avant l'exécution des jobs. Un workflow minimal indépendant faisant seulement `echo` échoue également avant les jobs. L'API ne précise pas la cause exacte ; aucun résultat de test ni de Gitleaks distant n'est présenté comme réussi. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
 
 ## Audit des dépendances

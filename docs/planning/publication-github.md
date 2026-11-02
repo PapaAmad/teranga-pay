@@ -1,12 +1,12 @@
 # Publication GitHub | état vérifié
 
-Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub et des contrôles réellement exécutés. Le socle est publié dans une PR ouverte ; il n'a pas été fusionné sur `main`.
+Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub et des contrôles réellement exécutés. Le socle est livré sur `main` via la PR #36, avec l’exception d’initialisation autorisée explicitement par PAN et décrite dans la [décision 0003](../decisions/0003-initialisation-main.md).
 
 | Élément                    | État constaté                                                                                                                                                                                    |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Dépôt                      | [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay), **privé**.                                                                                                                      |
-| Branche par défaut         | `main`, conservée avec son README d'initialisation.                                                                                                                                              |
-| Socle                      | Publié sur `chore/T01-fondations`, dans la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), ouverte pour revue et non fusionnée.                                                       |
+| Branche par défaut         | `main`, destinée au socle intégré par la PR #36.                                                                                                                                                 |
+| Socle                      | Livré par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), fusion squash initiale autorisée par PAN.                                                                                |
 | Premier commit du socle    | [2024572](https://github.com/PapaAmad/teranga-pay/commit/2024572407e2df6e6d8b9d0de34fd277e27d61c9), `chore(repo): initialise le socle de Teranga Pay`.                                           |
 | Salam                      | `AliouneKane` a accepté l'invitation ; accès `write` au dépôt confirmé et relecture demandée sur la PR.                                                                                          |
 | Fusion                     | Squash seul, fusion classique et rebase désactivés, suppression automatique des branches fusionnées active.                                                                                      |
@@ -55,7 +55,7 @@ GitHub a alors enregistré le vrai workflow **CI**, identifiant `404577210`, ave
 
 La branche par défaut a été rétablie sur `main` après le test, le dépôt est resté privé et le commit de `main` est resté `4df760e03fd75ff13183c6cbc488589a3236e71a`. Ce test corrige le problème d'enregistrement manuel, mais montre que l'absence du workflow sur `main` n'explique pas à elle seule le refus d'exécution.
 
-Pour remplir `main`, la solution est de fusionner la PR #36 en squash. La procédure normale attend la relecture de Salam et une CI verte. Une éventuelle exception pour l'initialisation doit être décidée explicitement par PAN ; elle ne signifie pas que le refus GitHub Actions est résolu. La visibilité privée reste inchangée dans les deux cas.
+PAN a autorisé explicitement la fusion squash de la PR #36 pour initialiser `main`, après avoir été informé du refus de CI distante et de l’absence d’approbation de Salam. Cette décision unique est consignée dans la décision 0003 ; elle ne signifie pas que GitHub Actions est réparé et ne modifie pas les règles des tâches suivantes. Le dépôt demeure privé.
 
 Si le blocage persiste, le propriétaire doit vérifier les messages dans [Actions](https://github.com/PapaAmad/teranga-pay/actions), les paramètres d'exécution et les éventuelles restrictions du [compte GitHub](https://github.com/settings/billing). Si ces écrans n'expliquent pas le refus, transmettre les identifiants d'exécution ci-dessus au [support GitHub](https://support.github.com/contact). Aucun ticket ni message de support n'a été envoyé.
 
