@@ -47,6 +47,16 @@ Un workflow indépendant faisant uniquement `echo`, sans action externe ni dépe
 
 Ce résultat montre que le blocage ne se limite pas aux commandes de l'application ou à l'installation npm. L'API ne précise pas la cause exacte : aucune panne de plateforme, limite de quota ou difficulté de facturation n'est affirmée comme certaine. Aucun résultat CI vert n'est annoncé.
 
+### Test de la branche par défaut
+
+L'hypothèse d'un blocage lié au `main` d'initialisation a été testée séparément. Le déclencheur manuel `workflow_dispatch` a été ajouté et validé par actionlint. La branche complète `chore/T01-fondations` a ensuite été définie temporairement comme branche par défaut, sans fusion ni modification de `main`.
+
+GitHub a alors enregistré le vrai workflow **CI**, identifiant `404577210`, avec le chemin `.github/workflows/ci.yml` et l'état `active`. La demande de lancement manuel a reçu HTTP 204. L'exécution [41457174380](https://github.com/PapaAmad/teranga-pay/actions/runs/41457174380) a malgré tout terminé en `startup_failure` avant les jobs.
+
+La branche par défaut a été rétablie sur `main` après le test, le dépôt est resté privé et le commit de `main` est resté `4df760e03fd75ff13183c6cbc488589a3236e71a`. Ce test corrige le problème d'enregistrement manuel, mais montre que l'absence du workflow sur `main` n'explique pas à elle seule le refus d'exécution.
+
+Pour remplir `main`, la solution est de fusionner la PR #36 en squash. La procédure normale attend la relecture de Salam et une CI verte. Une éventuelle exception pour l'initialisation doit être décidée explicitement par PAN ; elle ne signifie pas que le refus GitHub Actions est résolu. La visibilité privée reste inchangée dans les deux cas.
+
 Si le blocage persiste, le propriétaire doit vérifier les messages dans [Actions](https://github.com/PapaAmad/teranga-pay/actions), les paramètres d'exécution et les éventuelles restrictions du [compte GitHub](https://github.com/settings/billing). Si ces écrans n'expliquent pas le refus, transmettre les identifiants d'exécution ci-dessus au [support GitHub](https://support.github.com/contact). Aucun ticket ni message de support n'a été envoyé.
 
 ## Correspondance des tâches et des issues
