@@ -19,7 +19,7 @@
 
 - Avant de proposer un commit : `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test -- --ci`, `npm run test:tooling`, `npm run repo:check`.
 - Tester la logique ajoutée avec des cas qui échouent si son comportement est faux. Pour les écrans, fournir une capture ou une vérification de parcours adaptée.
-- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Les dossiers générés sont exclus.
+- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Le dossier réservé `.github` utilise `GUIDE.md` : ne pas y créer de fichier `README`, qui masquerait le README principal sur GitHub. Les dossiers générés sont exclus.
 - Garder le lockfile npm à jour. Ne pas ajouter Nx, Turbo, backend, SDK Lightning ou infrastructure exécutables sans tâche correspondante.
 
 ## Sécurité
