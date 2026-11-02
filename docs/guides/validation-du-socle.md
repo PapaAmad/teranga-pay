@@ -2,18 +2,26 @@
 
 Vérifications locales du 2 novembre 2026, sous Windows avec Node.js 24.22.0 et npm 12.2.1. Ce relevé décrit le socle présent ; il ne constitue ni une approbation de Salam ni un résultat de GitHub Actions.
 
-| Vérification                 | Résultat observé                                                                                                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Installation des dépendances | Installation npm, puis réinstallation réussie depuis le verrouillage avec `npm ci --no-audit`. Dépendances sans conflit signalé par `npm ls --depth=0`. |
-| Format, lint et types        | Commandes communes exécutées sur le dépôt.                                                                                                              |
-| Parcours mobile Jest         | Accueil, ouverture de la présentation, puis retour avec le vrai navigateur React Navigation ; les appels natifs sont adaptés à Jest.                    |
-| Scripts GitHub               | Tests du backlog, des responsabilités, des doublons, des erreurs de configuration, des titres et du mode de prévisualisation.                           |
-| Structure documentaire       | README présents dans chaque dossier maintenu et liens Markdown relatifs résolus.                                                                        |
-| Export Android               | Metro et Hermes ont généré un bundle de 823 modules, environ 1,9 Mo, accompagné de 17 assets dans `.tmp/mobile-export`.                                 |
-| Hook `commit-msg`            | Message `chore(ci): prépare les vérifications` accepté ; message libre, scope absent et titre trop long refusés. Aucun commit créé pour cet essai.      |
-| Hook `pre-commit`            | Exécuté via Git avec succès sans fichier indexé. Le contrôle de changements réellement indexés reste à observer lors du premier commit.                 |
+| Vérification                 | Résultat observé                                                                                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Installation des dépendances | Installation npm, puis réinstallation réussie depuis le verrouillage avec `npm ci --no-audit`. Dépendances sans conflit signalé par `npm ls --depth=0`.  |
+| Format, lint et types        | Commandes communes exécutées sur le dépôt.                                                                                                               |
+| Parcours mobile Jest         | 1 test réussi : accueil, présentation et retour avec le vrai navigateur React Navigation ; les appels natifs sont adaptés à Jest.                        |
+| Scripts GitHub               | 17 tests réussis : backlog, responsabilités, doublons, erreurs de configuration, titres et prévisualisation.                                             |
+| Structure documentaire       | README présents dans chaque dossier maintenu et liens Markdown relatifs résolus.                                                                         |
+| Export Android               | Metro et Hermes ont généré un bundle de 823 modules, environ 1,9 Mo, accompagné de 17 assets dans `.tmp/mobile-export`.                                  |
+| Hook `commit-msg`            | Essais invalides refusés ; message réel `chore(repo): initialise le socle de Teranga Pay` accepté lors du premier commit.                                |
+| Hook `pre-commit`            | Exécuté sur les fichiers réellement indexés au premier commit : lint-staged a contrôlé 20 fichiers JavaScript/TypeScript et 64 documents/configurations. |
+| Gitleaks local               | Version 8.30.1 officielle : historique Git analysé avec `--redact`, code 0, aucune fuite détectée.                                                       |
+| Syntaxe du workflow          | actionlint 1.7.12 officiel, archive vérifiée : code 0, aucune erreur.                                                                                    |
 
 Les sorties temporaires et l'export sont ignorés par Git. L'export Android ne remplace pas une installation sur téléphone, une compilation APK ni les futurs tests de paiement.
+
+Les 18 tests locaux sont verts. Le premier commit du socle est
+`2024572407e2df6e6d8b9d0de34fd277e27d61c9`, publié sur `chore/T01-fondations`.
+La [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36) est ouverte pour revue,
+avec Salam demandé comme relecteur ; elle n'est pas fusionnée. Le lancement de CI
+distante a rencontré un `startup_failure` avant l'exécution des jobs. Un workflow minimal indépendant faisant seulement `echo` échoue également avant les jobs. L'API ne précise pas la cause exacte ; aucun résultat de test ni de Gitleaks distant n'est présenté comme réussi. Les preuves et les identifiants d'exécution figurent dans le [relevé GitHub](../planning/publication-github.md).
 
 ## Audit des dépendances
 
@@ -28,9 +36,9 @@ Les alertes modérées se propagent notamment par les dépendances `glob` et `mi
 ## Contrôles encore nécessaires
 
 - Installer et ouvrir l'application sur un téléphone Android ou un émulateur.
-- Publier le code par PR dans le dépôt privé déjà créé et exécuter GitHub Actions. L'accès en écriture de Salam est confirmé ; les rulesets et l'analyse native des secrets ont été refusés sur l'offre actuelle et ne sont pas actifs.
+- Résoudre le blocage de démarrage GitHub Actions de la PR #36 et obtenir les résultats distants. Les rulesets et l'analyse native des secrets ont été refusés sur l'offre actuelle et ne sont pas actifs.
 - Faire passer la recherche de secrets Gitleaks et vérifier les protections sur une PR de test.
-- Observer les hooks sur les premiers changements indexés et obtenir la relecture humaine.
+- Obtenir la relecture humaine de Salam ; les hooks ont déjà été observés sur les premiers changements indexés.
 - Réévaluer les alertes de dépendances avant les étapes de sécurité et de livraison.
 
 Les paiements regtest, la passerelle simulée, les tests d'intégration et l'APK relèvent des tâches suivantes. Voir le [suivi T01 à T07](../planning/suivi-t01-t07.md).

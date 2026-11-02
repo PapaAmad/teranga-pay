@@ -5,10 +5,12 @@ import {
   assertRepositoryTarget,
   buildIssueBody,
   existingTaskIssue,
+  hasFrenchTrackingOptions,
   labelPayload,
   planTaskAssignees,
   readJson,
   root,
+  selectTrackingField,
   validateBacklog,
   validateConfig,
 } from './lib.mjs';
@@ -206,8 +208,9 @@ function ensureProject(config, issues) {
     '--format',
     'json',
   ]).fields;
-  if (!fields.some((field) => field.name === 'Avancement')) {
-    gh([
+  let trackingField = selectTrackingField(fields);
+  if (!trackingField) {
+    trackingField = ghJson([
       'project',
       'field-create',
       String(project.number),
@@ -219,7 +222,14 @@ function ensureProject(config, issues) {
       'SINGLE_SELECT',
       '--single-select-options',
       'À faire,En cours,En revue,Terminé',
+      '--format',
+      'json',
     ]);
+  }
+  if (trackingField.name === 'Status' && !hasFrenchTrackingOptions(trackingField)) {
+    console.warn(
+      'Le champ Status existant est conservé. Finaliser ses options À faire, En cours, En revue et Terminé dans GitHub ; aucun second champ de suivi n’est créé.',
+    );
   }
   const items = ghJson([
     'project',
@@ -247,7 +257,7 @@ function ensureProject(config, issues) {
     }
   }
   console.info(
-    `Project ${project.url ?? project.number} préparé. Dans l’interface, choisir Board et grouper par Avancement ; initialiser les cartes dans À faire.`,
+    `Project ${project.url ?? project.number} préparé. Dans l’interface, choisir Board et grouper par ${trackingField.name} ; initialiser seulement les nouvelles cartes et conserver l’état des cartes existantes.`,
   );
 }
 
@@ -283,7 +293,7 @@ try {
       }
       if (selected.includes('project'))
         console.info(
-          `Prévu : trouver/créer « ${config.projectTitle} », champ Avancement à 4 options, ajout des issues. Vue Board et placement initial à finaliser dans GitHub.`,
+          `Prévu : retrouver « ${config.projectTitle} » ou le créer s’il est absent ; réutiliser le champ Avancement ou Status existant, créer Avancement seulement si aucun des deux n’existe, ajouter les issues absentes. Vue Board et nouvelles cartes à finaliser dans GitHub.`,
         );
       console.info(
         'Aucun appel réseau et aucune modification. L’existence du dépôt, les permissions et les doublons distants ne sont pas vérifiés dans ce mode.',

@@ -6,10 +6,12 @@ import {
   assertRepositoryTarget,
   buildIssueBody,
   existingTaskIssue,
+  hasFrenchTrackingOptions,
   labelPayload,
   planTaskAssignees,
   readJson,
   root,
+  selectTrackingField,
   taskAssignees,
   validateBacklog,
   validateConfig,
@@ -18,6 +20,25 @@ import {
 const config = readJson('.github/repository.json');
 const backlog = readJson('scripts/github/backlog.json');
 const labels = readJson('.github/labels.json');
+
+test('le suivi réutilise Avancement puis Status sans créer ni modifier de champ existant', () => {
+  const status = { id: 'status', name: 'Status', options: [{ name: 'Todo' }] };
+  const advancement = { id: 'advancement', name: 'Avancement', options: [] };
+  assert.equal(selectTrackingField([status, advancement]), advancement);
+  assert.equal(selectTrackingField([status]), status);
+  assert.equal(selectTrackingField([{ id: 'title', name: 'Title' }]), undefined);
+  assert.deepEqual(status.options, [{ name: 'Todo' }]);
+});
+
+test('les quatre étapes françaises sont reconnues et un Status incomplet appelle une finalisation', () => {
+  const complete = {
+    name: 'Status',
+    options: ['À faire', 'En cours', 'En revue', 'Terminé'].map((name) => ({ name })),
+  };
+  assert.equal(hasFrenchTrackingOptions(complete), true);
+  assert.equal(hasFrenchTrackingOptions({ name: 'Status', options: [{ name: 'Todo' }] }), false);
+  assert.equal(hasFrenchTrackingOptions({ name: 'Status' }), false);
+});
 
 test('la visibilité attendue est privée par défaut et seules private/public sont acceptées', () => {
   const withoutVisibility = { ...config };

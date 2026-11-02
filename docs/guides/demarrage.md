@@ -51,7 +51,7 @@ Après installation dans un dépôt Git, un commit déclenche les contrôles des
 
 ## Préparer GitHub
 
-Le dépôt privé `PapaAmad/teranga-pay` est créé et l'accès en écriture de Salam est confirmé. Le code et sa CI sont en cours de publication. Les rulesets et l'analyse native des secrets ne sont pas actifs, car GitHub a refusé ces fonctions pour ce dépôt privé avec l'offre actuelle ; les fichiers de préparation ne suffisent pas à attester une protection active. Lire le [guide du dépôt distant](depot-distant.md), le [suivi T01–T07](../planning/suivi-t01-t07.md) et le [relevé GitHub vérifié](../planning/publication-github.md). Le Project doit rester privé, comme le dépôt.
+Le dépôt et le Project #3 sont privés ; les accès en écriture de Salam sont confirmés. Le code est publié dans la PR #36, ouverte pour revue et non fusionnée. La CI distante rencontre un blocage de démarrage avant les jobs ; elle n'est pas verte. Les rulesets et l'analyse native des secrets ne sont pas actifs, car GitHub a refusé ces fonctions avec l'offre actuelle. Lire le [guide du dépôt distant](depot-distant.md), le [suivi T01–T07](../planning/suivi-t01-t07.md) et le [relevé GitHub vérifié](../planning/publication-github.md).
 
 ## En cas de difficulté
 

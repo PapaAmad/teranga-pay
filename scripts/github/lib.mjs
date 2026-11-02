@@ -140,6 +140,17 @@ export function planTaskAssignees(task, config, assignableLogins, currentLogins 
   };
 }
 
+export function selectTrackingField(fields) {
+  return (
+    fields.find(({ name }) => name === 'Avancement') ?? fields.find(({ name }) => name === 'Status')
+  );
+}
+
+export function hasFrenchTrackingOptions(field) {
+  const names = new Set(field.options?.map(({ name }) => name) ?? []);
+  return ['À faire', 'En cours', 'En revue', 'Terminé'].every((name) => names.has(name));
+}
+
 export function buildIssueBody(task, config) {
   const reviewer =
     task.reviewer === '—'

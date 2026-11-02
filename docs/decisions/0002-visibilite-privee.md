@@ -3,7 +3,7 @@
 - Date : 2 novembre 2026, Dakar.
 - Tâches : T01, T02, T03 et T05.
 - Décision : PAN, propriétaire du dépôt.
-- État : instruction explicite reçue et visibilité privée appliquée au dépôt ; Project privé à créer et vérifier.
+- État : visibilité privée confirmée pour le dépôt et le Project #3 ; accès en écriture de Salam vérifié sur les deux.
 
 ## Contexte
 
@@ -14,6 +14,8 @@ Le dépôt `PapaAmad/teranga-pay` a été créé avec un README d'initialisation
 ## Choix
 
 Conserver le dépôt **privé** et limiter son accès GitHub aux personnes autorisées. Le tableau GitHub Projects doit également être **privé** : la confidentialité du dépôt ne suffit pas à définir celle d'un tableau distinct. Salam (`AliouneKane`) a accepté l'invitation et son accès en écriture a été vérifié.
+
+Le [Project #3](https://github.com/users/PapaAmad/projects/3) est désormais créé, privé et lié au dépôt. Salam y dispose du rôle `WRITER`. Il contient les 35 cartes du backlog et utilise le champ natif `Status`, avec quatre états français ; aucun second champ `Avancement` n'est nécessaire. La vue Board existe et son regroupement par `Status` a été confirmé via `verticalGroupByFields` dans l’API.
 
 Le fichier `LICENSE` reste sous licence MIT. Le choix de visibilité GitHub ne supprime ni ne remplace ce fichier. Aucun changement vers une visibilité publique n'est inclus dans la mise en place actuelle.
 

@@ -23,7 +23,7 @@ permet une autre configuration avec les mêmes champs.
 Suivre le [guide du dépôt distant et du premier commit](../../docs/guides/depot-distant.md),
 qui fait référence pour la première publication depuis le dossier courant.
 Il détaille la relecture et le commit local proposés, l’installation de GitHub
-CLI, la création du dépôt public, l’invitation de Salam, le raccordement de la
+CLI, la création du dépôt privé, l’invitation de Salam, le raccordement de la
 branche de tâche à `origin/main`, la première PR et les vérifications distantes.
 Le script ne crée pas le dépôt et ne pousse aucun fichier. Aucun commit ni
 réglage distant n’est effectué par une simple prévisualisation.
@@ -31,8 +31,11 @@ réglage distant n’est effectué par une simple prévisualisation.
 ## Appliquer les réglages
 
 Le mode `--apply` écrit sur GitHub. Il exige `gh`, une session authentifiée,
-le dépôt existant et les droits d’administration pour les réglages. L’invitation
-de `AliouneKane` doit être acceptée avant la section `issues`, qui lui assigne des tâches.
+le dépôt existant et les droits d’administration pour les réglages. Les comptes
+assignables reçoivent leurs tâches ; une invitation en attente laisse les
+responsabilités dans le corps de l’issue et signale l’assignation à compléter.
+Une relance après acceptation ajoute les responsables disponibles sans retirer
+les personnes ajoutées manuellement.
 Exécuter d’abord la CI sur la PR qui ajoute les outils T06 à T07 pour enregistrer les six contrôles,
 puis activer le ruleset et vérifier son effet.
 
@@ -53,21 +56,31 @@ section après correction. Les règles appliquées n’accordent aucun contourne
 L’exception d’urgence du plan d’équipe se gère explicitement dans GitHub avec une
 trace dans la PR, jamais automatiquement.
 
-Le Project est retrouvé par son titre ou créé. Il est relié au dépôt et reçoit un
-champ `Avancement` : À faire → En cours → En revue → Terminé. Les issues sont
-ajoutées si absentes. Finaliser dans GitHub : vue Board groupée par Avancement,
-cartes initiales dans À faire, règles de passage en revue/terminé. Le script ne
-prétend pas configurer les vues ni les automatismes du tableau. Le jeton doit
-autoriser les Projects. Au-delà de 100 Projects ou 1 000 cartes, vérifier les
-limites avant de relancer la section Project.
+Le [Project privé n°3](https://github.com/users/PapaAmad/projects/3) existe déjà
+avec ses 35 cartes et l’accès de Salam en écriture. Ne pas le recréer : le script
+le retrouve par le titre de la configuration et ajoute seulement les issues
+absentes. Son champ intégré `Status` porte les quatre étapes françaises :
+À faire → En cours → En revue → Terminé.
+
+Lors d’une relance, le script réutilise `Avancement` s’il existe, sinon `Status`.
+Il crée un champ `Avancement` seulement si les deux sont absents. Les options
+des champs existants restent inchangées ; si `Status` n’a pas encore les quatre
+étapes françaises, un avertissement demande de les finaliser dans GitHub.
+Aucun second champ de suivi n’est créé pour remplacer `Status`.
+
+La vue Board doit être groupée par le nom réel du champ retenu. Le script
+conserve l’état des cartes existantes et ne prétend pas configurer les vues ni
+les automatismes du tableau. Finaliser seulement les nouvelles cartes dans
+GitHub. Le jeton doit autoriser les Projects. Au-delà de 100 Projects ou 1 000
+cartes, vérifier les limites avant de relancer la section Project.
 
 ## Vérification humaine restante
 
-- Régler le dépôt sur public, vérifier le collaborateur et la branche `main`.
+- Conserver le dépôt et le Project privés, vérifier le collaborateur et la branche `main`.
 - Confirmer squash seul, suppression automatique et protection contre force push.
 - Vérifier les six contrôles et l’approbation obligatoire de l’autre membre.
 - Ouvrir une PR de test et vérifier qu’un échec de CI bloque la fusion.
-- Confirmer l’analyse des secrets et la protection au push dans Settings.
+- Vérifier l’analyse des secrets et la protection au push dans Settings selon les fonctions disponibles pour le dépôt privé.
 - Finaliser la vue du Project et fermer seulement les tâches réellement terminées.
 
 Documentation de référence : [rulesets REST](https://docs.github.com/en/rest/repos/rules),

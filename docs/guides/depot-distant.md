@@ -6,13 +6,15 @@ mise en place GitHub le 2 novembre 2026, puis précisé que le dépôt et son ta
 doivent rester privés. La [décision 0002](../decisions/0002-visibilite-privee.md)
 remplace la visibilité publique prévue dans les PDF.
 
-Le dépôt privé existe avec un README initial sur `main`. Salam a accepté
-l'invitation et son accès en écriture est confirmé. Les réglages squash et suppression des
-branches fusionnées ainsi que les 16 labels ont été appliqués. Les 35 issues
-T06 à T40 sont créées (#1 à #35) et affectées à leurs responsables. À la rédaction
-de ce guide, le code du socle, sa PR et le Project sont en préparation. Les
-rulesets et l'analyse native des secrets sont refusés par GitHub avec l'offre
-actuelle ; aucune protection de branche n'est annoncée active. Le
+Le socle est publié sur `chore/T01-fondations` dans la
+[PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), ouverte pour revue,
+non brouillon et non fusionnée. Salam a accepté l'invitation ; son accès en
+écriture et sa demande de relecture sont confirmés. Les 16 labels et 35 issues
+T06 à T40 (#1 à #35) sont créés et affectés. Le
+[Project privé #3](https://github.com/users/PapaAmad/projects/3) est créé et lié,
+avec 35 cartes et l'accès `WRITER` de Salam. La CI distante rencontre un
+`startup_failure` avant les jobs ; un workflow minimal indépendant échoue aussi et GitHub n'expose pas la cause précise. Les rulesets
+et l'analyse native des secrets sont refusés avec l'offre actuelle. Le
 [relevé GitHub](../planning/publication-github.md) est la référence pour l'état
 vérifié et les liens réels : ne pas rejouer une création déjà effectuée.
 
@@ -51,12 +53,16 @@ Aucun passage en public n'est nécessaire pour terminer la préparation. Le fich
 concurrent dans GitHub. Les commandes de connexion et de création sont décrites
 dans la [documentation GitHub CLI](https://cli.github.com/manual/gh_repo_create).
 
-## 2. Vérifier et commiter le socle local
+## 2. Vérifier le commit du socle et ses contrôles
 
-Rester sur la branche de tâche `chore/T01-fondations`. Les PDF sources, fichiers
-cachés `.github` et `.husky`, exemple neutre `.env.example` et lockfile font partie
-du travail à relire. Les `.env` réels, `.tmp`, `node_modules` et sorties générées
-restent ignorés.
+Le premier commit a déjà été créé et publié :
+`2024572407e2df6e6d8b9d0de34fd277e27d61c9`, message
+`chore(repo): initialise le socle de Teranga Pay`. Ne pas le recréer.
+Les hooks ont contrôlé les changements indexés : 20 fichiers JavaScript/TypeScript
+et 64 documents/configurations via lint-staged, puis commitlint a accepté le message.
+Les 17 tests des outils et le test mobile passent localement.
+
+Les commandes communes restent utiles avant chaque mise à jour de la branche :
 
 ```powershell
 npm.cmd run format:check
@@ -65,23 +71,12 @@ npm.cmd run typecheck
 npm.cmd test -- --ci
 npm.cmd run test:tooling
 npm.cmd run repo:check
-git add --all
-git diff --cached --check
-git diff --cached --stat
-git diff --cached
 ```
 
-Après inspection du contenu, le message du premier commit local est :
-
-```powershell
-git commit -m "chore(repo): initialise le socle de Teranga Pay"
-```
-
-Il respecte le format et la limite de 72 caractères. Les hooks contrôlent les
-fichiers indexés et le message. Corriger tout échec avant de réessayer ; conserver
-le résultat des vérifications dans la PR. Le premier socle regroupe T01 à T07 et
-doit le préciser ; les tâches suivantes gardent chacune leur issue, branche et PR.
-Si ce commit existe déjà, le vérifier au lieu de le refaire.
+Le premier socle regroupe T01 à T07 ; la PR en indique le périmètre et les limites.
+Les tâches suivantes gardent chacune leur issue, branche et PR. Les `.env` réels,
+`.tmp`, `node_modules` et sorties générées restent ignorés. Le
+[rapport de validation](validation-du-socle.md) détaille les preuves locales.
 
 ## 3. Raccorder la branche à la base distante
 
@@ -101,29 +96,28 @@ conserver le bon remote. Ne pas créer de nouveau clone pour cette procédure.
 La branche locale a déjà été rattachée à la base distante `main`, dont le commit
 d'initialisation commence par `4df760e`. Les fichiers du socle ont été conservés.
 Il n'est donc pas nécessaire de fusionner des historiques indépendants ou de
-répéter un repositionnement de branche. Le commit du socle sera créé sur cette
-base, puis publié uniquement sur `chore/T01-fondations`. Aucun push direct sur
+répéter un repositionnement de branche. Le commit du socle est déjà publié sur
+`chore/T01-fondations`, à partir de cette base. Aucun push direct sur
 `main` n'est requis.
 
-## 4. Publier la branche et ouvrir la PR
+## 4. Suivre la PR existante
 
-Publier uniquement la branche de tâche :
+La branche et la PR sont déjà publiées. Consulter la PR existante au lieu de
+créer une seconde PR :
 
 ```powershell
-git push -u origin chore/T01-fondations
-gh pr create --base main --head chore/T01-fondations --draft --title "chore(repo): initialise le socle de Teranga Pay" --template pull_request_template.md
+gh pr view 36 --repo PapaAmad/teranga-pay
 ```
 
-Si une PR existe déjà, reprendre cette PR au lieu d'en créer une seconde.
-Remplir les explications « En clair », le périmètre, les validations, les limites
-et l'assistance de Codex. Utiliser les vrais numéros d'issues dans `Closes #N`,
-une fois leur correspondance avec les identifiants TXX connue.
+La PR #36 est prête pour revue et `AliouneKane` a été demandé comme relecteur.
+Elle n'est pas fusionnée. Les mises à jour du socle restent sur sa branche de
+tâche. Utiliser les vrais numéros d'issues dans les liens de PR, distincts des
+identifiants TXX ; ne pas fermer une tâche dont les critères restent incomplets.
 
-Attendre les contrôles **Format**, **Lint**, **Types**, **Tests**, **Titre PR** et
-**Secrets**. Un workflow présent sur la branche n'est pas encore une CI verte.
-Le CODEOWNERS de la première PR n'est pas encore sur `main` ; demander la revue
-de Salam manuellement après passage en revue.
-Aucune fusion ne doit être déclarée effectuée avant la revue humaine requise.
+Les contrôles attendus sont **Format**, **Lint**, **Types**, **Tests**, **Titre PR**
+et **Secrets**. Leur premier lancement distant a rencontré un `startup_failure`
+avant les jobs ; aucun de ces contrôles n'est annoncé vert. Résoudre ce blocage,
+puis vérifier les résultats et la relecture humaine avant fusion.
 
 ## 5. Régler les issues et le Project privé
 
@@ -140,19 +134,17 @@ ultérieure est nécessaire, la section `--apply --section=issues` conserve les
 issues existantes. Les affectations et l'accès en écriture de Salam sont
 confirmés. Ne pas fermer une tâche dont les étapes restent à réaliser.
 
-Pour le Project, vérifier les droits du compte puis utiliser la section dédiée :
+Le [Project #3](https://github.com/users/PapaAmad/projects/3) existe et sa
+visibilité **Private** est confirmée. Il est lié au dépôt et Salam possède le
+rôle `WRITER`. Ne pas créer de second Project.
 
-```powershell
-gh auth refresh -s project
-node scripts/github/setup.mjs --apply --section=project
-```
+Le champ natif `Status` porte les quatre options françaises : **À faire**,
+**En cours**, **En revue**, **Terminé**. Il n'est pas nécessaire de le renommer
+ou de créer un second champ `Avancement`. Les 35 cartes sont présentes : T06 et
+T07 en revue, les 33 autres à faire. Les tâches restent ouvertes jusqu'à leur
+validation, même lorsqu'une carte figure en revue.
 
-Vérifier explicitement la visibilité **Private** du Project. Elle est distincte
-de celle du dépôt : aucune publication du tableau n'est prévue. Vérifier son lien
-au dépôt, l'accès de Salam et le champ `Avancement`. La vue Board et ses colonnes
-**À faire | En cours | En revue | Terminé** se finalisent dans GitHub si elles ne
-sont pas configurées par la version courante du script. Les données et les accès
-ne sont déclarés en place qu'après vérification dans le relevé de publication.
+La vue Board [Tableau équipe](https://github.com/users/PapaAmad/projects/3/views/2) est créée et ses colonnes sont regroupées par `Status`. Ce regroupement a été vérifié dans le champ API `verticalGroupByFields`. Le script de synchronisation réutilise le champ natif existant et ne crée pas de doublon `Avancement`.
 
 ## 6. Vérifier les protections disponibles pour le dépôt privé
 

@@ -10,15 +10,15 @@ preuves vérifiées ; ce suivi résume les critères et les étapes encore ouver
 Salam a accepté l'invitation et son accès en écriture a été vérifié. Une PR
 publiée ne constitue pas une fusion approuvée.
 
-| Tâche | État connu                                                                                                                                                                                                   | Ce qui reste à vérifier ou terminer                                                                                                                                                                               |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T01   | Dépôt privé `PapaAmad/teranga-pay` créé avec README initial sur `main`. Accès en écriture de Salam confirmé, aucune invitation en attente. MIT et README du socle préparés localement.                       | Publier le code par PR et obtenir la relecture. Ne pas recréer le dépôt ni l'invitation.                                                                                                                          |
-| T02   | Squash seul et suppression des branches actifs. Rulesets refusés (403), analyse native des secrets refusée (422) ; ces protections ne sont pas actives. Dependabot activé et permissions Actions en lecture. | Tâche partiellement bloquée par l'offre actuelle du dépôt privé. Garder la règle d'équipe de PR et relecture, sans prétendre à un blocage technique. Consigner les limites dans le relevé GitHub.                 |
-| T03   | 16 labels créés. Modèles et CODEOWNERS préparés localement.                                                                                                                                                  | Publier et vérifier les modèles et demandes de revue. Créer/configurer le Project privé, ses accès et ses colonnes ; vérifier son contenu dans le relevé GitHub.                                                  |
-| T04   | `AGENTS.md` et import `CLAUDE.md` préparés.                                                                                                                                                                  | Publication par PR et relecture humaine de Salam.                                                                                                                                                                 |
-| T05   | 35 issues T06 à T40 créées (#1 à #35) et affectées à PAN/Salam ; accès de Salam confirmé.                                                                                                                    | Ajouter et vérifier les cartes du Project privé sans doublons. Conserver la correspondance entre identifiants TXX et numéros GitHub.                                                                              |
-| T06   | Expo, TypeScript et navigation initialisés. Types, parcours Jest et export Android vérifiés localement.                                                                                                      | Ouvrir l'application sur Android, faire relire le socle et le publier ; les écrans métier viennent après T07.                                                                                                     |
-| T07   | Workflows et hooks configurés. Contrôles locaux exécutés avec succès selon le rapport de validation.                                                                                                         | Observer le premier passage CI distant et les hooks sur le commit indexé. Vérifier les contrôles requis et le blocage d'une PR non approuvée si les protections du compte le permettent ; consigner toute limite. |
+| Tâche | État connu                                                                                                                                                                 | Ce qui reste à vérifier ou terminer                                                                                                                                    |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T01   | Dépôt privé et accès de Salam confirmés. Socle publié dans la PR #36, ouverte pour revue et non fusionnée. Licence MIT présente dans le commit publié.                     | Relecture humaine de Salam demandée ; attendre la validation et la fusion.                                                                                             |
+| T02   | Squash seul et suppression des branches actifs. Rulesets refusés (403), analyse native des secrets refusée (422). Dependabot actif et permissions Actions en lecture.      | Protections techniques partiellement bloquées par l'offre actuelle du dépôt privé. Maintenir les règles d'équipe sans annoncer un blocage technique actif.             |
+| T03   | 16 labels et modèles publiés dans la branche. Project privé #3 créé et lié, vue Board Tableau équipe présente, accès WRITER de Salam confirmé.                             | Les colonnes Status sont confirmées par l’API. Vérifier la reconnaissance de CODEOWNERS après fusion sur main. Aucun champ Avancement supplémentaire n'est nécessaire. |
+| T04   | AGENTS.md et import CLAUDE.md publiés dans la PR #36.                                                                                                                      | Obtenir la relecture humaine de Salam et la fusion de la PR.                                                                                                           |
+| T05   | 35 issues T06 à T40 (#1 à #35) créées, affectées et présentes dans le Project privé. T06/T07 en revue, 33 autres cartes à faire.                                           | Conserver la correspondance TXX/numéro GitHub et actualiser les cartes au fil des validations. Ne pas fermer les tâches métier par la seule création de leurs issues.  |
+| T06   | Expo, TypeScript et navigation publiés dans la PR #36. Types, test mobile et export Android vérifiés localement.                                                           | Ouvrir l'application sur Android et obtenir la relecture ; les écrans métier viennent après T07.                                                                       |
+| T07   | Contrôles locaux réussis, 17 tests des outils et 1 test mobile verts. Hooks observés sur le premier commit indexé. CI distante tentée mais startup_failure avant les jobs. | Résoudre le blocage de démarrage Actions puis vérifier les résultats distants, dont Gitleaks. Consigner les limites de protection et attendre la relecture humaine.    |
 
 ## Preuves locales et distantes
 
@@ -26,12 +26,15 @@ Le [rapport de validation](../guides/validation-du-socle.md) couvre l'installati
 reproductible, le format, le lint, les types, les tests, l'export Android et les
 essais des hooks. La navigation a été vérifiée par Jest et le bundle exporté,
 sans ouverture sur appareil. Les messages de commit invalides sont refusés ;
-le hook avant commit a été testé sans fichier indexé lors de ce relevé.
+le hook avant commit a contrôlé les changements indexés du premier commit :
+20 fichiers JavaScript/TypeScript et 64 documents/configurations. Commitlint a
+accepté son message.
 L'audit npm signale encore des alertes de dépendances détaillées dans ce rapport.
 
-La mise en place distante est en cours. Consulter le relevé GitHub pour les
-résultats plus récents de CI, l'état des issues, le Project et la disponibilité
-des fonctions de sécurité. Une configuration préparée ou une commande lancée ne
+La PR #36 est ouverte pour revue et non fusionnée ; Salam est demandé comme
+relecteur. Le Project privé #3 et ses 35 cartes sont créés. La CI distante est
+bloquée au démarrage avant les jobs, avec une cause précise non exposée par l'API ; un workflow minimal indépendant échoue également. Consulter le
+relevé GitHub pour les derniers résultats et les liens. Une configuration préparée ou une commande lancée ne
 constitue pas à elle seule une protection effective.
 
 ## Avant de fermer les tâches

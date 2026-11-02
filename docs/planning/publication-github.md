@@ -1,34 +1,57 @@
 # Publication GitHub | état vérifié
 
-Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub, pas de la seule présence des fichiers de configuration. La publication du socle est en cours ; ce relevé sera complété après création de la PR et exécution de la CI.
+Relevé du 2 novembre 2026, heure de Dakar. Les résultats ci-dessous proviennent des réponses GitHub et des contrôles réellement exécutés. Le socle est publié dans une PR ouverte ; il n'a pas été fusionné sur `main`.
 
-| Élément                    | État constaté                                                                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Dépôt                      | [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay), **privé**.                                                           |
-| Branche par défaut         | `main`, initialisée sur GitHub ; le socle est préparé sur `chore/T01-fondations`.                                                     |
-| Salam                      | `AliouneKane` a accepté l'invitation ; accès `write` confirmé.                                                                        |
-| Fusion                     | Squash seul, fusion classique et rebase désactivés, suppression automatique des branches fusionnées active.                           |
-| Actions                    | GitHub Actions activé ; permissions de workflow par défaut en lecture.                                                                |
-| Labels                     | Les 16 labels du plan sont créés.                                                                                                     |
-| Issues                     | Les 35 tâches T06 à T40 sont créées et assignées à leurs responsables ; correspondance ci-dessous.                                    |
-| Dependabot                 | Alertes activées ; corrections de sécurité automatiques activées. Le fichier de mises à jour régulières arrivera avec la PR du socle. |
-| Protection de `main`       | **Non activée** : GitHub renvoie HTTP 403 et demande GitHub Pro pour cette fonction sur ce dépôt privé.                               |
-| Analyse native des secrets | **Indisponible** : GitHub renvoie HTTP 422, « Secret scanning is not available for this repository. »                                 |
-| Gitleaks                   | Contrôle CI préparé ; son résultat distant sera ajouté après l'exécution de la PR.                                                    |
-| Project                    | Autorisation `project` validée par PAN ; création du tableau privé en cours.                                                          |
-| PR et CI                   | Publication de la branche et première exécution en cours. Aucune fusion du socle effectuée.                                           |
+| Élément                    | État constaté                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dépôt                      | [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay), **privé**.                                                                                                                      |
+| Branche par défaut         | `main`, conservée avec son README d'initialisation.                                                                                                                                              |
+| Socle                      | Publié sur `chore/T01-fondations`, dans la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), ouverte pour revue et non fusionnée.                                                       |
+| Premier commit du socle    | [2024572](https://github.com/PapaAmad/teranga-pay/commit/2024572407e2df6e6d8b9d0de34fd277e27d61c9), `chore(repo): initialise le socle de Teranga Pay`.                                           |
+| Salam                      | `AliouneKane` a accepté l'invitation ; accès `write` au dépôt confirmé et relecture demandée sur la PR.                                                                                          |
+| Fusion                     | Squash seul, fusion classique et rebase désactivés, suppression automatique des branches fusionnées active.                                                                                      |
+| Actions                    | Activé, toutes les actions autorisées, permissions de workflow par défaut en lecture ; démarrage des exécutions bloqué avant les jobs.                                                           |
+| Labels                     | Les 16 labels du plan sont créés.                                                                                                                                                                |
+| Issues                     | Les 35 tâches T06 à T40 sont créées et assignées à leurs responsables ; correspondance ci-dessous.                                                                                               |
+| Project                    | [Project #3](https://github.com/users/PapaAmad/projects/3), **privé**, lié au dépôt ; accès `WRITER` de Salam accordé.                                                                           |
+| Tableau                    | [Tableau équipe](https://github.com/users/PapaAmad/projects/3/views/2), vue Board regroupée par le champ natif `Status` ; quatre états français et 35 cartes : 2 en revue (T06/T07), 33 à faire. |
+| Dependabot                 | Alertes et corrections de sécurité automatiques activées. Le fichier de mises à jour régulières est publié dans la PR ; sa reconnaissance sur la branche par défaut attend la fusion.            |
+| Contrôles locaux           | Format, lint, types, 17 tests des outils et 1 parcours mobile réussis. Hooks observés sur les fichiers indexés et le premier commit.                                                             |
+| Gitleaks local             | Version 8.30.1 officielle, archive vérifiée par SHA256 ; scan de l'historique Git avec `--redact` réussi, aucun secret détecté.                                                                  |
+| CI et Gitleaks distants    | **Non validés** : les tentatives Actions échouent en `startup_failure`, sans job ni check exécuté.                                                                                               |
+| Protection de `main`       | **Non activée** : HTTP 403, GitHub demande une offre compatible, notamment GitHub Pro pour cette fonction sur ce dépôt privé.                                                                    |
+| Analyse native des secrets | **Indisponible** : HTTP 422, « Secret scanning is not available for this repository. »                                                                                                           |
+
+Le regroupement des colonnes a été vérifié dans `ProjectV2View.verticalGroupByFields`, qui renvoie le champ `Status`. L'absence de regroupement horizontal dans `groupByFields` ne signifie pas que la vue Board n'a pas de colonnes. Aucun second champ `Avancement` n'a été créé.
 
 ## Limites à conserver visibles
 
-La visibilité privée a été demandée explicitement par PAN. La [décision de visibilité](../decisions/0002-visibilite-privee.md) explique cet écart au plan PDF initial. La visibilité ne sera pas changée pour contourner les limites de l'offre GitHub.
+La visibilité privée a été demandée explicitement par PAN. La [décision de visibilité](../decisions/0002-visibilite-privee.md) explique cet écart au plan PDF initial. La visibilité n'est pas changée pour contourner les limites de l'offre GitHub.
 
-Les règles locales de `main` sont prêtes dans [main-ruleset.json](../../.github/main-ruleset.json), mais **elles ne sont pas appliquées**. Sans protection distante, la CI et la relecture restent des règles d'équipe ; GitHub ne les impose pas à la fusion. Une offre compatible devra être activée par le propriétaire avant de pouvoir exiger ces contrôles sur ce dépôt privé.
+Les règles de `main` sont prêtes dans [main-ruleset.json](../../.github/main-ruleset.json), mais **elles ne sont pas appliquées**. Sans protection distante, la PR, la relecture et l'attente des contrôles restent des règles d'équipe ; GitHub ne les impose pas à la fusion. La [documentation GitHub](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches) précise les offres compatibles avec les protections sur les dépôts privés.
 
-La CI Gitleaks est distincte de l'analyse native GitHub et de la protection au push. Aucune de ces protections ne sera déclarée active avant vérification de son résultat effectif. L'offre payante et ses éventuelles options ne sont pas modifiées par cette intervention.
+La CI Gitleaks, le scan local et l'analyse native GitHub sont trois mécanismes distincts. Le scan local a réussi ; la CI n'a pas démarré et la protection native au push n'est pas activée. Aucun achat, abonnement ou moyen de paiement n'a été modifié.
+
+## Diagnostic du démarrage GitHub Actions
+
+Les premières tentatives de la PR sont les exécutions [41453527594](https://github.com/PapaAmad/teranga-pay/actions/runs/41453527594) et [41453528513](https://github.com/PapaAmad/teranga-pay/actions/runs/41453528513). GitHub renvoie :
+
+- `conclusion: startup_failure` ;
+- workflow `404552097`, nom vide, chemin `BuildFailed`, état `deleted` ;
+- zéro job, zéro check et aucune annotation exploitable ;
+- message de la CLI : « This run likely failed because of a workflow file issue. »
+
+Le fichier `.github/workflows/ci.yml` est valide selon **actionlint 1.7.12**, binaire officiel dont l'archive a été vérifiée par SHA256. La commande `actionlint -no-color -shellcheck= .github/workflows/ci.yml` se termine avec le code 0, sans erreur.
+
+Un workflow indépendant faisant uniquement `echo`, sans action externe ni dépendance npm, a été testé sur une branche de diagnostic privée. L'exécution [41454587635](https://github.com/PapaAmad/teranga-pay/actions/runs/41454587635) présente le même échec avant les jobs. Le commit de diagnostic est `0fda4ff594cacf6ce520bdd35d090a2d85d7468e` ; sa branche temporaire a été supprimée après le test, ses résultats restent disponibles.
+
+Ce résultat montre que le blocage ne se limite pas aux commandes de l'application ou à l'installation npm. L'API ne précise pas la cause exacte : aucune panne de plateforme, limite de quota ou difficulté de facturation n'est affirmée comme certaine. Aucun résultat CI vert n'est annoncé.
+
+Si le blocage persiste, le propriétaire doit vérifier les messages dans [Actions](https://github.com/PapaAmad/teranga-pay/actions), les paramètres d'exécution et les éventuelles restrictions du [compte GitHub](https://github.com/settings/billing). Si ces écrans n'expliquent pas le refus, transmettre les identifiants d'exécution ci-dessus au [support GitHub](https://support.github.com/contact). Aucun ticket ni message de support n'a été envoyé.
 
 ## Correspondance des tâches et des issues
 
-Les numéros GitHub ne suivent pas les numéros du plan. Utiliser cette correspondance pour les références `Closes #N`, puis fermer seulement les tâches réellement terminées.
+Les numéros GitHub ne suivent pas les numéros du plan. Utiliser cette correspondance pour les références `Closes #N`, puis fermer seulement les tâches réellement terminées. Aucune issue n'est fermée automatiquement par la mise en place.
 
 | Tâche | Issue GitHub                                             | Responsable               |
 | ----- | -------------------------------------------------------- | ------------------------- |

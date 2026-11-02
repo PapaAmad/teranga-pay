@@ -67,13 +67,15 @@ npm run repo:check
 
 La CI reprend les contrôles de format, lint, types, tests, titre de PR et secrets. Husky et lint-staged vérifient les fichiers indexés ; commitlint contrôle les messages. Le ruleset de `main` prévu dans les fichiers n'est pas actif : GitHub refuse cette fonction pour ce dépôt privé avec l'offre actuelle. L'analyse native des secrets et la protection au push ne sont pas activées ; le contrôle Gitleaks de la CI est distinct. La règle d'équipe reste une PR verte et relue par l'autre membre.
 
-L'installation par lockfile, les contrôles de code, les tests et l'export Android ont été vérifiés localement. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
+L'installation par lockfile, les contrôles de code, les 18 tests locaux et l'export Android ont été vérifiés. Les hooks ont contrôlé les fichiers indexés lors du premier commit. La CI distante a été tentée, mais son démarrage est bloqué avant les jobs ; aucun résultat vert distant n'est annoncé. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
 
 ## Travail d'équipe et GitHub
 
 Une tâche = une issue = une branche = une PR. Les commits et titres suivent `type(zone): description`, avec 72 caractères au maximum. La PR contient une explication « En clair », les vérifications et la référence à l'issue. Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Les identités de relecture sont `@AliouneKane` et `@PapaAmad`. Le dépôt privé a été créé et Salam dispose d'un accès en écriture confirmé. Squash seul, suppression des branches fusionnées, permissions Actions en lecture, Dependabot, 16 labels et 35 issues T06 à T40 avec leurs affectations ont été vérifiés. La publication du code par PR et la création du Project privé sont en cours : consulter le [relevé GitHub vérifié](docs/planning/publication-github.md) et le [suivi T01 à T07](docs/planning/suivi-t01-t07.md) avant de considérer une étape terminée.
+Le socle est publié sur `chore/T01-fondations` dans la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36), ouverte pour revue et non fusionnée. La relecture de `@AliouneKane` est demandée ; Salam dispose d'un accès en écriture au dépôt et au [Project privé #3](https://github.com/users/PapaAmad/projects/3). Le tableau contient 35 cartes : T06 et T07 en revue, les 33 autres à faire. Le champ natif `Status` porte les quatre états français ; les colonnes du [tableau](https://github.com/users/PapaAmad/projects/3/views/2) sont regroupées par ce champ, ce qui a été vérifié par l’API.
+
+Squash seul, suppression des branches fusionnées, permissions Actions en lecture, Dependabot, 16 labels et 35 issues avec leurs affectations ont été vérifiés. Consulter le [relevé GitHub vérifié](docs/planning/publication-github.md) et le [suivi T01 à T07](docs/planning/suivi-t01-t07.md) pour les preuves et les points ouverts.
 
 Le [guide du dépôt distant](docs/guides/depot-distant.md) est la procédure de référence pour publier et configurer ce dépôt privé. Les [scripts GitHub](scripts/github/README.md) préparent les réglages et le backlog ; leurs fichiers seuls ne prouvent pas qu'une opération distante a abouti.
 
