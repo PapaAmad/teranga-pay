@@ -29,7 +29,7 @@ Le titre de PR et les commits suivent `type(zone): description`, par exemple `ch
 
 PAN travaille avec Codex ; Salam avec Claude Code. Les règles communes sont dans [AGENTS.md](../../AGENTS.md) et importées par [CLAUDE.md](../../CLAUDE.md). Une revue par l'autre agent aide à détecter les erreurs ; l'approbation humaine de l'autre membre reste nécessaire.
 
-Ne pas pousser directement sur `main`, ni déclarer une tâche terminée parce que ses fichiers existent. Un service doit être exécuté et testé ; un réglage distant doit être appliqué et vérifié. Le [suivi T01–T07](../planning/suivi-t01-t07.md) distingue les deux.
+Ne pas pousser directement sur `main`, ni déclarer une tâche terminée parce que ses fichiers existent. Un service doit être exécuté et testé ; un réglage distant doit être appliqué et vérifié. Le [suivi T01 à T07](../planning/suivi-t01-t07.md) distingue les deux.
 
 Chaque auteur explique les dépendances ajoutées, tient la documentation à jour et utilise uniquement des données fictives. Les clés du wallet restent dans le téléphone dans l'architecture cible. Toute éventuelle démo avec LND côté serveur devra être décrite honnêtement après une décision commune en T10.
 

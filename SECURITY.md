@@ -1,6 +1,6 @@
 # Sécurité
 
-Le dépôt est un prototype de hackathon : le socle T01–T07 ne contient encore aucun portefeuille opérationnel. Les futurs paiements de démonstration utilisent Bitcoin regtest et la passerelle cash-out est simulée.
+Le dépôt est un prototype de hackathon : le socle T01 à T07 ne contient encore aucun portefeuille opérationnel. Les futurs paiements de démonstration utilisent Bitcoin regtest et la passerelle cash-out est simulée.
 
 Le dépôt reste privé et son Project doit l'être dès sa création selon la [décision 0002](docs/decisions/0002-visibilite-privee.md). Cette restriction d'accès ne dispense pas de conserver les secrets hors Git, ni de vérifier les droits de chaque collaborateur.
 

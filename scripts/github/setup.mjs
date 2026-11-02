@@ -144,7 +144,7 @@ function ensureIssues(config, backlog) {
     for (const login of assignment.pending) pendingAssignees.add(login);
     if (!issue) {
       issue = api(`repos/${config.repository}/issues`, 'POST', {
-        title: `${task.id} — ${task.title}`,
+        title: `${task.id} | ${task.title}`,
         body: buildIssueBody(task, config),
         labels: task.labels,
         assignees: assignment.assignable,
@@ -274,7 +274,7 @@ try {
     validateBacklog(backlog, labels);
     const selected = opts.section === 'all' ? sections : [opts.section];
     console.info(
-      `${opts.apply ? 'APPLICATION' : 'PRÉVISUALISATION LOCALE'} — ${config.repository} (visibilité attendue : ${config.visibility})`,
+      `${opts.apply ? 'APPLICATION' : 'PRÉVISUALISATION LOCALE'} | ${config.repository} (visibilité attendue : ${config.visibility})`,
     );
     console.info(`Sections : ${selected.join(', ')} ; PAN @${config.pan} ; Salam @${config.salam}`);
     if (!opts.apply) {
@@ -286,7 +286,7 @@ try {
         console.info(`Prévu : synchroniser ${labels.length} labels sans supprimer les autres.`);
       if (selected.includes('issues')) {
         console.info(
-          `Prévu : créer les ${backlog.length} tâches absentes T06–T40 et conserver les issues déjà présentes.`,
+          `Prévu : créer les ${backlog.length} tâches absentes T06 à T40 et conserver les issues déjà présentes.`,
         );
         for (const task of backlog)
           console.info(`${task.id} | ${task.due} | ${task.responsible} | ${task.title}`);
@@ -312,7 +312,7 @@ try {
         ensureProject(config, issues);
       }
       console.info(
-        'Sections demandées appliquées. Relire les réglages et vérifier une PR de test avant de clôturer T02–T07.',
+        'Sections demandées appliquées. Relire les réglages et vérifier une PR de test avant de clôturer T02 à T07.',
       );
     }
   }

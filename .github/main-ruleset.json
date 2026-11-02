@@ -1,5 +1,5 @@
 {
-  "name": "main — PR relue et CI verte",
+  "name": "main | PR relue et CI verte",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],

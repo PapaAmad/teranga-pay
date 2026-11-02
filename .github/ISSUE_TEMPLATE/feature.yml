@@ -1,13 +1,13 @@
 name: Nouvelle fonction
 description: Décrire un résultat attendu et ses critères d'acceptation.
-title: 'TXX — '
+title: 'TXX | '
 labels: [feature]
 body:
   - type: input
     id: task
     attributes:
       label: Tâche et responsable
-      placeholder: T18 — PAN ; relecture Salam
+      placeholder: T18 | PAN ; relecture Salam
     validations:
       required: true
   - type: textarea

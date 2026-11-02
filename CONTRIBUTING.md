@@ -13,7 +13,7 @@ Les rulesets ne sont pas disponibles pour ce dépôt privé avec l'offre actuell
 5. Ouvrir une PR, remplir « En clair », détailler les vérifications, joindre une capture pour l'interface et indiquer `Closes #N`.
 6. Attendre la CI et l'approbation de l'autre membre, résoudre les conversations, puis fusionner en squash.
 
-Les commits et titres de PR suivent `type(zone): description` en moins de 73 caractères. Exemples : `feat(mobile): ajoute le parcours recevoir`, `docs(architecture): précise les limites du socle`. Une PR vise moins de 400 lignes ; le premier socle devra être relu par ensembles T01–T07 avant publication.
+Les commits et titres de PR suivent `type(zone): description` en moins de 73 caractères. Exemples : `feat(mobile): ajoute le parcours recevoir`, `docs(architecture): précise les limites du socle`. Une PR vise moins de 400 lignes ; le premier socle devra être relu par ensembles T01 à T07 avant publication.
 
 Les dépendances ajoutées doivent être justifiées dans la PR. Ne pas copier de secret ni de donnée personnelle dans une issue, une capture ou une conversation avec un agent. Pour une vulnérabilité, suivre [SECURITY.md](SECURITY.md).
 

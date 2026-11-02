@@ -163,10 +163,12 @@ test('la détection conserve une issue existante, même fermée, et refuse les d
     state: 'closed',
   };
   assert.equal(existingTaskIssue(backlog[0], [existing]), existing);
-  assert.throws(
-    () => existingTaskIssue(backlog[0], [existing, { title: 'T06 — doublon' }]),
-    /Plusieurs issues/u,
-  );
+  for (const title of ['T06 | titre sans marqueur', 'T06 \u2014 titre sans marqueur']) {
+    const byTitle = { number: 13, title, state: 'closed' };
+    assert.equal(existingTaskIssue(backlog[0], [byTitle]), byTitle);
+    assert.throws(() => existingTaskIssue(backlog[0], [existing, byTitle]), /Plusieurs issues/u);
+  }
+  assert.equal(existingTaskIssue(backlog[0], [{ title: 'T060 | autre tâche' }]), undefined);
 });
 
 test('les titres refusent messages multilignes, types inconnus et titres trop longs', () => {

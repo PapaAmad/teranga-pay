@@ -1,7 +1,7 @@
-# 0001 — Organiser le dépôt pour les deux membres
+# 0001 | Organiser le dépôt pour les deux membres
 
 - Date : 2 novembre 2026, Dakar.
-- Tâches : T01–T07.
+- Tâches : T01 à T07.
 - Auteur : PAN, assisté de Codex.
 - État : organisation livrée par la PR #36 pour initialiser main. Voir les décisions 0002 et 0003 ainsi que le relevé de publication.
 

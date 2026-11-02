@@ -27,4 +27,4 @@ Le fichier `LICENSE` reste sous licence MIT. Le choix de visibilité GitHub ne s
 - Les mises à jour, labels, issues, PR et CI ne sont déclarés terminés qu'après vérification. Le [relevé de publication](../planning/publication-github.md) conserve les preuves et les éventuelles limites.
 - Les mentions d'ouverture publique dans les PDF et les anciens objectifs sont conservées comme historique, avec cette décision comme adaptation actuelle. Une éventuelle évolution ultérieure de visibilité nécessiterait une nouvelle décision de PAN.
 
-Cette décision porte sur la visibilité et l'accès. Elle ne change pas les responsables, le périmètre T01–T07, les exigences de relecture ou les limites du wallet de démonstration.
+Cette décision porte sur la visibilité et l'accès. Elle ne change pas les responsables, le périmètre T01 à T07, les exigences de relecture ou les limites du wallet de démonstration.

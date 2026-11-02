@@ -64,11 +64,11 @@ export function validateBacklog(backlog, labels) {
     if (!['PAN', 'Salam', 'Les deux'].includes(task.responsible)) {
       throw new Error(`Responsable incorrect : ${id}`);
     }
-    if (!['PAN', 'Salam', '—'].includes(task.reviewer)) {
+    if (!['PAN', 'Salam', '\u2014'].includes(task.reviewer)) {
       throw new Error(`Relecteur incorrect : ${id}`);
     }
     const expectedReviewer =
-      task.responsible === 'Les deux' ? '—' : task.responsible === 'PAN' ? 'Salam' : 'PAN';
+      task.responsible === 'Les deux' ? '\u2014' : task.responsible === 'PAN' ? 'Salam' : 'PAN';
     if (task.reviewer !== expectedReviewer) {
       throw new Error(`La relecture doit être croisée : ${id}`);
     }
@@ -153,7 +153,7 @@ export function hasFrenchTrackingOptions(field) {
 
 export function buildIssueBody(task, config) {
   const reviewer =
-    task.reviewer === '—'
+    task.reviewer === '\u2014'
       ? 'validation commune'
       : `@${task.reviewer === 'PAN' ? config.pan : config.salam}`;
   return [
@@ -188,7 +188,8 @@ export function existingTaskIssue(task, issues) {
   const matches = issues.filter(
     (issue) =>
       issue.body?.includes(`<!-- teranga-task:${task.id} -->`) ||
-      issue.title?.startsWith(`${task.id} — `),
+      issue.title?.startsWith(`${task.id} | `) ||
+      issue.title?.startsWith(`${task.id} \u2014 `),
   );
   if (matches.length > 1)
     throw new Error(
