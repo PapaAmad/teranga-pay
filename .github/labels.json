@@ -1,0 +1,22 @@
+[
+  { "name": "feature", "color": "0E8A16", "description": "Nouvelle fonction" },
+  { "name": "bug", "color": "D73A4A", "description": "Comportement incorrect" },
+  { "name": "docs", "color": "0075CA", "description": "Documentation" },
+  { "name": "chore", "color": "CFD3D7", "description": "Configuration et maintenance" },
+  { "name": "test", "color": "BFDADC", "description": "Tests et validation" },
+  { "name": "mobile", "color": "5319E7", "description": "Application React Native" },
+  { "name": "api", "color": "1D76DB", "description": "API Node.js" },
+  { "name": "lightning", "color": "FBCA04", "description": "Bitcoin, Lightning et réseau regtest" },
+  { "name": "bridge", "color": "C5DEF5", "description": "Passerelle de retrait simulée" },
+  { "name": "design", "color": "D4C5F9", "description": "Charte, composants et visuels" },
+  { "name": "ci", "color": "006B75", "description": "Automatisation et qualité" },
+  { "name": "ia", "color": "BFD4F2", "description": "Règles et score de fraude" },
+  {
+    "name": "indispensable",
+    "color": "B60205",
+    "description": "Nécessaire au parcours de démonstration"
+  },
+  { "name": "souhaitable", "color": "FEF2C0", "description": "À réduire si un jalon est menacé" },
+  { "name": "bonus", "color": "C2E0C6", "description": "Après le périmètre indispensable" },
+  { "name": "bloqué", "color": "000000", "description": "Blocage expliqué dans l'issue" }
+]

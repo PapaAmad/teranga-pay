@@ -1,0 +1,27 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { AboutScreen } from '../screens/AboutScreen';
+import { HomeScreen } from '../screens/HomeScreen';
+import { fr } from '../translations/fr';
+import type { RootStackParamList } from './types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export function RootNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerBackTitle: fr.navigation.back }}
+      >
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: fr.appName }} />
+        <Stack.Screen
+          name="About"
+          component={AboutScreen}
+          options={{ title: fr.navigation.about }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}

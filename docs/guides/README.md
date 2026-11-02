@@ -1,0 +1,10 @@
+# Guides de travail
+
+Guides pratiques maintenus par PAN pour le socle, puis par le responsable de chaque changement. Salam les relit et les complète pour la livraison T36.
+
+- [Démarrage local](demarrage.md) : prérequis, installation, vérifications et limites actuelles.
+- [Collaboration](collaboration.md) : responsables, branches, PR, relecture et outils communs.
+- [Dépôt distant et premier commit](depot-distant.md) : procédure de référence pour le dépôt privé, son accès, la CI, les protections, les issues et le Project privé.
+- [Validation du socle](validation-du-socle.md) : preuves locales, limites des vérifications et état des dépendances.
+
+Actualiser un guide dès qu'une commande ou une règle de travail change. Les valeurs secrètes restent dans les fichiers locaux ignorés par Git.

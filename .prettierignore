@@ -1,0 +1,12 @@
+node_modules/
+.tmp/
+.npm-cache/
+.expo/
+dist/
+build/
+coverage/
+package-lock.json
+**/android/
+**/ios/
+.husky/_/
+*.pdf
