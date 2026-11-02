@@ -8,7 +8,7 @@ Vérifications locales du 2 novembre 2026, sous Windows avec Node.js 24.22.0 et 
 | Format, lint et types        | Commandes communes exécutées sur le dépôt.                                                                                                               |
 | Parcours mobile Jest         | 1 test réussi : accueil, présentation et retour avec le vrai navigateur React Navigation ; les appels natifs sont adaptés à Jest.                        |
 | Scripts GitHub               | 17 tests réussis : backlog, responsabilités, doublons, erreurs de configuration, titres et prévisualisation.                                             |
-| Structure documentaire       | README présents dans chaque dossier maintenu et liens Markdown relatifs résolus.                                                                         |
+| Structure documentaire       | Documentation de chaque dossier maintenu et liens Markdown relatifs vérifiés ; `.github/GUIDE.md` conserve la priorité du README principal.              |
 | Export Android               | Metro et Hermes ont généré un bundle de 823 modules, environ 1,9 Mo, accompagné de 17 assets dans `.tmp/mobile-export`.                                  |
 | Hook `commit-msg`            | Essais invalides refusés ; message réel `chore(repo): initialise le socle de Teranga Pay` accepté lors du premier commit.                                |
 | Hook `pre-commit`            | Exécuté sur les fichiers réellement indexés au premier commit : lint-staged a contrôlé 20 fichiers JavaScript/TypeScript et 64 documents/configurations. |

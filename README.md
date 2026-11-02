@@ -30,11 +30,11 @@ Expo et React Native utilisent les versions du template officiel SDK57, compatib
 | [`tests/e2e/`](tests/e2e/README.md)                   | Futurs parcours mobiles Maestro T30                           | PAN                                |
 | [`assets/`](assets/README.md)                         | Charte et visuels de soumission à produire                    | PAN                                |
 | [`docs/`](docs/README.md)                             | Sources PDF, architecture, décisions, guides et suivi         | Les deux                           |
-| [`.github/`](.github/README.md)                       | CI, modèles, propriétaires, labels et règles préparées        | PAN                                |
+| [`.github/`](.github/GUIDE.md)                        | CI, modèles, propriétaires, labels et règles préparées        | PAN                                |
 | [`scripts/`](scripts/README.md)                       | Vérifications du dépôt et préparation GitHub                  | PAN                                |
 | [`.husky/`](.husky/README.md)                         | Vérifications avant commit                                    | PAN                                |
 
-Chaque dossier maintenu contient un petit README. Les emplacements des futurs services contiennent uniquement leur documentation : ils ne démarrent aucun service. npm n'enregistre comme workspace que les dossiers possédant un `package.json`.
+Chaque dossier maintenu contient un petit README. Le dossier réservé `.github` utilise [GUIDE.md](.github/GUIDE.md) pour laisser GitHub afficher ce README du projet à l'accueil. Les emplacements des futurs services contiennent uniquement leur documentation : ils ne démarrent aucun service. npm n'enregistre comme workspace que les dossiers possédant un `package.json`.
 
 ## Architecture cible
 

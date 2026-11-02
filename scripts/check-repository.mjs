@@ -22,8 +22,12 @@ const markdown = [];
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const relative = path.relative(root, directory);
-  if (!entries.some((entry) => entry.name === 'README.md')) {
-    errors.push(`${relative || '.'} : README.md manquant`);
+  const documentation = relative === '.github' ? 'GUIDE.md' : 'README.md';
+  if (!entries.some((entry) => entry.name === documentation && entry.isFile())) {
+    errors.push(`${relative || '.'} : ${documentation} manquant`);
+  }
+  if (relative === '.github' && entries.some((entry) => /^readme(?:\.|$)/i.test(entry.name))) {
+    errors.push('.github : un README masque le README du projet sur GitHub ; utiliser GUIDE.md.');
   }
   for (const entry of entries) {
     if (entry.isSymbolicLink()) continue;
@@ -59,6 +63,6 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   console.info(
-    `Structure vérifiée : README présents, ${markdown.length} documents aux liens valides.`,
+    `Structure vérifiée : documentation des dossiers présente, ${markdown.length} documents aux liens valides.`,
   );
 }

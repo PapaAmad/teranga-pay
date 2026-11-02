@@ -1,5 +1,9 @@
 # Configuration GitHub
 
+Ce dossier utilise `GUIDE.md` pour sa documentation locale. GitHub donnerait
+priorité à un `.github/README.md` sur le README du projet à la racine ; ne pas
+recréer ce fichier réservé.
+
 Modèles d'issues et de PR, responsables de relecture, mises à jour de dépendances,
 labels, protection de `main` et contrôles automatiques.
 
