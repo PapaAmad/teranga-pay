@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,6 +6,11 @@ export const root = fileURLToPath(new URL('../../', import.meta.url));
 export const NO_REVIEWER = null;
 const DEFAULT_VISIBILITY = 'private';
 const titleSeparators = ['|', '\u2014'];
+
+export function isMain(moduleUrl, entryPath = process.argv[1]) {
+  if (!entryPath || entryPath === '-') return false;
+  return realpathSync(entryPath) === realpathSync(fileURLToPath(moduleUrl));
+}
 
 export function normalizeDisplayName(value) {
   if (typeof value !== 'string') return undefined;
@@ -257,8 +262,11 @@ export function existingTaskIssue(task, issues) {
       ),
     );
     if (markers.size > 1) {
+      const issueReference = issue.number
+        ? `#${issue.number}`
+        : (issue.html_url ?? '(sans numéro)');
       throw new Error(
-        'Une issue porte plusieurs marqueurs de tâches ; corriger leur ambiguïté avant de continuer.',
+        `L’issue ${issueReference} porte plusieurs marqueurs de tâches (${[...markers].join(', ')}) ; conserver un seul marqueur canonique avant de continuer.`,
       );
     }
     return markers.size

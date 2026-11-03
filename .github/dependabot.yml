@@ -14,6 +14,11 @@ updates:
       npm:
         applies-to: version-updates
         patterns: ['*']
+        update-types: [minor, patch]
+      npmmaj:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [major]
       npmsec:
         applies-to: security-updates
         patterns: ['*']
@@ -30,6 +35,11 @@ updates:
       ci:
         applies-to: version-updates
         patterns: ['*']
+        update-types: [minor, patch]
+      cimaj:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [major]
       cisec:
         applies-to: security-updates
         patterns: ['*']

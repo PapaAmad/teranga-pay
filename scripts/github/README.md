@@ -82,7 +82,9 @@ GitHub. Le jeton doit autoriser les Projects. Les Projects, cartes et champs
 sont lus par pages GraphQL de 100 éléments jusqu’à `pageInfo.hasNextPage=false`,
 sans plafond global et sans déduire la fin d’un compteur `totalCount`.
 Les cartes archivées sont incluses explicitement dans la lecture : elles
-restent archivées et ne sont pas ajoutées de nouveau. Les requêtes utilisées
+restent archivées et ne sont pas ajoutées de nouveau. Un avertissement donne
+le lien de chaque issue attendue qui reste archivée et invite à restaurer sa
+carte manuellement si elle doit revenir sur le tableau. Les requêtes utilisées
 ont été vérifiées en lecture seule sur le Project existant ; les tests simulent
 les pages supplémentaires et les erreurs sans écrire sur GitHub.
 
@@ -94,6 +96,9 @@ Une erreur GraphQL, une page sans métadonnées de pagination, un curseur absent
 ou répété et un nœud inaccessible interrompent le script avant modification
 du Project existant. Une carte dont le contenu est masqué impose de vérifier
 les permissions, afin de ne pas traiter une issue invisible comme absente.
+Une carte supprimée peut aussi rendre son contenu illisible : le message donne
+le Project à vérifier et la section à relancer après correction manuelle.
+Le script ne supprime ni n’ignore automatiquement ces cartes.
 Le mode `--section=project` vérifie les doublons sur l'ensemble des issues,
 même sans lancer la section `issues`.
 

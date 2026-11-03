@@ -1,7 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   assertRepositoryTarget,
   assertReusableProject,
@@ -11,6 +10,7 @@ import {
   existingNamedResource,
   hasFrenchTrackingOptions,
   indexTaskIssues,
+  isMain,
   labelPayload,
   planTaskAssignees,
   readJson,
@@ -246,7 +246,9 @@ export function ensureProject(config, issues, remote = { gh, ghJson }) {
     'des cartes',
   );
   if (items.some((item) => !item.content)) {
-    throw new Error('Des cartes sont inaccessibles ; vérifier les permissions avant modification.');
+    throw new Error(
+      `Des cartes sont inaccessibles ; ouvrir ${project.url ?? `le Project n°${project.number} de ${owner}`} et vérifier les permissions ou les cartes supprimées avant de relancer --apply --section=project. Aucune carte n’est supprimée automatiquement.`,
+    );
   }
   const fields = collectConnection(
     (after) => graphql(fieldsQuery, { project: project.id, after }, remote.ghJson).node?.fields,
@@ -296,7 +298,15 @@ export function ensureProject(config, issues, remote = { gh, ghJson }) {
     );
   }
   const urls = new Set(items.map((item) => item.content?.url));
+  const archivedUrls = new Set(
+    items.filter((item) => item.isArchived).map((item) => item.content?.url),
+  );
   for (const issue of issues) {
+    if (archivedUrls.has(issue.html_url)) {
+      console.warn(
+        `Carte archivée conservée pour ${issue.html_url} ; la restaurer dans les archives du Project si elle doit revenir sur le tableau.`,
+      );
+    }
     if (!urls.has(issue.html_url)) {
       remote.gh([
         'project',
@@ -372,7 +382,7 @@ export function runSetup(args = process.argv.slice(2)) {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+if (isMain(import.meta.url)) {
   try {
     runSetup();
   } catch (error) {

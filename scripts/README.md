@@ -1,6 +1,6 @@
 # Scripts du dépôt
 
-`check-repository.mjs` vérifie la documentation de chaque dossier maintenu et les liens relatifs Markdown, hors exemples de code et commentaires HTML. `markdown-it` interprète le Markdown, notamment les références et images ; aucun HTML n'est rendu ou exécuté. Cette dépendance est réservée au développement, selon la [décision 0005](../docs/decisions/0005-parseur-markdown.md).
+`check-repository.mjs` vérifie la documentation de chaque dossier maintenu et les liens relatifs écrits en syntaxe Markdown, hors exemples de code et commentaires HTML. `markdown-it` interprète notamment les références et les images Markdown ; les attributs du HTML brut (`<a href>`, `<img src>`) ne sont pas vérifiés. Aucun HTML n'est rendu ou exécuté. Cette dépendance est réservée au développement, selon la [décision 0005](../docs/decisions/0005-parseur-markdown.md).
 
 Les exclusions Git sont respectées ; hors dépôt Git, les exclusions prédéfinies sont signalées. Les chemins sont comparés en NFC, sans remplacer leurs noms physiques. Les README qui sont des liens symboliques vers des fichiers sont acceptés, sans traverser les liens de dossiers ni les gitlinks de sous-modules.
 

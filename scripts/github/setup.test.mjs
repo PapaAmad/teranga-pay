@@ -8,6 +8,7 @@ const backlog = readJson('scripts/github/backlog.json');
 const project = {
   id: 'project-existant',
   number: 3,
+  url: 'https://github.com/users/PapaAmad/projects/3',
   title: config.projectTitle,
   public: false,
   closed: false,
@@ -228,6 +229,39 @@ test('le Project parcourt toutes les pages et conserve les cartes archivées sur
     remote.mutations.map((args) => args[1]),
     ['link', 'item-add', 'link'],
   );
+  assert.deepEqual(
+    console.warn.mock.calls.map(({ arguments: [message] }) => message),
+    [1, 2].map(
+      () =>
+        `Carte archivée conservée pour ${issueUrl(2)} ; la restaurer dans les archives du Project si elle doit revenir sur le tableau.`,
+    ),
+  );
+});
+
+test('une carte active ne provoque aucun avertissement d’archive', (t) => {
+  mute(t);
+  const remote = projectRemote({ items: [[card(1)]] });
+  ensureProject(config, [{ html_url: issueUrl(1) }], remote);
+  assert.equal(console.warn.mock.calls.length, 0);
+  assert.deepEqual(
+    remote.mutations.map((args) => args[1]),
+    ['link'],
+  );
+});
+
+test('une carte illisible indique le Project et la section à relancer sans écriture', (t) => {
+  mute(t);
+  const remote = projectRemote({ items: [[{ id: 'illisible', content: null }]] });
+  assert.throws(
+    () => ensureProject(config, [{ html_url: issueUrl(1) }], remote),
+    (error) => {
+      assert.match(error.message, /https:\/\/github\.com\/users\/PapaAmad\/projects\/3/u);
+      assert.match(error.message, /permissions ou les cartes supprimées/u);
+      assert.match(error.message, /--apply --section=project/u);
+      return true;
+    },
+  );
+  assert.deepEqual(remote.mutations, []);
 });
 
 test('le renommage historique conserve le Project et attend les inventaires complets', (t) => {

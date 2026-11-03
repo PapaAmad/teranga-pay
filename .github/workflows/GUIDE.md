@@ -16,8 +16,10 @@ La matrice qualité partage la configuration des quatre contrôles. Chaque job
 garde son runner et son installation `npm ci` ; le cache npm réduit les
 téléchargements, sans partager des `node_modules` entre jobs.
 
-Dependabot regroupe les versions npm dans `npm` et les correctifs de sécurité
-dans `npmsec` ; les groupes des actions GitHub sont `ci` et `cisec`. Chaque type
+Dependabot regroupe les versions mineures et correctives npm dans `npm`, les
+versions majeures dans `npmmaj` et les correctifs de sécurité dans `npmsec` ;
+les groupes des actions GitHub sont `ci`, `cimaj` et `cisec`. Les mises à jour
+majeures ont leur propre lot pour ne pas bloquer les changements courants. Chaque type
 de mise à jour possède son groupe, avec un identifiant court utilisé dans les
 [titres automatiques](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#groups).
 Cela réduit la longueur des titres des lots, sans garantir celle des mises à

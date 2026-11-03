@@ -1,9 +1,8 @@
 import { spawn } from 'node:child_process';
 import { readdir, readFile, access, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import MarkdownIt from 'markdown-it';
-import { root as defaultRoot } from './github/lib.mjs';
+import { isMain, root as defaultRoot } from './github/lib.mjs';
 
 const fallbackIgnored = new Set([
   '.git',
@@ -175,17 +174,24 @@ export async function checkRepository(root, { git: runGit = git } = {}) {
     for (const destination of markdownDestinations(contents)) {
       const href = destination.split('#')[0];
       if (!href || /^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith('/')) continue;
+      let localPath;
       try {
-        await access(path.resolve(path.dirname(file), decodeURIComponent(href)));
+        localPath = decodeURIComponent(href);
       } catch {
-        errors.push(`${path.relative(root, file)} : lien introuvable ${href}`);
+        errors.push(`${path.relative(root, file)} : encodage de lien invalide ${href}`);
+        continue;
+      }
+      try {
+        await access(path.resolve(path.dirname(file), localPath));
+      } catch {
+        errors.push(`${path.relative(root, file)} : lien introuvable ${localPath}`);
       }
     }
   }
   return { errors, warnings, markdownCount: markdown.length };
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const result = await checkRepository(defaultRoot);
   for (const warning of result.warnings) console.warn(warning);
   if (result.errors.length) {

@@ -310,6 +310,19 @@ test('la sélection autonome pour le Project détecte les doublons sur tout le b
   assert.throws(() => selectTaskIssues(backlog, [first, second]), /Plusieurs issues/u);
 });
 
+test('plusieurs marqueurs distincts signalent l’issue à corriger, une simple mention reste permise', () => {
+  const ambiguous = {
+    number: 12,
+    body: '<!-- teranga-task:T06 -->\n<!-- teranga-task:T07 -->',
+  };
+  assert.throws(
+    () => existingTaskIssue(backlog[0], [ambiguous]),
+    /issue #12 porte plusieurs marqueurs de tâches \(T06, T07\).*un seul marqueur canonique/u,
+  );
+  const mention = { number: 13, body: '<!-- teranga-task:T06 -->\nVoir T07 pour la suite.' };
+  assert.equal(existingTaskIssue(backlog[0], [mention]), mention);
+});
+
 test('les titres refusent messages multilignes, types inconnus et titres trop longs', () => {
   assert.equal(isConventionalTitle('feat(mobile): ajoute la navigation'), true);
   assert.equal(isConventionalTitle('chore(ci): prépare le dépôt'), true);

@@ -35,8 +35,10 @@ test('les titres de lots Dependabot restent courts sans dispenser les titres ind
   // https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/message_builder.rb
   for (const title of [
     'chore(deps): bump the npm group with 12 updates',
+    'chore(deps): bump the npmmaj group across 2 directories with 12 updates',
     'chore(deps): bump the npmsec group across 2 directories with 12 updates',
     'ci(deps): bump the ci group with 3 updates',
+    'ci(deps): bump the cimaj group with 3 updates',
     'ci(deps): bump the cisec group across 1 directory with 3 updates',
   ]) {
     assert.equal(isConventionalTitle(title), true, title);

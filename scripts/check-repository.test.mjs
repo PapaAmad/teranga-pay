@@ -4,6 +4,7 @@ import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { checkRepository } from './check-repository.mjs';
 
 async function fixture(t, files = { 'README.md': '# Projet\n' }) {
@@ -122,6 +123,20 @@ test('les dossiers symboliques externes ne sont pas parcourus', async (t) => {
   const result = await checkRepository(root);
   assert.deepEqual(result.errors, []);
   assert.equal(result.markdownCount, 1);
+});
+
+test('la commande de contrôle s’exécute depuis un dossier symbolique', async (t) => {
+  const temporary = await fixture(t);
+  const scripts = fileURLToPath(new URL('./', import.meta.url));
+  const alias = path.join(temporary, 'scripts-symboliques');
+  await symlink(scripts, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  const result = spawnSync(process.execPath, [path.join(alias, 'check-repository.mjs')], {
+    cwd: temporary,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  assert.match(result.stdout, /Structure vérifiée : documentation des dossiers présente/u);
 });
 
 test('les exclusions du gitignore sont respectées pour les dossiers locaux', async (t) => {
@@ -250,6 +265,29 @@ test('les liens avec titres, espaces encadrés et parenthèses sont valides', as
   assert.deepEqual((await checkRepository(root)).errors, []);
 });
 
+test('les chemins encodés sont vérifiés et leurs erreurs affichent les accents et espaces', async (t) => {
+  const root = await fixture(t, {
+    'README.md': [
+      '[valide](d%C3%A9cision%20prise.md)',
+      '[absent](d%C3%A9cision%20absente.md)',
+    ].join('\n'),
+    'décision prise.md': '# Décision\n',
+  });
+  assert.deepEqual((await checkRepository(root)).errors, [
+    'README.md : lien introuvable décision absente.md',
+  ]);
+});
+
+test('un encodage URI mal formé produit une erreur explicite sans arrêter le contrôle', async (t) => {
+  const root = await fixture(t, {
+    'README.md': '[encodage invalide](guide%E0%A4.md)\n[autre lien](absent.md)\n',
+  });
+  assert.deepEqual((await checkRepository(root)).errors, [
+    'README.md : encodage de lien invalide guide%E0%A4.md',
+    'README.md : lien introuvable absent.md',
+  ]);
+});
+
 test('les exemples de liens dans le code ne sont pas vérifiés', async (t) => {
   const root = await fixture(t, {
     'README.md': [
@@ -331,6 +369,23 @@ test('les commentaires HTML, crochets échappés et textes alternatifs ne créen
     'image.png': 'Image de test\n',
   });
   assert.deepEqual((await checkRepository(root)).errors, []);
+});
+
+test('les attributs HTML bruts restent hors du périmètre des liens Markdown', async (t) => {
+  const root = await fixture(t, {
+    'README.md': [
+      '<img src="image-html-absente.png">',
+      '',
+      '<a href="lien-html-absent.md">Lien HTML</a>',
+      '',
+      '![image Markdown](image-markdown.png)',
+      '[lien Markdown](lien-markdown-absent.md)',
+    ].join('\n'),
+    'image-markdown.png': 'Image de test\n',
+  });
+  assert.deepEqual((await checkRepository(root)).errors, [
+    'README.md : lien introuvable lien-markdown-absent.md',
+  ]);
 });
 
 test('un vrai lien cassé reste signalé sans confondre son titre avec le chemin', async (t) => {
