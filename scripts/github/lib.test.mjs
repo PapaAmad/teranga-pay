@@ -3,14 +3,15 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { isConventionalTitle } from './check-pr-title.mjs';
 import {
-  assertCompleteInventory,
   assertRepositoryTarget,
   assertReusableProject,
   buildIssueBody,
+  collectConnection,
   existingLabel,
   existingNamedResource,
   existingTaskIssue,
   hasFrenchTrackingOptions,
+  indexTaskIssues,
   labelPayload,
   NO_REVIEWER,
   normalizeDisplayName,
@@ -128,23 +129,59 @@ test('les noms historiques de rulesets et de Projects réutilisent le même iden
   );
 });
 
-test('les inventaires tronqués sont refusés avant de déduire une absence', () => {
-  const projects = [{ id: 'existant' }];
-  assert.equal(
-    assertCompleteInventory({ projects, totalCount: 1 }, 'projects', 'des Projects'),
-    projects,
+test('la pagination parcourt tous les curseurs sans se fier à totalCount', () => {
+  const cursors = [];
+  const values = collectConnection((after) => {
+    cursors.push(after);
+    return after === null
+      ? {
+          nodes: [{ id: 'premier' }],
+          totalCount: 20,
+          pageInfo: { hasNextPage: true, endCursor: 'suite' },
+        }
+      : {
+          nodes: [{ id: 'second' }],
+          totalCount: 30,
+          pageInfo: { hasNextPage: false, endCursor: null },
+        };
+  }, 'des cartes');
+  assert.deepEqual(cursors, [null, 'suite']);
+  assert.deepEqual(
+    values.map(({ id }) => id),
+    ['premier', 'second'],
+  );
+});
+
+test('les pages incomplètes, les nœuds inaccessibles et les curseurs répétés sont refusés', () => {
+  const invalidPages = [
+    undefined,
+    { nodes: [] },
+    { nodes: [], pageInfo: { hasNextPage: 'false' } },
+    { nodes: [], pageInfo: { hasNextPage: true, endCursor: null } },
+    { nodes: [null], pageInfo: { hasNextPage: false } },
+    { nodes: [{}], pageInfo: { hasNextPage: false } },
+  ];
+  for (const page of invalidPages) {
+    assert.throws(() => collectConnection(() => page, 'des cartes'), /Inventaire/u);
+  }
+  assert.throws(
+    () =>
+      collectConnection(
+        () => ({ nodes: [], pageInfo: { hasNextPage: true, endCursor: 'identique' } }),
+        'des cartes',
+      ),
+    /curseur.*répété/u,
   );
   assert.throws(
-    () => assertCompleteInventory({ projects, totalCount: 101 }, 'projects', 'des Projects'),
-    /pagination/u,
-  );
-  assert.throws(
-    () => assertCompleteInventory({ items: [], totalCount: 1001 }, 'items', 'des cartes'),
-    /pagination/u,
-  );
-  assert.throws(
-    () => assertCompleteInventory({ projects }, 'projects', 'des Projects'),
-    /incomplet/u,
+    () =>
+      collectConnection(
+        () => ({
+          nodes: [{ id: 'identique' }],
+          pageInfo: { hasNextPage: true, endCursor: 'suite' },
+        }),
+        'des cartes',
+      ),
+    /présent plusieurs fois/u,
   );
 });
 
@@ -267,6 +304,9 @@ test('la sélection autonome pour le Project détecte les doublons sur tout le b
   const second = { number: 2, body: '<!-- teranga-task:T06 -->' };
   const pull = { number: 38, title: 'T06 | une PR', pull_request: {} };
   assert.deepEqual(selectTaskIssues(backlog, [first, pull, { title: 'Hors backlog' }]), [first]);
+  const indexed = indexTaskIssues(backlog, [first, pull]);
+  assert.equal(indexed.get('T06'), first);
+  assert.equal(indexed.get('T07'), undefined);
   assert.throws(() => selectTaskIssues(backlog, [first, second]), /Plusieurs issues/u);
 });
 

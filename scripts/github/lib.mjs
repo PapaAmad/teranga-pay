@@ -28,18 +28,31 @@ export function existingNamedResource(resources, expectedName, field, kind) {
   return matches[0];
 }
 
-export function assertCompleteInventory(inventory, field, kind) {
-  const values = inventory[field];
-  if (
-    !Array.isArray(values) ||
-    !Number.isInteger(inventory.totalCount) ||
-    inventory.totalCount !== values.length
-  ) {
-    throw new Error(
-      `Inventaire ${kind} incomplet ; compléter la pagination avant toute modification.`,
-    );
+export function collectConnection(fetchPage, kind) {
+  const values = [];
+  const cursors = new Set();
+  const ids = new Set();
+  let after = null;
+  while (true) {
+    const page = fetchPage(after);
+    if (!Array.isArray(page?.nodes) || typeof page.pageInfo?.hasNextPage !== 'boolean') {
+      throw new Error(`Inventaire ${kind} incomplet ; réponse de pagination invalide.`);
+    }
+    for (const node of page.nodes) {
+      if (!node || typeof node.id !== 'string' || !node.id || ids.has(node.id)) {
+        throw new Error(`Inventaire ${kind} ambigu ; nœud inaccessible ou présent plusieurs fois.`);
+      }
+      ids.add(node.id);
+      values.push(node);
+    }
+    if (!page.pageInfo.hasNextPage) return values;
+    const cursor = page.pageInfo.endCursor;
+    if (typeof cursor !== 'string' || !cursor || cursors.has(cursor)) {
+      throw new Error(`Inventaire ${kind} incomplet ; curseur de pagination absent ou répété.`);
+    }
+    cursors.add(cursor);
+    after = cursor;
   }
-  return values;
 }
 
 export function assertReusableProject(project) {
@@ -237,11 +250,21 @@ export function buildIssueBody(task, config) {
 }
 
 export function existingTaskIssue(task, issues) {
-  const matches = issues.filter(
-    (issue) =>
-      issue.body?.includes(`<!-- teranga-task:${task.id} -->`) ||
-      normalizeDisplayName(issue.title)?.startsWith(`${task.id} | `),
-  );
+  const matches = issues.filter((issue) => {
+    const markers = new Set(
+      [...(issue.body?.matchAll(/<!-- teranga-task:(T\d{2}) -->/gu) ?? [])].map(
+        (match) => match[1],
+      ),
+    );
+    if (markers.size > 1) {
+      throw new Error(
+        'Une issue porte plusieurs marqueurs de tâches ; corriger leur ambiguïté avant de continuer.',
+      );
+    }
+    return markers.size
+      ? markers.has(task.id)
+      : normalizeDisplayName(issue.title)?.startsWith(`${task.id} | `);
+  });
   if (matches.length > 1)
     throw new Error(
       `Plusieurs issues correspondent à ${task.id} : résoudre le doublon avant de continuer.`,
@@ -250,6 +273,22 @@ export function existingTaskIssue(task, issues) {
 }
 
 export function selectTaskIssues(backlog, issues) {
+  return [...indexTaskIssues(backlog, issues).values()].filter(Boolean);
+}
+
+export function indexTaskIssues(backlog, issues) {
   const candidates = issues.filter((issue) => !issue.pull_request);
-  return backlog.map((task) => existingTaskIssue(task, candidates)).filter(Boolean);
+  const claimed = new Map();
+  return new Map(
+    backlog.map((task) => {
+      const issue = existingTaskIssue(task, candidates);
+      if (issue && claimed.has(issue)) {
+        throw new Error(
+          `La même issue correspond à ${claimed.get(issue)} et ${task.id} ; corriger son titre ou son marqueur de tâche.`,
+        );
+      }
+      if (issue) claimed.set(issue, task.id);
+      return [task.id, issue];
+    }),
+  );
 }

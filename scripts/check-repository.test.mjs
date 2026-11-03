@@ -22,6 +22,16 @@ async function fixture(t, files = { 'README.md': '# Projet\n' }) {
   return root;
 }
 
+function git(root, args, input) {
+  const result = spawnSync('git', ['-C', root, ...args], {
+    encoding: 'utf8',
+    windowsHide: true,
+    input,
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  return result.stdout;
+}
+
 test('les trois dossiers GitHub utilisent leurs guides réservés', async (t) => {
   const root = await fixture(t, {
     'README.md': '[GitHub](.github/GUIDE.md)\n',
@@ -48,6 +58,38 @@ test('un README réservé est refusé même quand le guide est présent', async 
   }
 });
 
+test('les README documentaires sont réservés, sans interdire un workflow readme.yml', async (t) => {
+  const files = {
+    'README.md': '# Projet\n',
+    '.github/GUIDE.md': '# GitHub\n',
+    '.github/workflows/GUIDE.md': '# CI\n',
+    '.github/workflows/readme.yml': 'name: Vérifier les documents\n',
+  };
+  const root = await fixture(t, files);
+  assert.deepEqual((await checkRepository(root)).errors, []);
+  for (const name of [
+    'README',
+    'Readme.markdown',
+    'README.mdown',
+    'README.txt',
+    'readme.rst',
+    'README.rst.txt',
+    'README.rdoc',
+    'README.org',
+    'README.adoc',
+    'README.pod6',
+    'README.mdx',
+    'README.litcoffee',
+  ]) {
+    const documentary = await fixture(t, { ...files, [`.github/${name}`]: 'Documentation\n' });
+    assert.ok(
+      (await checkRepository(documentary)).errors.some((error) =>
+        error.includes('.github : utiliser GUIDE.md'),
+      ),
+    );
+  }
+});
+
 test('un guide manquant et un README qui est un dossier sont détectés', async (t) => {
   const root = await fixture(t);
   await mkdir(path.join(root, '.github'));
@@ -57,22 +99,29 @@ test('un guide manquant et un README qui est un dossier sont détectés', async 
   assert.ok(errors.includes('service : README.md manquant'));
 });
 
-test('un README symbolique vers un fichier est accepté, sans suivre les dossiers liés', async (t) => {
+test('un README symbolique vers un fichier est accepté', async (t) => {
   const root = await fixture(t, { 'guide.md': '# Guide\n' });
-  const external = await fixture(t, { 'exemple.txt': 'Sans README\n' });
   try {
     await symlink(path.join(root, 'guide.md'), path.join(root, 'README.md'), 'file');
-    await symlink(
-      external,
-      path.join(root, 'lien-dossier'),
-      process.platform === 'win32' ? 'junction' : 'dir',
-    );
   } catch (error) {
     if (process.platform === 'win32' && error.code === 'EPERM')
       return t.skip('Création de liens symboliques non autorisée sur ce poste Windows.');
     throw error;
   }
   assert.deepEqual((await checkRepository(root)).errors, []);
+});
+
+test('les dossiers symboliques externes ne sont pas parcourus', async (t) => {
+  const root = await fixture(t);
+  const external = await fixture(t, { 'exemple.md': '[Lien externe](absent.md)\n' });
+  await symlink(
+    external,
+    path.join(root, 'lien-dossier'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+  const result = await checkRepository(root);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.markdownCount, 1);
 });
 
 test('les exclusions du gitignore sont respectées pour les dossiers locaux', async (t) => {
@@ -96,9 +145,9 @@ test('les exclusions du gitignore sont respectées pour les dossiers locaux', as
 test('un README local ignoré dans .github ne déclenche pas le garde réservé', async (t) => {
   const root = await fixture(t, {
     'README.md': '# Projet\n',
-    '.gitignore': '.github/README.local\n',
+    '.gitignore': '.github/README.md\n',
     '.github/GUIDE.md': '# GitHub\n',
-    '.github/README.local': 'Note personnelle\n',
+    '.github/README.md': 'Note locale ignorée\n',
   });
   const initialized = spawnSync('git', ['init', '--quiet', root], {
     encoding: 'utf8',
@@ -127,6 +176,59 @@ test('un fichier suivi reste contrôlé même si un gitignore le couvre ensuite'
   assert.equal(result.markdownCount, 2);
 });
 
+test('un gitlink est une feuille et son contenu externe reste hors du contrôle', async (t) => {
+  const root = await fixture(t, {
+    'README.md': '# Projet\n',
+    'externe/README.md': '[Hors du dépôt](absent.md)\n',
+    'externe/sans-guide/exemple.md': '[Externe](autre.md)\n',
+  });
+  git(root, ['init', '--quiet']);
+  const tree = git(root, ['hash-object', '-t', 'tree', '--stdin', '-w'], '').trim();
+  const commit = git(
+    root,
+    ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit-tree', tree],
+    'Sous-module de test\n',
+  ).trim();
+  git(root, ['update-index', '--add', '--cacheinfo', `160000,${commit},externe`]);
+  const result = await checkRepository(root);
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(result.warnings, []);
+  assert.equal(result.markdownCount, 1);
+});
+
+test('les chemins Git NFC retrouvent les fichiers physiques NFD sans masquer leurs erreurs', async (t) => {
+  const root = await fixture(t, {
+    'README.md': '# Projet\n',
+    'cafe\u0301/README.md': '[Cassé](absent.md)\n',
+  });
+  git(root, ['init', '--quiet']);
+  const result = await checkRepository(root, {
+    git: async (directory, args) => ({
+      code: 0,
+      stdout: git(directory, args).normalize('NFC'),
+    }),
+  });
+  assert.equal(result.errors.length, 1);
+  assert.match(result.errors[0], /lien introuvable absent\.md$/u);
+  assert.equal(result.markdownCount, 2);
+});
+
+test('les extensions Markdown classiques sont contrôlées sans dépendre de la casse', async (t) => {
+  const root = await fixture(t, {
+    'README.md': '# Projet\n',
+    'guide.MD': '[Cassé](absent.md)\n',
+    'guide.markdown': '[Cassé](absent.md)\n',
+    'guide.mdown': '[Cassé](absent.md)\n',
+    'guide.mdwn': '[Cassé](absent.md)\n',
+    'guide.mkd': '[Cassé](absent.md)\n',
+    'guide.mkdn': '[Cassé](absent.md)\n',
+  });
+  const result = await checkRepository(root);
+  assert.equal(result.errors.length, 6);
+  assert.ok(result.errors.every((error) => /lien introuvable absent\.md$/u.test(error)));
+  assert.equal(result.markdownCount, 7);
+});
+
 test('les liens avec titres, espaces encadrés et parenthèses sont valides', async (t) => {
   const root = await fixture(t, {
     'README.md': [
@@ -135,10 +237,15 @@ test('les liens avec titres, espaces encadrés et parenthèses sont valides', as
       '[parenthèses](guide(1).md (Titre))',
       '[échappé](guide\\(1\\).md)',
       '[ancre](guide.md#section)',
+      '[encodé](guide%20avec%20espace.md#section)',
+      '[dièse encodé](guide%23annexe.md)',
+      '[local](#section)',
+      '[distant](https://example.invalid/guide.md)',
     ].join('\n'),
     'guide.md': '# Guide\n',
     'guide avec espace.md': '# Guide\n',
     'guide(1).md': '# Guide\n',
+    'guide#annexe.md': '# Guide\n',
   });
   assert.deepEqual((await checkRepository(root)).errors, []);
 });
@@ -159,6 +266,69 @@ test('les exemples de liens dans le code ne sont pas vérifiés', async (t) => {
       '[réel](guide.md "Titre")',
     ].join('\n'),
     'guide.md': '# Guide\n',
+  });
+  assert.deepEqual((await checkRepository(root)).errors, []);
+});
+
+test('un accent grave isolé ne masque pas un lien dans le paragraphe suivant', async (t) => {
+  const root = await fixture(t, {
+    'README.md': 'Utiliser l`apostrophe ici.\n\n[cassé](absent.md)\n\nPuis `code`.\n',
+  });
+  const { errors } = await checkRepository(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /lien introuvable absent\.md$/u);
+});
+
+test('les liens par référence et les images utilisent uniquement les définitions employées', async (t) => {
+  const root = await fixture(t, {
+    'README.md': [
+      '[complet][guide]',
+      '[réduit][]',
+      '[raccourci]',
+      '![image][logo]',
+      '',
+      '[guide]: guide.md "Titre"',
+      '[réduit]: <guide avec espace.md>',
+      '[raccourci]: guide.md#section',
+      '[logo]: image.png',
+      '[inutilisé]: absent.md',
+    ].join('\n'),
+    'guide.md': '# Guide\n',
+    'guide avec espace.md': '# Guide\n',
+    'image.png': 'Image de test\n',
+  });
+  assert.deepEqual((await checkRepository(root)).errors, []);
+});
+
+test('les références cassées et les images absentes sont détectées', async (t) => {
+  for (const markdown of [
+    '[complet][guide]\n\n[guide]: absent.md\n',
+    '[réduit][]\n\n[réduit]: absent.md\n',
+    '[raccourci]\n\n[raccourci]: absent.md\n',
+    '![image][logo]\n\n[logo]: absent.md\n',
+    '![image](absent.md)\n',
+    '[[crochets]](absent.md)\n',
+  ]) {
+    const root = await fixture(t, { 'README.md': markdown });
+    const { errors } = await checkRepository(root);
+    assert.equal(errors.length, 1, markdown);
+    assert.match(errors[0], /lien introuvable absent\.md$/u);
+  }
+});
+
+test('les commentaires HTML, crochets échappés et textes alternatifs ne créent pas de liens', async (t) => {
+  const root = await fixture(t, {
+    'README.md': [
+      '<!-- [commentaire](absent.md)',
+      '',
+      '![commentaire](autre.md) -->',
+      'Un commentaire <!-- [inline](absent.md) --> discret.',
+      '\\[échappé](absent.md)',
+      '![texte [lien](absent.md)](image.png)',
+      '[![image](image.png)](guide.md)',
+    ].join('\n'),
+    'guide.md': '# Guide\n',
+    'image.png': 'Image de test\n',
   });
   assert.deepEqual((await checkRepository(root)).errors, []);
 });

@@ -10,3 +10,4 @@ Guides pratiques maintenus par PAN pour le socle, puis par le responsable de cha
 Actualiser un guide dès qu'une commande ou une règle de travail change. Les valeurs secrètes restent dans les fichiers locaux ignorés par Git.
 
 - [Autoreview de la PR #38](autoreview-pr38.md) : risques supplémentaires reproduits, correctifs et limites de validation.
+- [Seconde revue de la PR #38](revue-pr38-2026-11-03.md) : traitement des dix remarques du 3 novembre et vérifications supplémentaires.

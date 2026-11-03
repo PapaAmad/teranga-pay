@@ -1,15 +1,16 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   assertRepositoryTarget,
-  assertCompleteInventory,
   assertReusableProject,
   buildIssueBody,
+  collectConnection,
   existingLabel,
   existingNamedResource,
-  existingTaskIssue,
   hasFrenchTrackingOptions,
+  indexTaskIssues,
   labelPayload,
   planTaskAssignees,
   readJson,
@@ -21,6 +22,42 @@ import {
 } from './lib.mjs';
 
 const sections = ['settings', 'labels', 'issues', 'project'];
+const projectQuery = `query($owner: String!, $after: String) {
+  repositoryOwner(login: $owner) {
+    ... on ProjectV2Owner {
+      projectsV2(first: 100, after: $after) {
+        nodes { id number title url public closed }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
+const itemsQuery = `query($project: ID!, $after: String) {
+  node(id: $project) {
+    ... on ProjectV2 {
+      items(first: 100, after: $after, archivedStates: [ARCHIVED, NOT_ARCHIVED]) {
+        nodes {
+          id isArchived
+          content { __typename ... on Issue { url } ... on PullRequest { url } }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
+const fieldsQuery = `query($project: ID!, $after: String) {
+  node(id: $project) {
+    ... on ProjectV2 {
+      fields(first: 100, after: $after) {
+        nodes {
+          ... on ProjectV2FieldCommon { id name }
+          ... on ProjectV2SingleSelectField { options { id name } }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
 
 function options(args) {
   const result = { apply: false, section: 'all', config: resolve(root, '.github/repository.json') };
@@ -73,6 +110,15 @@ function api(endpoint, method, body) {
 
 function apiList(endpoint) {
   return ghJson(['api', endpoint, '--paginate', '--slurp']).flat();
+}
+
+function graphql(query, variables, call) {
+  const result = call(['api', 'graphql', '--input', '-'], JSON.stringify({ query, variables }));
+  if (result?.errors?.length) {
+    throw new Error(result.errors.map(({ message }) => message).join(' | '));
+  }
+  if (!result?.data) throw new Error('La réponse GraphQL ne contient aucune donnée.');
+  return result.data;
 }
 
 function ensureSettings(config) {
@@ -129,18 +175,18 @@ function ensureLabels(config, labels) {
   console.info(`${labels.length} labels synchronisés.`);
 }
 
-function ensureIssues(config, backlog) {
-  const issues = apiList(`repos/${config.repository}/issues?state=all&per_page=100`).filter(
-    (issue) => !issue.pull_request,
-  );
-  const assignableLogins = apiList(`repos/${config.repository}/assignees?per_page=100`).map(
-    ({ login }) => login,
-  );
-  selectTaskIssues(backlog, issues);
+export function ensureIssues(config, backlog, remote = { apiList, api }) {
+  const issues = remote
+    .apiList(`repos/${config.repository}/issues?state=all&per_page=100`)
+    .filter((issue) => !issue.pull_request);
+  const assignableLogins = remote
+    .apiList(`repos/${config.repository}/assignees?per_page=100`)
+    .map(({ login }) => login);
+  const selectedIssues = indexTaskIssues(backlog, issues);
   const pendingAssignees = new Set();
   const result = [];
   for (const task of backlog) {
-    let issue = existingTaskIssue(task, issues);
+    let issue = selectedIssues.get(task.id);
     const assignment = planTaskAssignees(
       task,
       config,
@@ -149,17 +195,16 @@ function ensureIssues(config, backlog) {
     );
     for (const login of assignment.pending) pendingAssignees.add(login);
     if (!issue) {
-      issue = api(`repos/${config.repository}/issues`, 'POST', {
+      issue = remote.api(`repos/${config.repository}/issues`, 'POST', {
         title: `${task.id} | ${task.title}`,
         body: buildIssueBody(task, config),
         labels: task.labels,
         assignees: assignment.assignable,
       });
-      issues.push(issue);
       console.info(`Créée : ${task.id} → #${issue.number}`);
     } else {
       if (assignment.toAdd.length) {
-        issue = api(`repos/${config.repository}/issues/${issue.number}/assignees`, 'POST', {
+        issue = remote.api(`repos/${config.repository}/issues/${issue.number}/assignees`, 'POST', {
           assignees: assignment.toAdd,
         });
         console.info(`Assignations ajoutées : ${task.id} → ${assignment.toAdd.join(', ')}`);
@@ -176,25 +221,16 @@ function ensureIssues(config, backlog) {
   return result;
 }
 
-function ensureProject(config, issues) {
+export function ensureProject(config, issues, remote = { gh, ghJson }) {
   const owner = config.repository.split('/')[0];
-  const inventory = ghJson([
-    'project',
-    'list',
-    '--owner',
-    owner,
-    '--limit',
-    '100',
-    '--closed',
-    '--format',
-    'json',
-  ]);
-  const projects = assertCompleteInventory(inventory, 'projects', 'des Projects');
+  const projects = collectConnection(
+    (after) => graphql(projectQuery, { owner, after }, remote.ghJson).repositoryOwner?.projectsV2,
+    'des Projects',
+  );
   const existing = existingNamedResource(projects, config.projectTitle, 'title', 'Projects');
-  assertReusableProject(existing);
   const project =
     existing ??
-    ghJson([
+    remote.ghJson([
       'project',
       'create',
       '--owner',
@@ -205,47 +241,40 @@ function ensureProject(config, issues) {
       'json',
     ]);
   assertReusableProject(project);
-  const itemInventory = ghJson([
-    'project',
-    'item-list',
-    String(project.number),
-    '--owner',
-    owner,
-    '--limit',
-    '1000',
-    '--format',
-    'json',
-  ]);
-  const items = assertCompleteInventory(itemInventory, 'items', 'des cartes');
+  const items = collectConnection(
+    (after) => graphql(itemsQuery, { project: project.id, after }, remote.ghJson).node?.items,
+    'des cartes',
+  );
+  if (items.some((item) => !item.content)) {
+    throw new Error('Des cartes sont inaccessibles ; vérifier les permissions avant modification.');
+  }
+  const fields = collectConnection(
+    (after) => graphql(fieldsQuery, { project: project.id, after }, remote.ghJson).node?.fields,
+    'des champs',
+  );
   if (project.title !== config.projectTitle) {
-    const result = ghJson(
-      ['api', 'graphql', '--input', '-'],
-      JSON.stringify({
-        query:
-          'mutation($input: UpdateProjectV2Input!) { updateProjectV2(input: $input) { projectV2 { id title } } }',
-        variables: { input: { projectId: project.id, title: config.projectTitle } },
-      }),
+    const result = graphql(
+      'mutation($input: UpdateProjectV2Input!) { updateProjectV2(input: $input) { projectV2 { id title } } }',
+      { input: { projectId: project.id, title: config.projectTitle } },
+      remote.ghJson,
     );
-    if (result.errors?.length)
-      throw new Error(result.errors.map(({ message }) => message).join(' | '));
-    const renamed = result.data?.updateProjectV2?.projectV2;
+    const renamed = result.updateProjectV2?.projectV2;
     if (renamed?.id !== project.id || renamed.title !== config.projectTitle) {
       throw new Error('Le renommage du Project existant n’a pas été confirmé.');
     }
   }
-  gh(['project', 'link', String(project.number), '--owner', owner, '--repo', config.repository]);
-  const fields = ghJson([
+  remote.gh([
     'project',
-    'field-list',
+    'link',
     String(project.number),
     '--owner',
     owner,
-    '--format',
-    'json',
-  ]).fields;
+    '--repo',
+    config.repository,
+  ]);
   let trackingField = selectTrackingField(fields);
   if (!trackingField) {
-    trackingField = ghJson([
+    trackingField = remote.ghJson([
       'project',
       'field-create',
       String(project.number),
@@ -269,7 +298,7 @@ function ensureProject(config, issues) {
   const urls = new Set(items.map((item) => item.content?.url));
   for (const issue of issues) {
     if (!urls.has(issue.html_url)) {
-      gh([
+      remote.gh([
         'project',
         'item-add',
         String(project.number),
@@ -278,6 +307,7 @@ function ensureProject(config, issues) {
         '--url',
         issue.html_url,
       ]);
+      urls.add(issue.html_url);
     }
   }
   console.info(
@@ -285,8 +315,8 @@ function ensureProject(config, issues) {
   );
 }
 
-try {
-  const opts = options(process.argv.slice(2));
+export function runSetup(args = process.argv.slice(2)) {
+  const opts = options(args);
   if (!opts) {
     console.info(
       'node scripts/github/setup.mjs [--dry-run|--apply] [--section=all|settings|labels|issues|project] [--config=chemin.json]',
@@ -340,10 +370,16 @@ try {
       );
     }
   }
-} catch (error) {
-  console.error(error.message);
-  console.error(
-    'Arrêt : des étapes précédentes peuvent déjà avoir été appliquées. Corriger puis relancer ; les issues existantes sont conservées.',
-  );
-  process.exitCode = 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  try {
+    runSetup();
+  } catch (error) {
+    console.error(error.message);
+    console.error(
+      'Arrêt : des étapes précédentes peuvent déjà avoir été appliquées. Corriger puis relancer ; les issues existantes sont conservées.',
+    );
+    process.exitCode = 1;
+  }
 }

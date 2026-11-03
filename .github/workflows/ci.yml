@@ -3,7 +3,7 @@ name: CI
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   push:
     branches: [main]
 
@@ -12,7 +12,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action == 'edited' && !github.event.changes.base && 'metadata' || 'quality' }}
   cancel-in-progress: true
 
 env:
@@ -21,7 +21,9 @@ env:
 
 jobs:
   quality:
-    name: ${{ matrix.check }}
+    # Un événement ignoré ne doit pas masquer un contrôle obligatoire échoué.
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Qualité | métadonnées ignorées' || matrix.check }}
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -53,7 +55,8 @@ jobs:
         run: ${{ matrix.command }}
 
   secrets:
-    name: Secrets
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Secrets | métadonnées ignorées' || 'Secrets' }}
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
