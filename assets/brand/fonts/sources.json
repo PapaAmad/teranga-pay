@@ -1,0 +1,36 @@
+{
+  "retrieved": "2026-11-05",
+  "sourceCommit": "44ab557b8697877e163c597aae685b68aa880767",
+  "files": [
+    {
+      "file": "NotoSans-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/expo/google-fonts/44ab557b8697877e163c597aae685b68aa880767/font-packages/noto-sans/400Regular/NotoSans_400Regular.ttf",
+      "bytes": 629024,
+      "sha256": "fe8c022f48d8dd29f17b744d16f9346f4357e16f7d4f7be58b000ae7c291b614"
+    },
+    {
+      "file": "NotoSans-SemiBold.ttf",
+      "url": "https://raw.githubusercontent.com/expo/google-fonts/44ab557b8697877e163c597aae685b68aa880767/font-packages/noto-sans/600SemiBold/NotoSans_600SemiBold.ttf",
+      "bytes": 631364,
+      "sha256": "e691fe27813ec6ed11d0a5be4c6c1f6739996ed682462eaa3244a6185217dd6c"
+    },
+    {
+      "file": "Manrope-Bold.ttf",
+      "url": "https://raw.githubusercontent.com/expo/google-fonts/44ab557b8697877e163c597aae685b68aa880767/font-packages/manrope/700Bold/Manrope_700Bold.ttf",
+      "bytes": 97996,
+      "sha256": "42f1d9457585365aff770da0605923d5adceb8a390761c031a60ae076e93b0db"
+    },
+    {
+      "file": "OFL-NotoSans.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/OFL.txt",
+      "bytes": 4396,
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    },
+    {
+      "file": "OFL-Manrope.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt",
+      "bytes": 4387,
+      "sha256": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b"
+    }
+  ]
+}

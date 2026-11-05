@@ -1,0 +1,65 @@
+{
+  "documentSha256": "5eb439c57f7eacfae3cb06267a54ba2dbe50dc684e5fd3becaf4b06c4100f0c3",
+  "fonts": [
+    {
+      "family": "Noto",
+      "weight": "400",
+      "status": "loaded"
+    },
+    {
+      "family": "Noto",
+      "weight": "600",
+      "status": "loaded"
+    },
+    {
+      "family": "Manrope",
+      "weight": "700",
+      "status": "loaded"
+    }
+  ],
+  "pages": [
+    {
+      "id": "cover",
+      "overflow": false
+    },
+    {
+      "id": "research",
+      "overflow": false
+    },
+    {
+      "id": "directions",
+      "overflow": false
+    },
+    {
+      "id": "logo",
+      "overflow": false
+    },
+    {
+      "id": "palette",
+      "overflow": false
+    },
+    {
+      "id": "type",
+      "overflow": false
+    },
+    {
+      "id": "icons",
+      "overflow": false
+    },
+    {
+      "id": "components",
+      "overflow": false
+    },
+    {
+      "id": "next",
+      "overflow": false
+    }
+  ],
+  "narrow": {
+    "width": 390,
+    "contentWidth": 390
+  },
+  "feedback": "Retour de démonstration reçu. Aucun paiement n’a été lancé.",
+  "browserErrors": [],
+  "scope": "Rendu documentaire uniquement, sans essai Android ni validation utilisateur."
+}

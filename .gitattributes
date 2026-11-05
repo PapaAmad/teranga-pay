@@ -4,5 +4,9 @@
 *.jpg binary
 *.jpeg binary
 *.webp binary
+*.ttf binary
+*.mp4 binary
+# Conserver les licences amont octet pour octet, espaces finaux inclus.
+assets/brand/fonts/OFL-*.txt -text whitespace=-blank-at-eol
 *.sh text eol=lf
 .husky/* text eol=lf

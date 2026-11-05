@@ -1,0 +1,17 @@
+{
+  "corpus": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÂÇÉÈÊËÎÏÑŊÔÓÙÛÜŸàâçéèêëîïñŋôóùûüÿ0123456789",
+  "results": [
+    {
+      "font": "Manrope-Bold.ttf",
+      "missing": []
+    },
+    {
+      "font": "NotoSans-Regular.ttf",
+      "missing": []
+    },
+    {
+      "font": "NotoSans-SemiBold.ttf",
+      "missing": []
+    }
+  ]
+}

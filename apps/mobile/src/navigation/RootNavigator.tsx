@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AboutScreen } from '../screens/AboutScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { DesignSystemScreen } from '../screens/DesignSystemScreen';
 import { fr } from '../translations/fr';
 import type { RootStackParamList } from './types';
 
@@ -20,6 +21,11 @@ export function RootNavigator() {
           name="About"
           component={AboutScreen}
           options={{ title: fr.navigation.about }}
+        />
+        <Stack.Screen
+          name="DesignSystem"
+          component={DesignSystemScreen}
+          options={{ title: fr.navigation.designSystem }}
         />
       </Stack.Navigator>
     </NavigationContainer>

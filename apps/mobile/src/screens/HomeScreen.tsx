@@ -3,6 +3,7 @@ import { Button, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '../navigation/types';
 import { fr } from '../translations/fr';
+import { Button as BrandButton } from '../ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -16,6 +17,11 @@ export function HomeScreen({ navigation }: Props) {
       <Text style={styles.description}>{fr.home.description}</Text>
       <Text style={styles.notice}>{fr.home.notice}</Text>
       <Button title={fr.home.aboutAction} onPress={() => navigation.navigate('About')} />
+      <BrandButton
+        variant="secondary"
+        label={fr.home.designAction}
+        onPress={() => navigation.navigate('DesignSystem')}
+      />
     </View>
   );
 }
