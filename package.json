@@ -15,6 +15,11 @@
     "services/*"
   ],
   "scripts": {
+    "brand:icons": "node scripts/export-brand-icons.mjs",
+    "brand:contrast": "node scripts/export-brand-contrast.mjs",
+    "brand:build": "node scripts/build-brand.mjs",
+    "brand:document": "node scripts/render-brand-document.mjs",
+    "brand:motion": "node scripts/render-brand-motion.mjs",
     "mobile": "npm run start --workspace @teranga-pay/mobile",
     "mobile:android": "npm run android --workspace @teranga-pay/mobile",
     "mobile:ios": "npm run ios --workspace @teranga-pay/mobile",

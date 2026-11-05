@@ -9,6 +9,7 @@ Point d'entrée pour comprendre le produit, démarrer le dépôt et retrouver le
 | [architecture](architecture/README.md) | Architecture prévue, responsabilités et limites du socle. |
 | [decisions](decisions/README.md)       | Notes expliquant les choix structurants.                  |
 | [planning](planning/README.md)         | État de T01 à T07 et feuille de route complète.           |
+| [design](design/README.md)             | Recherche, identité T08 proposée, règles et validation.   |
 
 Commencer par le [démarrage](guides/demarrage.md), puis consulter le [suivi T01 à T07](planning/suivi-t01-t07.md). Les dossiers de services, d'infrastructure et de livrables réservent les emplacements des prochaines tâches : leur présence ne signifie pas que ces fonctions sont réalisées.
 

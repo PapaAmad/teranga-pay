@@ -1,0 +1,2248 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Identité visuelle v1</title>
+    <style>
+      @font-face {
+        font-family: Noto;
+        src: url('fonts/NotoSans-Regular.ttf');
+      }
+      @font-face {
+        font-family: Noto;
+        src: url('fonts/NotoSans-SemiBold.ttf');
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: Manrope;
+        src: url('fonts/Manrope-Bold.ttf');
+        font-weight: 700;
+      }
+      :root {
+        --p: #172a36;
+        --paper: #fafaf5;
+        --a: #e5ee73;
+        --ink: #142631;
+        --muted: #4f616b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #daddd5;
+        font:
+          15px/1.6 Noto,
+          sans-serif;
+      }
+      h1,
+      h2,
+      h3,
+      strong.display {
+        font-family: Manrope, sans-serif;
+        line-height: 1.13;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h2 {
+        font-size: 43px;
+        letter-spacing: -1.6px;
+        margin: 14px 0 14px;
+      }
+      h3 {
+        font-size: 24px;
+        letter-spacing: -0.6px;
+      }
+      a {
+        color: inherit;
+        text-underline-offset: 4px;
+      }
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #172a36;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 32px;
+        font-size: 13px;
+      }
+      .toolbar a {
+        margin-left: 22px;
+      }
+      .spread {
+        position: relative;
+        width: min(1360px, 100%);
+        min-height: 880px;
+        margin: 28px auto;
+        background: var(--paper);
+        padding: 62px 68px 74px;
+        overflow: hidden;
+      }
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .section-head {
+        max-width: 770px;
+        margin-bottom: 38px;
+      }
+      .section-head > p {
+        font-size: 16px;
+        color: var(--muted);
+        max-width: 680px;
+      }
+      footer {
+        position: absolute;
+        bottom: 24px;
+        left: 68px;
+        right: 68px;
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid #cbd2c7;
+        padding-top: 12px;
+        font-size: 10px;
+      }
+      .cover {
+        display: grid;
+        grid-template-columns: 1.25fr 1fr;
+        gap: 50px;
+        background: var(--p);
+        color: var(--paper);
+      }
+      .cover footer {
+        border-color: #6b8491;
+      }
+      .cover h1 {
+        font-size: 76px;
+        letter-spacing: -4px;
+        margin: 90px 0 24px;
+      }
+      .cover h1 span {
+        color: var(--a);
+      }
+      .cover p {
+        max-width: 420px;
+        font-size: 18px;
+        color: #d6e3d8;
+      }
+      .cover small {
+        display: block;
+        margin-top: 42px;
+        font-size: 12px;
+        max-width: 370px;
+        color: #d6e3d8;
+      }
+      .cover-art {
+        display: grid;
+        place-items: center;
+        align-self: center;
+        aspect-ratio: 1;
+        background: #223d4d;
+        border-radius: 32px;
+        position: relative;
+      }
+      .cover-art > svg {
+        width: 65%;
+        height: 65%;
+        color: var(--a);
+        position: relative;
+      }
+      .cover-art:before,
+      .cover-art:after {
+        content: '';
+        position: absolute;
+        border: 1px solid #536b7a;
+        border-radius: 50%;
+        width: 110%;
+        height: 110%;
+      }
+      .cover-art:after {
+        width: 78%;
+        height: 78%;
+      }
+      .brandword {
+        width: 210px;
+        height: auto;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 38px;
+      }
+      .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .note {
+        padding: 22px 24px;
+        border-left: 3px solid var(--p);
+        background: #ffffff;
+        margin-top: 20px;
+      }
+      .note strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+      .fact {
+        border-top: 1px solid #b8c6ba;
+        padding: 24px 0;
+      }
+      .fact .number {
+        font: 700 40px Manrope;
+        color: var(--p);
+      }
+      .fact p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .fact a {
+        font-size: 11px;
+      }
+      .principle {
+        display: flex;
+        gap: 18px;
+        padding: 20px 0;
+        border-top: 1px solid #b8c6ba;
+      }
+      .principle b {
+        font: 700 30px Manrope;
+        color: #547367;
+      }
+      .principle strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .direction {
+        border: 1px solid #cdd4c9;
+        border-radius: 22px;
+        overflow: hidden;
+        background: #ffffff;
+      }
+      .dir-head {
+        padding: 24px;
+        color: var(--paper);
+        background: var(--p);
+      }
+      .dir-head .eyebrow {
+        opacity: 0.8;
+      }
+      .dir-head h3 {
+        margin: 10px 0;
+      }
+      .dir-head > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .dir-body {
+        padding: 22px;
+      }
+      .dir-body > p {
+        font-size: 12px;
+        margin-top: 16px;
+        color: #4f616b;
+      }
+      .chips {
+        display: flex;
+        height: 26px;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 18px 0;
+      }
+      .chips span {
+        flex: 1;
+      }
+      .sample {
+        background: var(--paper);
+        padding: 19px;
+        border: 1px solid #cfd4ca;
+        border-radius: 20px;
+        font-size: 11px;
+        color: #142631;
+      }
+      .sample-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--p);
+      }
+      .sample-top > span {
+        margin-left: auto;
+        font-size: 8px;
+        border: 1px solid #a5b0a8;
+        padding: 2px 6px;
+        border-radius: 12px;
+      }
+      .balance {
+        background: var(--p);
+        color: #fff;
+        border-radius: 15px;
+        margin-top: 18px;
+        padding: 22px 18px;
+      }
+      .balance > span {
+        display: block;
+        font-size: 10px;
+      }
+      .balance > strong {
+        display: block;
+        font: 700 28px/1.3 Manrope;
+        margin: 8px 0;
+        white-space: nowrap;
+      }
+      .balance small {
+        font-size: 12px;
+      }
+      .balance > span:last-child {
+        color: #e1e7e3;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-around;
+        padding: 20px 0 15px;
+      }
+      .actions > span {
+        display: grid;
+        justify-items: center;
+        gap: 7px;
+      }
+      .receipt {
+        display: grid;
+        gap: 8px;
+        border-top: 1px solid #b7c6ba;
+        padding-top: 15px;
+      }
+      .receipt > span {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .receipt > small {
+        font-size: 9px;
+      }
+      .symbol-stage {
+        height: 310px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        border-radius: 24px;
+      }
+      .logo-wide {
+        width: 78%;
+        height: auto;
+      }
+      .small-marks {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px;
+        border-bottom: 1px solid #bbcabb;
+      }
+      .dark {
+        background: var(--p);
+        color: var(--paper);
+      }
+      .inverse {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 45px;
+        border-radius: 20px;
+        margin-top: 22px;
+      }
+      .inverse img {
+        width: 90%;
+      }
+      .usage {
+        display: grid;
+        gap: 18px;
+        margin-top: 26px;
+        font-size: 13px;
+      }
+      .usage strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1fr;
+        gap: 12px;
+        height: 190px;
+        margin-bottom: 30px;
+      }
+      .swatch {
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-size: 13px;
+      }
+      .swatch b {
+        font: 700 23px Manrope;
+      }
+      .swatch code {
+        font-size: 12px;
+      }
+      .contrast-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .contrast-table th,
+      .contrast-table td {
+        text-align: left;
+        padding: 11px 6px;
+        border-bottom: 1px solid #cfd6cc;
+      }
+      .contrast-table th {
+        font-weight: 600;
+      }
+      .status {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        border: 1px solid currentColor;
+        padding: 15px 18px;
+        border-radius: 13px;
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+      .status strong {
+        display: block;
+      }
+      .status small {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+      }
+      .type-large {
+        font: 700 66px/1.15 Manrope;
+        letter-spacing: -2px;
+        margin: 40px 0;
+      }
+      .type-amount {
+        font: 700 56px/1.1 Manrope;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -1px;
+        margin: 25px 0;
+      }
+      .alphabet {
+        font-size: 25px;
+        line-height: 1.9;
+        letter-spacing: 1px;
+        margin-top: 24px;
+        overflow-wrap: anywhere;
+      }
+      .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 1px;
+        background: #cdd6cc;
+        border: 1px solid #cdd6cc;
+        margin: 26px 0;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .icon-cell {
+        height: 112px;
+        background: #ffffff;
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 14px;
+        font-size: 11px;
+      }
+      .size-tests {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 26px;
+      }
+      .size-tests > div {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        font-size: 11px;
+      }
+      .component {
+        background: #ffffff;
+        border: 1px solid #cdd6cc;
+        padding: 24px;
+        border-radius: 18px;
+      }
+      .component h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 48px;
+        padding: 12px 24px;
+        border-radius: 14px;
+        font: 600 15px Noto;
+        background: var(--p);
+        color: white;
+        border: 0;
+        margin-bottom: 12px;
+      }
+      .btn:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 3px;
+      }
+      .btn:active {
+        background: #0d1e28;
+      }
+      .btn.disabled {
+        background: #e5e8e1;
+        color: #4f616b;
+      }
+      .btn.pressed {
+        background: #0d1e28;
+      }
+      .field {
+        border: 1px solid #61727d;
+        min-height: 52px;
+        padding: 14px;
+        border-radius: 14px;
+        margin-top: 6px;
+        font-size: 16px;
+      }
+      .field.focused {
+        outline: 2px solid #255ba6;
+        outline-offset: 2px;
+      }
+      .field.error {
+        border: 2px solid #a22d32;
+        color: #a22d32;
+      }
+      .field.disabled {
+        background: #e5e8e1;
+        color: #4f616b;
+      }
+      .label {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .help {
+        font-size: 11px;
+        margin: 6px 0 16px;
+        color: var(--muted);
+      }
+      .help.error {
+        color: #a22d32;
+      }
+      .big-sample {
+        max-width: 330px;
+        margin: auto;
+      }
+      .big-sample .balance {
+        padding: 30px 22px;
+      }
+      .big-sample .balance > strong {
+        font-size: 34px;
+      }
+      .pill {
+        display: inline-block;
+        font-size: 10px;
+        padding: 5px 9px;
+        border: 1px solid #97ab9c;
+        border-radius: 20px;
+        margin-top: 10px;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 30px;
+      }
+      .sources {
+        font-size: 12px;
+        line-height: 1.9;
+      }
+      .sources li {
+        margin-bottom: 8px;
+      }
+      .validation {
+        display: grid;
+        gap: 20px;
+      }
+      .validation strong {
+        font-family: Manrope;
+        font-size: 19px;
+      }
+      .validation p {
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      .screen-note {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 15px;
+      }
+      button {
+        cursor: pointer;
+      }
+      @media (max-width: 900px) {
+        .spread {
+          padding: 30px 24px 70px;
+          min-height: auto;
+          margin: 18px 0;
+        }
+        .cover {
+          grid-template-columns: 1fr;
+        }
+        .cover h1 {
+          font-size: 54px;
+          margin-top: 40px;
+        }
+        .cover-art {
+          max-width: 380px;
+        }
+        .grid2,
+        .grid3,
+        .split {
+          grid-template-columns: 1fr;
+        }
+        .icon-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        footer {
+          left: 24px;
+          right: 24px;
+          font-size: 8px;
+        }
+        .toolbar {
+          padding: 12px;
+          position: static;
+          flex-wrap: wrap;
+        }
+        .toolbar nav {
+          margin-top: 10px;
+        }
+        .toolbar a {
+          margin-left: 0;
+          margin-right: 18px;
+        }
+        h2 {
+          font-size: 36px;
+        }
+        .type-large {
+          font-size: 44px;
+        }
+        .type-amount {
+          font-size: 38px;
+        }
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      @media print {
+        body {
+          background: white;
+          font-size: 12px;
+        }
+        .toolbar {
+          display: none;
+        }
+        .spread {
+          width: 1123px;
+          min-height: 794px;
+          height: 794px;
+          margin: 0;
+          padding: 42px 56px 60px;
+          break-after: page;
+          page-break-after: always;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .spread:last-child {
+          break-after: auto;
+        }
+        h2 {
+          font-size: 36px;
+        }
+        .section-head {
+          margin-bottom: 24px;
+        }
+        .section-head > p {
+          font-size: 13px;
+        }
+        .cover h1 {
+          font-size: 66px;
+          margin-top: 72px;
+        }
+        .cover p {
+          font-size: 16px;
+        }
+        .cover small {
+          font-size: 10px;
+        }
+        .cover-art {
+          max-width: 370px;
+        }
+        .grid3 {
+          gap: 16px;
+        }
+        .dir-head,
+        .dir-body {
+          padding: 17px;
+        }
+        .dir-head h3 {
+          font-size: 20px;
+        }
+        .dir-body > p {
+          font-size: 10px;
+        }
+        .sample {
+          padding: 14px;
+        }
+        .balance {
+          padding: 16px 12px;
+        }
+        .balance > strong {
+          font-size: 24px;
+        }
+        .actions {
+          padding: 14px 0;
+        }
+        .swatches {
+          height: 145px;
+        }
+        .contrast-table th,
+        .contrast-table td {
+          padding: 8px 5px;
+          font-size: 10px;
+        }
+        .icon-cell {
+          height: 96px;
+        }
+        .type-large {
+          font-size: 54px;
+          margin: 22px 0;
+        }
+        .type-amount {
+          font-size: 44px;
+        }
+        .alphabet {
+          font-size: 21px;
+        }
+        .note {
+          padding: 17px;
+          margin-top: 15px;
+        }
+        .component {
+          padding: 18px;
+        }
+        .field {
+          padding: 10px;
+          min-height: 44px;
+        }
+        footer {
+          left: 56px;
+          right: 56px;
+          bottom: 20px;
+        }
+        .fact {
+          padding: 18px 0;
+        }
+        .fact .number {
+          font-size: 32px;
+        }
+        .fact p {
+          font-size: 12px;
+        }
+        .sources {
+          font-size: 10px;
+        }
+        .validation p {
+          font-size: 12px;
+        }
+        .status {
+          padding: 12px 14px;
+        }
+        .status small {
+          font-size: 10px;
+        }
+      }
+      @media print {
+        .grid2 {
+          grid-template-columns: 1fr 1fr;
+        }
+        .grid3,
+        .split {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .cover {
+          grid-template-columns: 1.25fr 1fr;
+        }
+        .icon-grid {
+          grid-template-columns: repeat(8, 1fr);
+        }
+        .cover h1 {
+          font-size: 66px;
+          margin-top: 72px;
+        }
+        .spread {
+          margin: 0;
+          padding: 42px 56px 60px;
+        }
+        footer {
+          left: 56px;
+          right: 56px;
+          font-size: 10px;
+        }
+      }
+      @media print {
+        #directions .dir-head {
+          padding: 12px 14px;
+        }
+        #directions .dir-head > span {
+          font-size: 10px;
+          line-height: 1.3;
+        }
+        #directions .dir-head h3 {
+          margin: 6px 0;
+          font-size: 18px;
+        }
+        #directions .dir-head svg {
+          width: 26px;
+          height: 26px;
+        }
+        #directions .dir-body {
+          padding: 12px;
+        }
+        #directions .sample {
+          padding: 12px;
+        }
+        #directions .balance {
+          margin-top: 12px;
+          padding: 12px;
+        }
+        #directions .balance > strong {
+          font-size: 22px;
+          margin: 5px 0;
+        }
+        #directions .actions {
+          padding: 12px 0;
+        }
+        #directions .receipt {
+          gap: 5px;
+          padding-top: 10px;
+        }
+        #directions .receipt small {
+          display: none;
+        }
+        #directions .chips {
+          margin: 12px 0;
+          height: 20px;
+        }
+        #directions .dir-body > p {
+          margin-top: 10px;
+          font-size: 10px;
+          line-height: 1.4;
+        }
+        #logo .symbol-stage {
+          height: 220px;
+        }
+        #logo .inverse {
+          padding: 28px;
+          margin-top: 18px;
+        }
+        #logo .usage {
+          gap: 12px;
+          margin-top: 18px;
+          font-size: 11px;
+        }
+        #logo .note {
+          font-size: 11px;
+        }
+        #palette .contrast-table th,
+        #palette .contrast-table td {
+          padding: 5px;
+          font-size: 10px;
+          line-height: 1.3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <strong>Teranga Pay | Atelier d’identité</strong>
+      <nav>
+        <a href="#directions">Trois directions</a><a href="#logo">Logo</a><a href="#icons">Icônes</a
+        ><a href="#components">Composants</a
+        ><a href="../../docs/design/README.md">Dossier de recherche</a>
+      </nav>
+    </div>
+    <main>
+      <section class="spread cover" id="cover">
+        <div>
+          <span class="eyebrow">Projet de Salam et PAN | T08</span>
+          <h1>La valeur<br />circule.<br /><span>Le lien reste.</span></h1>
+          <p>
+            Une identité pensée pour les échanges du quotidien. Une proposition ancrée dans le
+            produit, à éprouver avec les personnes qui l’utiliseront.
+          </p>
+          <small
+            >Étude v1 | 5 novembre 2026<br />Trois directions explorées. B retenue par PAN et Salam
+            après leur échange.<br />Maquettes de démonstration | aucun paiement réel.</small
+          >
+        </div>
+        <div class="cover-art">
+          <svg width="340" height="340" viewBox="0 0 64 64" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+            />
+          </svg>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>01 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="research">
+        <header class="section-head">
+          <span class="eyebrow">01 / Teranga Pay</span>
+          <h2>Le quotidien avant la crypto.</h2>
+          <p>
+            Le brief est un outil pour recevoir, payer et encaisser. La technique sert ce quotidien
+            ; elle ne doit pas l’envahir.
+          </p>
+        </header>
+        <div class="grid2">
+          <div>
+            <div class="principle">
+              <b>01</b>
+              <div>
+                <strong>Comprendre son argent.</strong>Montants en FCFA d’abord, frais et
+                destinataire lisibles, une action prioritaire.
+              </div>
+            </div>
+            <div class="principle">
+              <b>02</b>
+              <div>
+                <strong>Ne pas confondre les états.</strong>Attente, échec et confirmation
+                s’expriment avec des mots et un signe, jamais la couleur seule.
+              </div>
+            </div>
+            <div class="principle">
+              <b>03</b>
+              <div>
+                <strong>Accueillir sans décorer à vide.</strong>Une ouverture et un langage visuel
+                humain ; pas de drapeau, wax ou baobab ajouté sans raison.
+              </div>
+            </div>
+            <div class="note">
+              <strong>Ce que les sources ne prouvent pas</strong>Les personas du brief sont fictifs.
+              Aucune étude consultée ne prouve qu’une teinte crée la confiance chez nos futurs
+              utilisateurs sénégalais.
+            </div>
+          </div>
+          <div>
+            <div class="fact">
+              <div class="number">30 nations</div>
+              <p>
+                Associations couleur/émotion : régularités communes et différences culturelles. Ce
+                n’est pas une étude de confiance financière.
+              </p>
+              <a href="https://doi.org/10.1177/0956797620948810">Jonauskaite et al., 2020</a>
+            </div>
+            <div class="fact">
+              <div class="number">4,5:1 / 48 dp</div>
+              <p>
+                Contraste de texte et cible tactile : deux repères mesurables. Les WCAG web ne
+                constituent pas à elles seules une certification Android.
+              </p>
+              <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html">W3C</a> ·
+              <a href="https://support.google.com/accessibility/android/answer/7101858?hl=en"
+                >Android</a
+              >
+            </div>
+            <div class="fact">
+              <div class="number">Forme + mots</div>
+              <p>
+                Une belle interface ne garantit ni le paiement ni sa sécurité. Les promesses doivent
+                rester vérifiables.
+              </p>
+              <a href="../../docs/design/recherche.md">Recherche complète et limites</a>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>02 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="directions">
+        <header class="section-head">
+          <span class="eyebrow">02 / Teranga Pay</span>
+          <h2>Trois territoires. Un même usage.</h2>
+          <p>
+            Même solde fictif, mêmes actions, même état en attente. On compare une expression, pas
+            des fonctionnalités différentes.
+          </p>
+        </header>
+        <div class="grid3">
+          <article class="direction">
+            <div class="dir-head" style="--p: #123f36; --paper: #f5f0e6">
+              <div>
+                <span class="eyebrow">Direction A</span
+                ><svg width="38" height="38" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 14h34c8 0 14 6 14 14v8H44v-8c0-1.1-.9-2-2-2h-4v28H26V26h-6v10H8Z"
+                  />
+                </svg>
+              </div>
+              <h3>La porte ouverte</h3>
+              <span>Une présence calme, un espace accueillant.</span>
+            </div>
+            <div class="dir-body">
+              <div class="sample" style="--p: #123f36; --a: #e6b85c; --paper: #f5f0e6">
+                <div class="sample-top">
+                  <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M8 14h34c8 0 14 6 14 14v8H44v-8c0-1.1-.9-2-2-2h-4v28H26V26h-6v10H8Z"
+                    /></svg
+                  ><strong>teranga pay</strong><span>Regtest</span>
+                </div>
+                <div class="balance">
+                  <span>Mon solde fictif</span><strong>45 000 <small>FCFA</small></strong
+                  ><span>Données de démonstration</span>
+                </div>
+                <div class="actions">
+                  <span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M19 3 9 13M9 6v7h7" /></svg
+                    >Recevoir</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M9 13 19 3M12 3h7v7" /></svg
+                    >Envoyer</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M5 9V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v2M5 15v2a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-2"
+                      />
+                      <path d="M3 12h18M12 8v8M9 10l3-2 3 2" /></svg
+                    >Encaisser</span
+                  >
+                </div>
+                <div class="receipt">
+                  <span
+                    ><svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                      <path d="M12 7v5l4 2" />
+                    </svg>
+                    Paiement en attente</span
+                  ><strong>2 500 FCFA</strong><small>Le résultat n’est pas encore confirmé.</small>
+                </div>
+              </div>
+              <div class="chips">
+                <span style="background: #123f36"></span><span style="background: #f5f0e6"></span
+                ><span style="background: #e6b85c"></span>
+              </div>
+              <p>
+                Continuité avec le brief vert et doré ; une ouverture plutôt qu’un emblème crypto.
+              </p>
+              <p>
+                <strong>À vérifier :</strong> La silhouette peut évoquer une porte ou une
+                institution. Sa lecture doit être testée.
+              </p>
+            </div>
+          </article>
+          <article class="direction">
+            <div class="dir-head" style="--p: #172a36; --paper: #fafaf5">
+              <div>
+                <span class="eyebrow">Direction B | retenue</span
+                ><svg width="38" height="38" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+              </div>
+              <h3>Le courant commun</h3>
+              <span>La valeur circule entre nous.</span>
+            </div>
+            <div class="dir-body">
+              <div class="sample" style="--p: #172a36; --a: #e5ee73; --paper: #fafaf5">
+                <div class="sample-top">
+                  <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                    /></svg
+                  ><strong>teranga pay</strong><span>Regtest</span>
+                </div>
+                <div class="balance">
+                  <span>Mon solde fictif</span><strong>45 000 <small>FCFA</small></strong
+                  ><span>Données de démonstration</span>
+                </div>
+                <div class="actions">
+                  <span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M19 3 9 13M9 6v7h7" /></svg
+                    >Recevoir</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M9 13 19 3M12 3h7v7" /></svg
+                    >Envoyer</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M5 9V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v2M5 15v2a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-2"
+                      />
+                      <path d="M3 12h18M12 8v8M9 10l3-2 3 2" /></svg
+                    >Encaisser</span
+                  >
+                </div>
+                <div class="receipt">
+                  <span
+                    ><svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                      <path d="M12 7v5l4 2" />
+                    </svg>
+                    Paiement en attente</span
+                  ><strong>2 500 FCFA</strong><small>Le résultat n’est pas encore confirmé.</small>
+                </div>
+              </div>
+              <div class="chips">
+                <span style="background: #172a36"></span><span style="background: #fafaf5"></span
+                ><span style="background: #e5ee73"></span>
+              </div>
+              <p>
+                Une tension plus contemporaine ; deux modules se répondent sans éclair électrique.
+              </p>
+              <p>
+                <strong>À vérifier :</strong> Le citron peut rapprocher la marque des services
+                d’énergie. Surveiller cet imaginaire.
+              </p>
+            </div>
+          </article>
+          <article class="direction">
+            <div class="dir-head" style="--p: #8c4030; --paper: #efe2cd">
+              <div>
+                <span class="eyebrow">Direction C</span
+                ><svg width="38" height="38" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 10h28a14 14 0 0 1 0 28H26v16H12V10Zm14 12v4h14a2 2 0 0 0 0-4H26Z"
+                  />
+                </svg>
+              </div>
+              <h3>La terre ouverte</h3>
+              <span>La chaleur des échanges du quotidien.</span>
+            </div>
+            <div class="dir-body">
+              <div class="sample" style="--p: #8c4030; --a: #e3ac86; --paper: #efe2cd">
+                <div class="sample-top">
+                  <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M12 10h28a14 14 0 0 1 0 28H26v16H12V10Zm14 12v4h14a2 2 0 0 0 0-4H26Z"
+                    /></svg
+                  ><strong>teranga pay</strong><span>Regtest</span>
+                </div>
+                <div class="balance">
+                  <span>Mon solde fictif</span><strong>45 000 <small>FCFA</small></strong
+                  ><span>Données de démonstration</span>
+                </div>
+                <div class="actions">
+                  <span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M19 3 9 13M9 6v7h7" /></svg
+                    >Recevoir</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                      <path d="M9 13 19 3M12 3h7v7" /></svg
+                    >Envoyer</span
+                  ><span
+                    ><svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M5 9V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v2M5 15v2a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-2"
+                      />
+                      <path d="M3 12h18M12 8v8M9 10l3-2 3 2" /></svg
+                    >Encaisser</span
+                  >
+                </div>
+                <div class="receipt">
+                  <span
+                    ><svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                      <path d="M12 7v5l4 2" />
+                    </svg>
+                    Paiement en attente</span
+                  ><strong>2 500 FCFA</strong><small>Le résultat n’est pas encore confirmé.</small>
+                </div>
+              </div>
+              <div class="chips">
+                <span style="background: #8c4030"></span><span style="background: #efe2cd"></span
+                ><span style="background: #e3ac86"></span>
+              </div>
+              <p>Un territoire plus éditorial, en marge des bleus et verts des wallets observés.</p>
+              <p>
+                <strong>À vérifier :</strong> Risque de restauration ou d’artisanat ; distinguer
+                cette couleur des messages d’erreur.
+              </p>
+            </div>
+          </article>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>03 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="logo">
+        <header class="section-head">
+          <span class="eyebrow">03 / Teranga Pay</span>
+          <h2>Entre T et P, un lien qui circule.</h2>
+          <p>
+            Le courant commun : deux modules se répondent, entre T et P. La direction a été choisie
+            par PAN avec Salam ; la reconnaissance du signe reste à tester.
+          </p>
+        </header>
+        <div class="grid2">
+          <div>
+            <div class="symbol-stage">
+              <img
+                class="logo-wide"
+                src="logos/logo-principal.svg"
+                alt="Teranga Pay, logotype proposé avec signe en T ouvert"
+              />
+            </div>
+            <div class="inverse dark">
+              <img src="logos/logo-inverse.svg" alt="Variante du logo sur fond marine" />
+            </div>
+            <div class="usage">
+              <div>
+                <strong>Un seul signe, plusieurs contextes.</strong>Signature horizontale,
+                monochrome, petite taille et icône d’application.
+              </div>
+              <div>
+                <strong>Le rôle du nom.</strong>Le symbole seul n’explique pas un service nouveau.
+                Conserver « Teranga Pay » dans les premières rencontres avec la marque.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="small-marks">
+              <div>
+                <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+                <div>24px</div>
+              </div>
+              <div>
+                <svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+                <div>32px</div>
+              </div>
+              <div>
+                <svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+                <div>48px</div>
+              </div>
+              <div>
+                <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+                <div>64px</div>
+              </div>
+            </div>
+            <div class="grid2" style="margin-top: 24px; gap: 20px">
+              <div class="symbol-stage" style="height: 200px; color: #000">
+                <svg width="100" height="100" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+              </div>
+              <div class="symbol-stage dark" style="height: 200px">
+                <svg width="100" height="100" viewBox="0 0 64 64" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Zm16 12h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="note">
+              <strong>Protection et prudence.</strong>Garder au moins ¼ de la hauteur du signe
+              autour de la signature. Minimum proposé : symbole 24 px, signature 140 px. Aucun test
+              de reconnaissance ni recherche d’antériorité juridique n’est acquis.
+            </div>
+            <p class="screen-note">
+              Les contours du mot proviennent de Manrope Bold, sous licence OFL. Les sources SVG
+              restent éditables.
+            </p>
+          </div>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>04 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="palette">
+        <header class="section-head">
+          <span class="eyebrow">04 / Teranga Pay</span>
+          <h2>De la profondeur. De l’air. Un accent.</h2>
+          <p>
+            Une palette de marque et des couleurs fonctionnelles distinctes. Le citron attire
+            l’attention ; il ne sert jamais de petit texte blanc.
+          </p>
+        </header>
+        <div class="swatches">
+          <div class="swatch dark">
+            <b>Marine</b><span>Actions et signature</span><code>#172A36</code>
+          </div>
+          <div class="swatch" style="background: #fafaf5; border: 1px solid #b5c1b7">
+            <b>Blanc chaud</b><span>Fond de lecture</span><code>#FAFAF5</code>
+          </div>
+          <div class="swatch" style="background: #e5ee73">
+            <b>Citron</b><span>Accent mesuré</span><code>#E5EE73</code>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <table class="contrast-table">
+              <thead>
+                <tr>
+                  <th>Couple réel</th>
+                  <th>Rapport</th>
+                  <th>Seuil</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ink / canvas</td>
+                  <td><strong>14.84:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>ink / selectionSurface</td>
+                  <td><strong>11.94:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>muted / canvas</td>
+                  <td><strong>6.16:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>onPrimary / primary</td>
+                  <td><strong>14.78:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>onAccent / accent</td>
+                  <td><strong>11.83:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>success / successSurface</td>
+                  <td><strong>6.44:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>warning / warningSurface</td>
+                  <td><strong>6.21:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>error / errorSurface</td>
+                  <td><strong>6.21:1</strong></td>
+                  <td>4.5:1</td>
+                </tr>
+                <tr>
+                  <td>outline / surface</td>
+                  <td><strong>4.99:1</strong></td>
+                  <td>3:1</td>
+                </tr>
+                <tr>
+                  <td>focus / surface</td>
+                  <td><strong>6.72:1</strong></td>
+                  <td>3:1</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="screen-note">
+              Calcul sRGB sur aplats opaques. Mesure des couples listés, pas certification complète
+              de l’interface.
+            </p>
+          </div>
+          <div>
+            <div class="status" style="color: #795100; background: #fff0cb">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+              <div>
+                <strong>Paiement en attente</strong
+                ><small>Le résultat n’est pas encore confirmé.</small>
+              </div>
+            </div>
+            <div class="status" style="color: #186346; background: #eaf5ea">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 12l5 5c1 1 2 1 3 0L20 6" />
+              </svg>
+              <div>
+                <strong>Exemple de confirmation</strong
+                ><small>État de composant uniquement, aucune transaction.</small>
+              </div>
+            </div>
+            <div class="status" style="color: #a22d32; background: #fceced">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M10 5c1-2 3-2 4 0l7 13c1 2 0 3-2 3H5c-2 0-3-1-2-3Z" />
+                <path d="M12 9v5M12 17h.01" />
+              </svg>
+              <div>
+                <strong>Le paiement n’a pas abouti</strong
+                ><small>Consulter l’état avant de recommencer.</small>
+              </div>
+            </div>
+            <div class="note">
+              <strong>La marque ne fait pas le statut.</strong>Un aplat de marque, un bouclier ou un
+              cadenas ne suffisent pas à affirmer « payé » ou « sécurisé ».
+            </div>
+          </div>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>05 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="type">
+        <header class="section-head">
+          <span class="eyebrow">05 / Teranga Pay</span>
+          <h2>Une voix claire. Une présence douce.</h2>
+          <p>
+            Manrope Bold pour la signature et les titres. Noto Sans pour lire, saisir et vérifier
+            les montants. Les polices sont locales et sous licence ouverte.
+          </p>
+        </header>
+        <div class="grid2">
+          <div>
+            <span class="eyebrow">Manrope | titre</span>
+            <div class="type-large">Au plus près<br />du quotidien.</div>
+            <p>
+              Une construction géométrique ouverte, sans graisse ultra-fine ni longues majuscules.
+              La personnalité se construit dans les proportions et l’espacement.
+            </p>
+            <div class="note">
+              <strong>Texte de travail, pas slogan validé.</strong>« La valeur circule. Le lien
+              reste. » propose une direction de ton ; il ne promet ni gain, ni gratuité, ni
+              transfert réel.
+            </div>
+          </div>
+          <div>
+            <span class="eyebrow">Lecture Noto Sans | solde Manrope</span>
+            <div class="type-amount">45 000 <small style="font-size: 22px">FCFA</small></div>
+            <p style="font-size: 18px; line-height: 1.6">
+              Recevoir, payer, encaisser.<br />Vérifier le destinataire et le montant.<br />Un
+              paiement en attente reste en attente.
+            </p>
+            <div class="alphabet">À Â É È Ê Ë Î Ï Ñ Ŋ<br />à â é è ê ë î ï ñ ŋ<br />0123456789</div>
+            <p class="screen-note">
+              Les glyphes du corpus sont présents dans les trois fichiers. Cela ne valide pas les
+              traductions wolof, qui attendent la relecture de locuteurs.
+            </p>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Échelle proposée</strong>Texte 16/24 · libellé 16/24 · titre 28/36 · montant
+          36/44. Laisser les textes grandir avec les réglages Android et tester les retours à la
+          ligne.
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>06 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="icons">
+        <header class="section-head">
+          <span class="eyebrow">06 / Teranga Pay</span>
+          <h2>Des signes dessinés pour Teranga Pay.</h2>
+          <p>
+            16 icônes originales. Une grille de 24 unités, un trait de 2 et des courbes d’entrée qui
+            répondent à l’ouverture du logo. Aucun catalogue d’icônes génériques.
+          </p>
+        </header>
+        <div class="icon-grid">
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+              <path d="M9 13 19 3M12 3h7v7" /></svg
+            ><span>Envoyer</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+              <path d="M19 3 9 13M9 6v7h7" /></svg
+            ><span>Recevoir</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M9 4H6a2 2 0 0 0-2 2v3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"
+              />
+              <path d="M8 10V8h3M16 8v3M8 15v1h3M14 14h2v2" /></svg
+            ><span>Scanner</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M5 9V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v2M5 15v2a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-2"
+              />
+              <path d="M3 12h18M12 8v8M9 10l3-2 3 2" /></svg
+            ><span>Encaisser</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M5 8V7a3 3 0 0 1 3-3h8M5 8h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3"
+              />
+              <path d="M20 12h-4a2 2 0 0 0 0 4h4" /></svg
+            ><span>Portefeuille</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 10a8 8 0 1 1 1 7M4 5v5h5" />
+              <path d="M12 7v5l3 2" /></svg
+            ><span>Historique</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M5 9V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 17v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"
+              />
+              <path d="M12 8v8M8 12l4 4 4-4" /></svg
+            ><span>Retirer</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3c2 2 5 3 8 3v6c0 4-3 7-8 9-5-2-8-5-8-9V6c3 0 6-1 8-3Z" />
+              <path d="M8 12l3 3 5-6" /></svg
+            ><span>Protection</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 8a13 13 0 0 1 16 0M7 12a8 8 0 0 1 10 0M10 16a3 3 0 0 1 4 0" />
+              <path d="M12 20h.01" /></svg
+            ><span>Réseau</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+              <path d="M12 7v5l4 2" /></svg
+            ><span>En attente</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 12l5 5c1 1 2 1 3 0L20 6" /></svg
+            ><span>Confirmation</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M10 5c1-2 3-2 4 0l7 13c1 2 0 3-2 3H5c-2 0-3-1-2-3Z" />
+              <path d="M12 9v5M12 17h.01" /></svg
+            ><span>Attention</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 6l12 12M18 6 6 18" /></svg
+            ><span>Fermer</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 18v-2a4 4 0 0 0-4-4H5" />
+              <path d="M10 7l-5 5 5 5" /></svg
+            ><span>Retour</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 3a9 9 0 1 1-9 9 9 9 0 0 1 9-9Z" />
+              <path d="M12 11v6M12 7h.01" /></svg
+            ><span>Information</span>
+          </div>
+          <div class="icon-cell">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M8 5V4a1 1 0 0 1 1-1h10a2 2 0 0 1 2 2v10a1 1 0 0 1-1 1h-1" />
+              <path
+                d="M5 8h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"
+              /></svg
+            ><span>Copier</span>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="size-tests">
+              <div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                  <path d="M9 13 19 3M12 3h7v7" /></svg
+                ><span>20px</span>
+              </div>
+              <div>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                  <path d="M9 13 19 3M12 3h7v7" /></svg
+                ><span>24px</span>
+              </div>
+              <div>
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                  <path d="M9 13 19 3M12 3h7v7" /></svg
+                ><span>32px</span>
+              </div>
+              <div>
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                  <path d="M9 13 19 3M12 3h7v7" /></svg
+                ><span>48px</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>Une icône n’est pas une devinette.</strong>Les actions d’argent gardent leurs
+              libellés. La singularité vient du dessin, pas d’un symbole que personne ne reconnaît.
+            </div>
+          </div>
+          <div class="usage">
+            <div>
+              <strong>48 dp pour agir.</strong>Le dessin mesure 24 unités ; sa zone tactile est plus
+              grande. Le label peut s’étendre sans être tronqué.
+            </div>
+            <div>
+              <strong>Accessibilité.</strong>Un signe décoratif est ignoré du lecteur d’écran. Une
+              commande possède un nom clair et un état.
+            </div>
+            <div>
+              <strong>Test à faire.</strong>Vérifier les silhouettes en petit, la compréhension de
+              recevoir/envoyer et la distinction entre scanner et encaisser.
+            </div>
+          </div>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>07 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="components">
+        <header class="section-head">
+          <span class="eyebrow">07 / Teranga Pay</span>
+          <h2>La qualité se voit dans les états.</h2>
+          <p>
+            Bouton, champ et carte forment le début du système. Ces spécimens montrent les états ;
+            la galerie mobile permet de vérifier leur comportement.
+          </p>
+        </header>
+        <div class="grid3">
+          <div class="component">
+            <h3>Bouton</h3>
+            <button type="button" class="btn" id="demo-button">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 13v4a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" />
+                <path d="M9 13 19 3M12 3h7v7" /></svg
+              >Tester le retour
+            </button>
+            <p class="help" id="demo-result" aria-live="polite">
+              Action de démonstration, aucun paiement.
+            </p>
+            <div class="btn pressed">Appuyé</div>
+            <br />
+            <div class="btn disabled">Indisponible</div>
+            <br />
+            <div class="btn">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                <path d="M12 7v5l4 2" /></svg
+              >Traitement en cours
+            </div>
+            <p class="screen-note">
+              Pendant une action, bloquer les pressions répétées et annoncer l’attente.
+            </p>
+          </div>
+          <div class="component">
+            <h3>Champ</h3>
+            <div class="label">Montant fictif</div>
+            <div class="field">2 500 FCFA</div>
+            <div class="help">Texte d’aide explicite.</div>
+            <div class="label">Champ sélectionné</div>
+            <div class="field focused">2 500</div>
+            <div class="help">Contour visible, sans couleur seule.</div>
+            <div class="label">Montant à corriger</div>
+            <div class="field error">0</div>
+            <div class="help error">Attention : saisir un montant supérieur à zéro.</div>
+            <div class="field disabled">Indisponible</div>
+          </div>
+          <div class="component">
+            <h3>Carte</h3>
+            <div class="status" style="color: #4f616b">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a9 9 0 1 1-9 9 9 9 0 0 1 9-9Z" />
+                <path d="M12 11v6M12 7h.01" />
+              </svg>
+              <div>
+                <strong>Information</strong><small>Carte neutre, sans action cachée.</small>
+              </div>
+            </div>
+            <div class="status" style="color: #795100; background: #fff0cb">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a9 9 0 1 1-9 9M7 4a9 9 0 0 0-3 3" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+              <div><strong>En attente</strong><small>Ne vaut pas confirmation.</small></div>
+            </div>
+            <div class="status" style="color: #186346; background: #eaf5ea">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 12l5 5c1 1 2 1 3 0L20 6" />
+              </svg>
+              <div><strong>Confirmation</strong><small>Spécimen de composant.</small></div>
+            </div>
+            <div class="status" style="color: #a22d32; background: #fceced">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M10 5c1-2 3-2 4 0l7 13c1 2 0 3-2 3H5c-2 0-3-1-2-3Z" />
+                <path d="M12 9v5M12 17h.01" />
+              </svg>
+              <div><strong>À vérifier</strong><small>Texte d’erreur utile.</small></div>
+            </div>
+          </div>
+        </div>
+        <p class="screen-note">
+          Prototype de documentation : les cartes financières sont fictives. La démonstration
+          produit utilise regtest et des retraits Wave / Orange Money simulés.
+        </p>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>08 / 09</span>
+        </footer>
+      </section>
+      <section class="spread" id="next">
+        <header class="section-head">
+          <span class="eyebrow">08 / Teranga Pay</span>
+          <h2>Un choix, puis des preuves.</h2>
+          <p>
+            PAN a confirmé le choix de la direction B après son échange avec Salam. Cette décision
+            artistique ne remplace pas les essais de compréhension et la relecture technique.
+          </p>
+        </header>
+        <div class="grid2">
+          <div class="validation">
+            <div>
+              <strong>01 | Développer le choix commun</strong>
+              <p>
+                Développer la piste B, ses variantes et ses usages. Conserver A et C comme
+                explorations, sans présenter le choix humain comme un résultat scientifique.
+              </p>
+            </div>
+            <div>
+              <strong>02 | Faire relire par Salam</strong>
+              <p>
+                Vérifier les états, les limites de simulation et le lien avec le produit. La PR
+                reste une proposition tant qu’elle n’est pas relue.
+              </p>
+            </div>
+            <div>
+              <strong>03 | Observer quelques personnes</strong>
+              <p>
+                Entretiens exploratoires avec commerçants, familles et diaspora, en français et
+                wolof selon leurs usages. Reconnaissance, compréhension et erreurs avant préférence.
+              </p>
+            </div>
+            <div>
+              <strong>04 | Éprouver sur Android</strong>
+              <p>
+                Petit écran, texte agrandi, réseau lent, luminosité élevée et lecteur d’écran. Un
+                rendu HTML ne valide pas ces situations.
+              </p>
+            </div>
+          </div>
+          <div>
+            <span class="eyebrow">Sources et fichiers</span>
+            <ul class="sources">
+              <li>
+                <a href="../../docs/design/brief.md">Brief produit | pages PDF et hypothèses</a>
+              </li>
+              <li>
+                <a href="../../docs/design/recherche.md"
+                  >Études couleur et accessibilité | résultats et limites</a
+                >
+              </li>
+              <li>
+                <a href="../../docs/design/benchmark.md">Benchmark | sites et actifs officiels</a>
+              </li>
+              <li><a href="../../docs/design/charte.md">Charte | règles d’usage</a></li>
+              <li><a href="../../docs/design/validation.md">Protocole de validation</a></li>
+              <li>
+                <a href="logos/logo-principal.svg">Logo vectoriel</a> ·
+                <a href="icons/paths.json">Sources des icônes</a>
+              </li>
+              <li>
+                <a href="tokens.json">Tokens partagés</a> ·
+                <a href="contrast.json">Mesures de contraste</a>
+              </li>
+              <li><a href="fonts/sources.json">Origine et licences des polices</a></li>
+            </ul>
+            <div class="note">
+              <strong>Livraison de travail.</strong>Pas de validation utilisateur inventée, pas de
+              partenariat bancaire suggéré, pas de paiement réel. Projet de Salam et PAN.
+            </div>
+          </div>
+        </div>
+        <footer>
+          <span>Teranga Pay | Étude d’identité v1 | 5 novembre 2026</span><span>09 / 09</span>
+        </footer>
+      </section>
+    </main>
+    <script>
+      document.getElementById('demo-button').addEventListener('click', () => {
+        document.getElementById('demo-result').textContent =
+          'Retour de démonstration reçu. Aucun paiement n’a été lancé.';
+      });
+    </script>
+  </body>
+</html>

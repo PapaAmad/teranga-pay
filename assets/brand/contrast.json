@@ -1,0 +1,188 @@
+{
+  "method": "WCAG 2.2 | luminance relative sRGB | aplats opaques | ratios non arrondis",
+  "source": "assets/brand/tokens.json",
+  "tokensVersion": "0.1.0",
+  "direction": "Le courant commun",
+  "pairs": [
+    {
+      "kind": "text",
+      "foreground": "ink",
+      "background": "canvas",
+      "foregroundColor": "#142631",
+      "backgroundColor": "#FAFAF5",
+      "ratio": 14.842716247779725,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "ink",
+      "background": "surface",
+      "foregroundColor": "#142631",
+      "backgroundColor": "#FFFFFF",
+      "ratio": 15.540130675154936,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "muted",
+      "background": "surface",
+      "foregroundColor": "#4F616B",
+      "backgroundColor": "#FFFFFF",
+      "ratio": 6.45233056040482,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "muted",
+      "background": "canvas",
+      "foregroundColor": "#4F616B",
+      "backgroundColor": "#FAFAF5",
+      "ratio": 6.16276102478858,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "ink",
+      "background": "selectionSurface",
+      "foregroundColor": "#142631",
+      "backgroundColor": "#D5E6D8",
+      "ratio": 11.943349760500103,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "onPrimary",
+      "background": "primary",
+      "foregroundColor": "#FFFFFF",
+      "backgroundColor": "#172A36",
+      "ratio": 14.779513034896851,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "onPrimary",
+      "background": "primaryPressed",
+      "foregroundColor": "#FFFFFF",
+      "backgroundColor": "#0D1E28",
+      "ratio": 17.025242012748418,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "onAccent",
+      "background": "accent",
+      "foregroundColor": "#172A36",
+      "backgroundColor": "#E5EE73",
+      "ratio": 11.829928955221403,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "success",
+      "background": "successSurface",
+      "foregroundColor": "#186346",
+      "backgroundColor": "#EAF5EA",
+      "ratio": 6.438002923754503,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "warning",
+      "background": "warningSurface",
+      "foregroundColor": "#795100",
+      "backgroundColor": "#FFF0CB",
+      "ratio": 6.213590138352537,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "error",
+      "background": "errorSurface",
+      "foregroundColor": "#A22D32",
+      "backgroundColor": "#FCECED",
+      "ratio": 6.207602291941142,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "text",
+      "foreground": "disabledInk",
+      "background": "disabledSurface",
+      "foregroundColor": "#4F616B",
+      "backgroundColor": "#E5E8E1",
+      "ratio": 5.211484819642347,
+      "minimum": 4.5,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "outline",
+      "background": "surface",
+      "foregroundColor": "#61727D",
+      "backgroundColor": "#FFFFFF",
+      "ratio": 4.986540387806607,
+      "minimum": 3,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "outline",
+      "background": "canvas",
+      "foregroundColor": "#61727D",
+      "backgroundColor": "#FAFAF5",
+      "ratio": 4.762753002626795,
+      "minimum": 3,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "focus",
+      "background": "surface",
+      "foregroundColor": "#255BA6",
+      "backgroundColor": "#FFFFFF",
+      "ratio": 6.718426523152071,
+      "minimum": 3,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "focus",
+      "background": "canvas",
+      "foregroundColor": "#255BA6",
+      "backgroundColor": "#FAFAF5",
+      "ratio": 6.416915056842614,
+      "minimum": 3,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "error",
+      "background": "surface",
+      "foregroundColor": "#A22D32",
+      "backgroundColor": "#FFFFFF",
+      "ratio": 7.100138609783655,
+      "minimum": 3,
+      "passes": true
+    },
+    {
+      "kind": "graphic",
+      "foreground": "error",
+      "background": "canvas",
+      "foregroundColor": "#A22D32",
+      "backgroundColor": "#FAFAF5",
+      "ratio": 6.781496559318559,
+      "minimum": 3,
+      "passes": true
+    }
+  ]
+}
