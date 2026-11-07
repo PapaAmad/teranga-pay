@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -126,17 +126,40 @@ test('les dossiers symboliques externes ne sont pas parcourus', async (t) => {
 });
 
 test('la commande de contrôle s’exécute depuis un dossier symbolique', async (t) => {
-  const temporary = await fixture(t);
-  const scripts = fileURLToPath(new URL('./', import.meta.url));
-  const alias = path.join(temporary, 'scripts-symboliques');
-  await symlink(scripts, alias, process.platform === 'win32' ? 'junction' : 'dir');
-  const result = spawnSync(process.execPath, [path.join(alias, 'check-repository.mjs')], {
-    cwd: temporary,
-    encoding: 'utf8',
-    windowsHide: true,
+  const temporary = await fixture(t, {
+    'README.md': '# Projet de test\n',
+    'scripts/README.md': '# Scripts de test\n',
+    'scripts/github/README.md': '# Entrée CLI de test\n',
   });
+  for (const name of ['check-repository.mjs', 'github/lib.mjs']) {
+    await copyFile(new URL(name, import.meta.url), path.join(temporary, 'scripts', name));
+  }
+  const modules = path.join(temporary, 'node_modules');
+  await mkdir(modules);
+  await symlink(
+    path.dirname(fileURLToPath(import.meta.resolve('markdown-it/package.json'))),
+    path.join(modules, 'markdown-it'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+  const alias = path.join(temporary, 'scripts-symboliques');
+  await symlink(
+    path.join(temporary, 'scripts'),
+    alias,
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+  const run = () =>
+    spawnSync(process.execPath, [path.join(alias, 'check-repository.mjs')], {
+      cwd: temporary,
+      encoding: 'utf8',
+      windowsHide: true,
+    });
+  const result = run();
   assert.equal(result.status, 0, result.stderr || result.error?.message);
-  assert.match(result.stdout, /Structure vérifiée : documentation des dossiers présente/u);
+  assert.match(result.stdout, /Structure vérifiée :.*3 documents aux liens valides/u);
+  await writeFile(path.join(temporary, 'README.md'), '[Lien cassé de la fixture](absent.md)\n');
+  const invalid = run();
+  assert.equal(invalid.status, 1, invalid.stderr || invalid.error?.message);
+  assert.match(invalid.stderr, /README\.md : lien introuvable absent\.md/u);
 });
 
 test('les exclusions du gitignore sont respectées pour les dossiers locaux', async (t) => {

@@ -249,6 +249,22 @@ test('une carte active ne provoque aucun avertissement d’archive', (t) => {
   );
 });
 
+test('une carte active évite de conseiller de restaurer une archive de la même issue', (t) => {
+  mute(t);
+  for (const cards of [
+    [card(1), { ...card(1, true), id: 'archive-1' }],
+    [{ ...card(1, true), id: 'archive-1' }, card(1)],
+  ]) {
+    const remote = projectRemote({ items: cards.map((item) => [item]) });
+    ensureProject(config, [{ html_url: issueUrl(1) }], remote);
+    assert.equal(console.warn.mock.calls.length, 0);
+    assert.deepEqual(
+      remote.mutations.map((args) => args[1]),
+      ['link'],
+    );
+  }
+});
+
 test('une carte illisible indique le Project et la section à relancer sans écriture', (t) => {
   mute(t);
   const remote = projectRemote({ items: [[{ id: 'illisible', content: null }]] });

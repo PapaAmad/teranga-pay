@@ -33,7 +33,8 @@ test('isMain compare les fichiers réels, accepte les liens et distingue un impo
   assert.equal(isMain(import.meta.url, join(scripts, 'setup.mjs')), false);
   assert.equal(isMain(import.meta.url, ''), false);
   assert.equal(isMain(import.meta.url, '-'), false);
-  assert.throws(() => isMain(import.meta.url, join(linked, 'absent.mjs')), { code: 'ENOENT' });
+  assert.equal(isMain(import.meta.url, join(linked, 'absent.mjs')), false);
+  assert.equal(isMain(import.meta.url, linked), false);
 });
 
 test('setup exécuté via un dossier lié affiche la prévisualisation et refuse les arguments invalides', async (t) => {
@@ -72,4 +73,19 @@ test('importer setup depuis stdin reste sans exécution ni sortie CLI', () => {
   assert.equal(imported.status, 0, imported.stderr || imported.error?.message);
   assert.equal(imported.stdout, '');
   assert.equal(imported.stderr, '');
+});
+
+test('un import depuis eval ignore un argument qui ne désigne pas un module', () => {
+  for (const name of ['setup.mjs', '../check-repository.mjs']) {
+    const entryUrl = new URL(name, import.meta.url).href;
+    const imported = run([
+      '--input-type=module',
+      '-e',
+      `await import(${JSON.stringify(entryUrl)});`,
+      'module-inexistant.mjs',
+    ]);
+    assert.equal(imported.status, 0, imported.stderr || imported.error?.message);
+    assert.equal(imported.stdout, '');
+    assert.equal(imported.stderr, '');
+  }
 });

@@ -298,11 +298,14 @@ export function ensureProject(config, issues, remote = { gh, ghJson }) {
     );
   }
   const urls = new Set(items.map((item) => item.content?.url));
+  const activeUrls = new Set(
+    items.filter((item) => !item.isArchived).map((item) => item.content?.url),
+  );
   const archivedUrls = new Set(
     items.filter((item) => item.isArchived).map((item) => item.content?.url),
   );
   for (const issue of issues) {
-    if (archivedUrls.has(issue.html_url)) {
+    if (archivedUrls.has(issue.html_url) && !activeUrls.has(issue.html_url)) {
       console.warn(
         `Carte archivée conservée pour ${issue.html_url} ; la restaurer dans les archives du Project si elle doit revenir sur le tableau.`,
       );

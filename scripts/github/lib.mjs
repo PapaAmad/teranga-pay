@@ -9,7 +9,11 @@ const titleSeparators = ['|', '\u2014'];
 
 export function isMain(moduleUrl, entryPath = process.argv[1]) {
   if (!entryPath || entryPath === '-') return false;
-  return realpathSync(entryPath) === realpathSync(fileURLToPath(moduleUrl));
+  try {
+    return realpathSync(entryPath) === realpathSync(fileURLToPath(moduleUrl));
+  } catch {
+    return false;
+  }
 }
 
 export function normalizeDisplayName(value) {

@@ -84,7 +84,8 @@ sans plafond global et sans déduire la fin d’un compteur `totalCount`.
 Les cartes archivées sont incluses explicitement dans la lecture : elles
 restent archivées et ne sont pas ajoutées de nouveau. Un avertissement donne
 le lien de chaque issue attendue qui reste archivée et invite à restaurer sa
-carte manuellement si elle doit revenir sur le tableau. Les requêtes utilisées
+carte manuellement si elle doit revenir sur le tableau, uniquement si aucune
+carte active de cette même issue n'est déjà présente. Les requêtes utilisées
 ont été vérifiées en lecture seule sur le Project existant ; les tests simulent
 les pages supplémentaires et les erreurs sans écrire sur GitHub.
 
