@@ -11,11 +11,17 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { fr } from './src/translations/fr';
 import { BrandTypographyProvider, tokens } from './src/ui';
 
+const fontAssets = {
+  [tokens.fonts.body]: NotoSansRegular,
+  [tokens.fonts.label]: NotoSansSemiBold,
+  [tokens.fonts.title]: ManropeBold,
+};
+
 export default function App() {
-  const [loaded, fontError] = useFonts({ NotoSansRegular, NotoSansSemiBold, ManropeBold });
-  const [systemFonts, setSystemFonts] = useState(false);
-  const waiting = !loaded && !fontError && !systemFonts;
-  const fallback = Boolean(fontError) || systemFonts;
+  const [loaded, fontError] = useFonts(fontAssets);
+  const [continueWithoutFonts, setContinueWithoutFonts] = useState(false);
+  const waiting = !loaded && !fontError && !continueWithoutFonts;
+  const fallback = !loaded;
 
   return (
     <SafeAreaProvider>
@@ -29,14 +35,14 @@ export default function App() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={fr.fonts.continueAction}
-            onPress={() => setSystemFonts(true)}
+            onPress={() => setContinueWithoutFonts(true)}
             style={styles.continueAction}
           >
             <Text style={styles.continueLabel}>{fr.fonts.continueAction}</Text>
           </Pressable>
         </SafeAreaView>
       ) : (
-        <BrandTypographyProvider available={loaded && !fallback}>
+        <BrandTypographyProvider available={loaded}>
           <View style={styles.app}>
             {fallback && (
               <SafeAreaView edges={['top']} style={styles.fallback}>

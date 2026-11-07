@@ -87,6 +87,36 @@ export async function writeEncoderFrame(encoder, encoded, buffer) {
   }
 }
 
+export async function verifyMotionFonts(page) {
+  return page.evaluate(async () => {
+    const expected = [
+      { family: 'Manrope', weight: '700' },
+      { family: 'Noto Sans', weight: '400' },
+    ];
+    await document.fonts.ready;
+    await Promise.allSettled(
+      expected.map(({ family, weight }) =>
+        document.fonts.load(`${weight} 16px "${family}"`, 'Teranga Pay À Ñ Ŋ ñ ŋ'),
+      ),
+    );
+    const faces = [...document.fonts].map((face) => ({
+      family: face.family.replaceAll('"', '').replaceAll("'", ''),
+      weight: face.weight === 'normal' ? '400' : face.weight,
+      status: face.status,
+    }));
+    const missing = expected.filter(
+      ({ family, weight }) =>
+        !faces.some(
+          (face) => face.family === family && face.weight === weight && face.status === 'loaded',
+        ),
+    );
+    if (missing.length) {
+      throw new Error(`Polices de marque non chargées : ${JSON.stringify(missing)}`);
+    }
+    return faces;
+  });
+}
+
 async function compareMark(page, source) {
   return page.evaluate(async ({ viewBox, path: sourcePath }) => {
     const symbol = document.querySelector('.symbol').cloneNode(true);
@@ -147,28 +177,24 @@ export async function renderBrandMotion(options) {
     const page = await browser.newPage();
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
+    page.on('requestfailed', (request) =>
+      errors.push(`Ressource indisponible : ${request.resourceType()}.`),
+    );
     await page.setViewport({ width, height, deviceScaleFactor: 1 });
     const address = new URL(pathToFileURL(path.join(sourceFolder, 'motion.html')));
     address.searchParams.set('format', options.format);
     const renderAddress = new URL(address);
     renderAddress.searchParams.set('render', '1');
     await page.goto(renderAddress.href, { waitUntil: 'networkidle0' });
-    await page.evaluate(() => document.fonts.ready);
+    const fonts = await verifyMotionFonts(page);
+    if (errors.length) throw new Error(errors.join(' | '));
     const setup = await page.evaluate(() => ({
       width: window.brandMotion.width,
       height: window.brandMotion.height,
       duration: window.brandMotion.duration,
-      titleFont: document.fonts.check('700 128px Manrope'),
-      bodyFont: document.fonts.check('400 36px "Noto Sans"'),
     }));
-    if (
-      setup.width !== width ||
-      setup.height !== height ||
-      setup.duration !== 6.5 ||
-      !setup.titleFont ||
-      !setup.bodyFont
-    ) {
-      throw new Error('Dimensions, durée ou polices du document inattendues.');
+    if (setup.width !== width || setup.height !== height || setup.duration !== 6.5) {
+      throw new Error('Dimensions ou durée du document inattendues.');
     }
     await page.evaluate(() => window.brandMotion.seek(4.5));
     const differingChannels = await compareMark(
@@ -308,6 +334,7 @@ export async function renderBrandMotion(options) {
       pixelFormat: 'yuv420p',
       audio: false,
       differingChannels,
+      fonts,
       margins,
       reduced,
       errors,

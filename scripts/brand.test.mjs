@@ -123,7 +123,7 @@ test('le relevé du document correspond au HTML livré', () => {
   );
 });
 
-test('les trois polices et les deux licences conservent les octets et SHA-256 du manifeste', () => {
+test('les trois polices et les deux licences correspondent aux fichiers livrés du manifeste', () => {
   const directory = new URL('../assets/brand/fonts/', import.meta.url);
   const manifest = JSON.parse(readFileSync(new URL('sources.json', directory), 'utf8'));
   assert.deepEqual(manifest.files.map(({ file }) => file).sort(), [
@@ -135,11 +135,11 @@ test('les trois polices et les deux licences conservent les octets et SHA-256 du
   ]);
   for (const { file, bytes, sha256 } of manifest.files) {
     const contents = readFileSync(new URL(file, directory));
-    assert.equal(contents.length, bytes, `${file} : taille différente du fichier d'origine.`);
+    assert.equal(contents.length, bytes, `${file} : taille différente du manifeste.`);
     assert.equal(
       createHash('sha256').update(contents).digest('hex'),
       sha256,
-      `${file} : les octets diffèrent du fichier d'origine, sans normalisation autorisée.`,
+      `${file} : les octets diffèrent du manifeste, sans normalisation autorisée.`,
     );
   }
 });

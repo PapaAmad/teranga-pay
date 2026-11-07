@@ -14,6 +14,7 @@ export default tseslint.config(
       '**/android/**',
       '**/ios/**',
       '.tmp/**',
+      'references/**',
       '.husky/_/**',
     ],
   },

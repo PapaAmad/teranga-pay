@@ -12,7 +12,7 @@ Trois directions ont été comparées sur le même contenu. PAN confirme le 5 no
 
 Livrer des logos éditables en SVG et 16 icônes dessinées pour ce projet. Envoyer et recevoir montrent une flèche sortant d'un cadre ou y entrant ; la première courbe ambiguë a été remplacée en revue visuelle. Scanner et encaisser gardent des signes distincts. Les commandes financières conservent un libellé.
 
-Noto Sans sert à lire et saisir ; Manrope Bold porte les titres et le logotype. Les fichiers originaux, sources épinglées et licences OFL sont conservés. Les glyphes ciblés sont vérifiés ; cela ne valide pas les traductions wolof.
+Noto Sans sert à lire et saisir ; Manrope Bold porte les titres et le logotype. Après la revue du 7 novembre, les deux Noto sont livrées en sous-ensembles latins reproductibles ; Manrope reste originale. Les sources épinglées, empreintes amont et licences OFL sont conservées. Les glyphes ciblés sont vérifiés ; cela ne valide pas les traductions wolof.
 
 Les tokens sont partagés avec les composants natifs. Bouton, carte et champ ont des états explicites. La galerie reste une démonstration, sans paiements, onboarding ou système i18n complet.
 
@@ -27,7 +27,7 @@ Versions issues de `bundledNativeModules.json` d'Expo 57 puis installées par `e
 
 Un catalogue prêt à l'emploi contredirait le choix de PAN. Les images matricielles seules limiteraient variantes et petits formats : les SVG restent les sources. Les polices système seules réduiraient les ressources, mais pas avec la même cohérence visuelle.
 
-Les polices ajoutent environ 1,36 Mo avant compression, détaillés dans leur manifeste ; ce n'est pas une mesure de l'APK. Rendu HTML et tests ne remplacent pas un essai Android sur appareil modeste, texte agrandi et lecteur d'écran. Le choix artistique de PAN après échange avec Salam ne constitue ni un test utilisateur ni l'approbation technique de la PR.
+Les trois polices ajoutent 357 424 octets avant compression, contre 1 358 384 avec les deux Noto complètes. Leur sous-ensemble conserve 1 045 points de code par Noto et les avances des glyphes, avec accents, Ŋ/ŋ, signes combinants, ponctuation et monnaies. FontTools 4.68.0 reste un outil externe de développement ; il n'ajoute aucune dépendance à l'application. La provenance et la commande de reproduction figurent dans le [guide des polices](../../assets/brand/fonts/README.md). Ce poids n'est pas une mesure de l'APK. Rendu HTML et tests ne remplacent pas un essai Android sur appareil modeste, texte agrandi et lecteur d'écran. Le choix artistique de PAN après échange avec Salam ne constitue ni un test utilisateur ni l'approbation technique de la PR.
 
 La branche T08 part de `docs/T07-validation-ci` au commit `862c493`, à la demande de PAN. Sa PR cible cette branche tant que la PR #38 n'est pas fusionnée. Après la fusion squash du parent, rebaser les seuls commits T08 sur `main`, puis changer la cible de PR et relancer les contrôles. Une simple réorientation pourrait conserver les anciens commits T07 dans le diff de comparaison.
 

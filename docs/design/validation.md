@@ -12,12 +12,12 @@ Les exemples d'opérations restent une **démonstration regtest** ; le retrait W
 
 ## Relevé technique déjà observé
 
-Les vérifications suivantes ont été renouvelées pendant la préparation de la direction B. Les résultats locaux ne valent ni approbation de PR ni essai sur appareil.
+Les vérifications suivantes ont été renouvelées le 7 novembre 2026 après les retours de Salam. Les résultats locaux ne valent ni approbation de PR ni essai sur appareil.
 
 | Vérification observée           | Résultat constaté                                                    | Portée                                                                                                                     |
 | ------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Tests mobiles                   | 14 tests réussis.                                                    | Composants, navigation et comportement de démonstration couverts par les tests ; aucun parcours sur appareil n'est déduit. |
-| Tests d'outillage sous Windows  | 88 tests : 87 réussis, 1 ignoré faute de permission de lien fichier. | Le test ignoré n'est pas annoncé réussi. Les tests de jonctions restent distincts.                                         |
+| Tests mobiles                   | 24 tests réussis.                                                    | Composants, navigation et comportement de démonstration couverts par les tests ; aucun parcours sur appareil n'est déduit. |
+| Tests d'outillage sous Windows  | 94 tests : 93 réussis, 1 ignoré faute de permission de lien fichier. | Le test ignoré n'est pas annoncé réussi. Les tests de jonctions restent distincts.                                         |
 | Export de l'application Android | Bundle de 961 modules et 3 fichiers de police TTF intégrés.          | Vérifie la production du bundle et des ressources ; ne prouve pas le rendu ou le fonctionnement sur téléphone.             |
 | Export documentaire             | PDF de 9 pages ; pages 3, 5 et 7 rasterisées et inspectées.          | Pages clés de la version B contrôlées dans le PDF réel ; le contenu des trois directions a aussi été extrait et vérifié.   |
 | Rendu documentaire étroit       | Rendu à 390 px sans débordement horizontal constaté.                 | Vérifie ce support et cette largeur ; ne vaut pas test Android, TalkBack ou validation générale du texte agrandi.          |
@@ -90,7 +90,7 @@ La comparaison npm sur la base T07 et T08 relève les mêmes 27 alertes (9 faibl
 
 La galerie native conserve maintenant les appuis sur les commandes après une saisie (`keyboardShouldPersistTaps="handled"`), ferme le clavier au défilement et ajuste les insets sur iOS. Le comportement de capture du premier appui a été confirmé dans le code React Native ; Jest remplace ScrollView et ne permet pas de présenter cela comme un essai de clavier sur appareil.
 
-Le rapport de contraste couvre 18 couples fonctionnels, avec les couleurs exactes, des ratios non arrondis pour les décisions de seuil et une génération reproductible depuis les tokens. Les tests vérifient les bornes connues, les seuils, l’actualité du rapport et les SHA-256/tailles des trois TTF et deux licences originales. Les licences restent inchangées, espaces finaux amont inclus.
+Le rapport de contraste couvre 18 couples fonctionnels, avec les couleurs exactes, des ratios non arrondis pour les décisions de seuil et une génération reproductible depuis les tokens. Les tests vérifient les bornes connues, les seuils, l’actualité du rapport et les SHA-256/tailles des trois TTF livrées et deux licences originales. Les licences restent inchangées, espaces finaux amont inclus.
 
 La motion verticale ajoute un format 1080 × 1920 au 1920 × 1080 : même durée de 6,5 secondes, 195 images à 30 images par seconde, H.264 yuv420p et absence d’audio. Le tracé reste sur place. Les deux formats disposent d’une source HTML unique, d’un script de rendu reproductible et d’une vérification de géométrie. Ils ne sont pas insérés dans le démarrage mobile.
 
@@ -101,3 +101,18 @@ Le rendu documentaire est aussi reproductible : son relevé d’export est lié 
 Après les correctifs, les six commandes requises réussissent : format, lint, types, tests mobiles, tests des outils et contrôle documentaire. Résultat : 14 tests mobiles réussis ; 88 tests d’outillage, dont 87 réussis et un lien fichier ignoré sous Windows. L’échec simulé d’une TTF interrompt le rendu documentaire avant toute sortie ; un rendu normal charge les trois faces attendues. Les régressions de flux FFmpeg couvrent fermeture sans drain, rejet et fin prématurée, avec nettoyage des écouteurs et attente bornée ; un rendu complet temporaire réussit également.
 
 La relecture indépendante confirme les deux correctifs. La galerie utilise les composants et reste une ébauche du front ; aucun écran financier connecté ou paiement réel n’est déduit de ces résultats. Les six contrôles GitHub devront être vérifiés sur le commit publié de T08.
+
+## Retours de Salam du 7 novembre
+
+Les [six remarques](https://github.com/PapaAmad/teranga-pay/pull/47#issuecomment-6706268259) sont traitées dans la PR T08. La branche a été remise au-dessus du correctif T07 `8d10132`, sans mélanger les changements des deux tâches dans leur diff respectif.
+
+- Les deux Noto passent de 1 260 388 à 259 428 octets. Les trois polices totalisent 357 424 octets avant compression. Le script FontTools 4.68.0 reproduit les mêmes empreintes, refuse un original altéré sans changer les sorties et vérifie les caractères requis. Une comparaison indépendante des 1 045 points de code conservés par Noto confirme les métriques et les contours inchangés. Manrope et les licences restent originales ; les empreintes amont sont conservées dans le manifeste.
+- L’accueil utilise un contenu défilable, les boutons de marque et les tokens. Le parcours de navigation reste testé. Le contrôle de structure exige un contenu pouvant grandir ; il ne prouve pas la mesure physique du défilement avec le texte agrandi sur Android.
+- Les tests exercent les cibles minimales de 48 dp dans plusieurs états du bouton et du champ, l’enregistrement des familles depuis les tokens et leur usage quand le chargement réussit.
+- Le montant fictif utilise U+00A0 entre les milliers et avant FCFA. Ce caractère insécable existe dans les trois TTF ; il évite de prendre U+202F comme exemple pour Manrope, qui ne possède pas cette espace fine.
+- Après « Continuer sans attendre », les polices de marque s’appliquent dès qu’elles sont prêtes. Un test conserve la route ouverte et le texte déjà saisi pendant ce changement ; le bandeau de repli disparaît.
+- Le rendu vidéo exige les deux faces réellement utilisées dans l’état `loaded` et surveille les ressources indisponibles. Un essai Edge confirme qu’un simple `fonts.check()` accepte parfois le repli, tandis que le contrôle corrigé refuse une face absente avant tout poster ou MP4. Quatre nouveaux tests couvrent les familles absentes, les mauvais poids, l’attente du chargement et son échec.
+
+Le PDF de neuf pages, ses PNG et les deux vidéos ont été régénérés. Les faces attendues sont chargées ; le document ne déborde pas à 390 px. Chaque MP4 contient 195 images décodables à 30 images par seconde, sans audio, avec une durée de 6,5 secondes ; le symbole final conserve zéro canal différent de la source. Les rendus PNG et MP4 restent identiques en octets à ceux précédant le sous-ensemble ; le PDF embarque les nouvelles ressources.
+
+L’export Android produit 961 modules et les trois TTF allégées. Les contrôles locaux comprennent 24 tests mobiles réussis et 94 tests outils, dont 93 réussis et un lien fichier ignoré sous Windows. La CI publiée de T08 doit encore confirmer son propre commit ; les résultats verts T07 ne la remplacent pas. La relecture indépendante ne relève pas d’autre défaut actionnable. Les essais Android physiques, TalkBack et utilisateurs restent à mener.

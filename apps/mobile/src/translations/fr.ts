@@ -3,7 +3,7 @@ export const fr = {
   fonts: {
     loading: 'Préparation de Teranga Pay…',
     continueAction: 'Continuer sans attendre',
-    fallback: 'L’affichage simplifié est activé pour cette session.',
+    fallback: 'L’affichage simplifié est activé en attendant.',
     error: 'L’affichage simplifié est activé. Vous pouvez continuer à utiliser l’application.',
   },
   navigation: {
@@ -43,7 +43,7 @@ export const fr = {
       ink: 'Encre',
     },
     typographyTitle: 'Des montants faciles à lire',
-    amount: '2 500 FCFA',
+    amount: '2\u00a0500\u00a0FCFA',
     amountCaption: 'Montant fictif | le FCFA reste au premier plan',
     typographyBody: 'Une écriture ouverte, des mots simples et de la place pour le texte agrandi.',
     buttonsTitle: 'Boutons',

@@ -5,7 +5,8 @@ import { once } from 'node:events';
 import { Writable } from 'node:stream';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parseMotionArgs, writeEncoderFrame } from './render-brand-motion.mjs';
+import { runInNewContext } from 'node:vm';
+import { parseMotionArgs, verifyMotionFonts, writeEncoderFrame } from './render-brand-motion.mjs';
 
 const tools = [
   '--browser',
@@ -47,6 +48,74 @@ test('l’aide est disponible sans Puppeteer, Chromium ni FFmpeg', () => {
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /--format landscape\|portrait/u);
   assert.equal(result.stderr, '');
+});
+
+function fontPage(faces, load = async () => []) {
+  const fonts = Object.assign(faces, { ready: Promise.resolve(), load, check: () => true });
+  return {
+    evaluate(callback) {
+      return runInNewContext(`(${callback.toString()})()`, { document: { fonts } });
+    },
+  };
+}
+
+test('le repli disponible ne remplace pas une police de marque absente', async () => {
+  // FontFaceSet.check peut accepter le repli alors qu’aucune face déclarée
+  // ne correspond à la famille ; ce cas ne doit pas autoriser l’export.
+  await assert.rejects(
+    verifyMotionFonts(fontPage([{ family: 'Manrope', weight: '700', status: 'loaded' }])),
+    /Polices de marque non chargées.*Noto Sans/u,
+  );
+});
+
+test('une face en erreur ou un autre poids ne valide pas la police attendue', async () => {
+  for (const body of [
+    { family: 'Noto Sans', weight: '400', status: 'error' },
+    { family: 'Noto Sans', weight: '600', status: 'loaded' },
+  ]) {
+    await assert.rejects(
+      verifyMotionFonts(fontPage([{ family: 'Manrope', weight: '700', status: 'loaded' }, body])),
+      /Polices de marque non chargées/u,
+    );
+  }
+});
+
+test('le contrôle attend le chargement effectif des deux familles utilisées par le motion', async () => {
+  const faces = [
+    { family: '"Manrope"', weight: '700', status: 'unloaded' },
+    { family: "'Noto Sans'", weight: 'normal', status: 'unloaded' },
+  ];
+  const loaded = [];
+  const fonts = await verifyMotionFonts(
+    fontPage(faces, async (request, characters) => {
+      await new Promise((resolve) => setImmediate(resolve));
+      assert.match(characters, /À Ñ Ŋ ñ ŋ/u);
+      const index = request.startsWith('700') ? 0 : 1;
+      faces[index].status = 'loaded';
+      loaded.push(request);
+      return [faces[index]];
+    }),
+  );
+  assert.deepEqual(loaded.sort(), ['400 16px "Noto Sans"', '700 16px "Manrope"']);
+  assert.equal(fonts.length, 2);
+  assert.ok(fonts.every((font) => font.status === 'loaded'));
+});
+
+test('le rejet d’un téléchargement reste un échec même si les autres polices sont prêtes', async () => {
+  await assert.rejects(
+    verifyMotionFonts(
+      fontPage(
+        [
+          { family: 'Manrope', weight: '700', status: 'loaded' },
+          { family: 'Noto Sans', weight: '400', status: 'unloaded' },
+        ],
+        async () => {
+          throw new Error('Téléchargement refusé.');
+        },
+      ),
+    ),
+    /Polices de marque non chargées/u,
+  );
 });
 
 async function bounded(promise) {
