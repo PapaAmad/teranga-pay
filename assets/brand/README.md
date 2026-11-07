@@ -8,7 +8,7 @@ Commencer par la [planche HTML](exploration.html), le [PDF de neuf pages](export
 | ---------------------------- | ----------------------------------------------- |
 | [Logos](logos/README.md)     | Six variantes SVG et trois signes exploratoires |
 | [Icônes](icons/README.md)    | 16 dessins originaux et tracés partagés         |
-| [Polices](fonts/README.md)   | Fichiers originaux, licences OFL et provenance  |
+| [Polices](fonts/README.md)   | Sous-ensembles latins, licences et provenance   |
 | [Tokens](tokens.json)        | Palette, espacements et échelle typographique   |
 | [Contrastes](contrast.json)  | Mesures sRGB des couples documentés             |
 | [Exports](exports/README.md) | PNG de présentation et PDF                      |

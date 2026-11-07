@@ -10,7 +10,9 @@ L'arbre réservé `.github` utilise `GUIDE.md`, sauf `ISSUE_TEMPLATE` qui utilis
 
 `brand-colors.mjs` définit les 18 couples fonctionnels de la charte : 12 paires de texte à 4,5:1 et 6 indices graphiques à 3:1, dont la sélection Android. `node scripts/export-brand-contrast.mjs` régénère `assets/brand/contrast.json` depuis les tokens, avec les couleurs exactes, les ratios non arrondis et les seuils. La sortie est reproductible sans date variable, sans appel réseau et sans dépendance ajoutée ; une paire insuffisante produit un code de sortie 1.
 
-`brand.test.mjs` compare le rapport livré au calcul courant pour détecter un rapport périmé, vérifie les bornes et seuils du calcul ainsi que la cohérence des SVG. Il contrôle aussi les tailles et SHA-256 des trois polices et deux licences sur leurs octets originaux, selon le manifeste des sources : aucun nettoyage des fichiers de licence n'est autorisé par ces tests. Lancer `npm run test:tooling` ; ces vérifications ne constituent pas une certification d'accessibilité de l'application.
+`brand.test.mjs` compare le rapport livré au calcul courant pour détecter un rapport périmé, vérifie les bornes et seuils du calcul ainsi que la cohérence des SVG. Il contrôle aussi les tailles et SHA-256 des trois polices et deux licences livrées, selon le manifeste des sources : aucun nettoyage des fichiers de licence n'est autorisé par ces tests. Lancer `npm run test:tooling` ; ces vérifications ne constituent pas une certification d'accessibilité de l'application.
+
+`subset-brand-fonts.py` produit les deux sous-ensembles Noto avec Python et FontTools 4.68.0 fournis séparément. Il exige les originaux dont les SHA-256 sont épinglés, conserve les plages latines, contrôle les glyphes requis et leurs avances, puis actualise le manifeste et le relevé de glyphes. Aucun téléchargement automatique ; voir la [reproduction des polices](../assets/brand/fonts/README.md). La commande n'appartient pas au démarrage ni au bundle mobile.
 
 ## Reproduire les exports T08
 
@@ -23,4 +25,4 @@ npm run brand:document -- --browser "chemin/Chromium" --puppeteer-module "chemin
 npm run brand:motion -- --browser "chemin/Chromium" --puppeteer-module "chemin/puppeteer.js" --ffmpeg "chemin/ffmpeg" --format portrait
 ```
 
-`--help` décrit les options, dont `--output` pour une sortie distincte. Le document produit PNG, PDF et un relevé `validation.json` lié au SHA-256 du HTML ; il vérifie les erreurs navigateur, la composition imprimée et l’absence de débordement à 390 px. Le rendu motion vérifie la géométrie finale, le format et le décodage de la vidéo. Une génération documentaire ne valide ni le clavier natif, ni TalkBack, ni un paiement réel.
+`--help` décrit les options, dont `--output` pour une sortie distincte. Le document produit PNG, PDF et un relevé `validation.json` lié au SHA-256 du HTML ; il vérifie les erreurs navigateur, la composition imprimée et l’absence de débordement à 390 px. Document et motion exigent les faces attendues dans l'état `loaded` et refusent une ressource indisponible avant les exports ; un repli disponible ne suffit pas. Le rendu motion vérifie aussi la géométrie finale, le format et le décodage de la vidéo. Une génération documentaire ne valide ni le clavier natif, ni TalkBack, ni un paiement réel.

@@ -5,14 +5,22 @@
     {
       "file": "NotoSans-Regular.ttf",
       "url": "https://raw.githubusercontent.com/expo/google-fonts/44ab557b8697877e163c597aae685b68aa880767/font-packages/noto-sans/400Regular/NotoSans_400Regular.ttf",
-      "bytes": 629024,
-      "sha256": "fe8c022f48d8dd29f17b744d16f9346f4357e16f7d4f7be58b000ae7c291b614"
+      "bytes": 129308,
+      "sha256": "1ae4f8ce07adc880c85fff3522c188d51807be56e99af1011556604a6de02361",
+      "upstream": {
+        "bytes": 629024,
+        "sha256": "fe8c022f48d8dd29f17b744d16f9346f4357e16f7d4f7be58b000ae7c291b614"
+      }
     },
     {
       "file": "NotoSans-SemiBold.ttf",
       "url": "https://raw.githubusercontent.com/expo/google-fonts/44ab557b8697877e163c597aae685b68aa880767/font-packages/noto-sans/600SemiBold/NotoSans_600SemiBold.ttf",
-      "bytes": 631364,
-      "sha256": "e691fe27813ec6ed11d0a5be4c6c1f6739996ed682462eaa3244a6185217dd6c"
+      "bytes": 130120,
+      "sha256": "7afaca36e100a1e86624b1e154dbfc35123fa9da29b80452c9a5694158773a73",
+      "upstream": {
+        "bytes": 631364,
+        "sha256": "e691fe27813ec6ed11d0a5be4c6c1f6739996ed682462eaa3244a6185217dd6c"
+      }
     },
     {
       "file": "Manrope-Bold.ttf",
@@ -32,5 +40,23 @@
       "bytes": 4387,
       "sha256": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b"
     }
-  ]
+  ],
+  "subset": {
+    "tool": "fonttools",
+    "version": "4.68.0",
+    "script": "scripts/subset-brand-fonts.py",
+    "unicodes": "U+0000-024F,U+0300-036F,U+1E00-1EFF,U+2000-206F,U+20A0-20CF,U+2122,U+2190-2199,U+2212,U+FEFF,U+FFFD",
+    "coverage": [
+      {
+        "font": "NotoSans-Regular.ttf",
+        "sourceCodepoints": 3094,
+        "retainedCodepoints": 1045
+      },
+      {
+        "font": "NotoSans-SemiBold.ttf",
+        "sourceCodepoints": 3094,
+        "retainedCodepoints": 1045
+      }
+    ]
+  }
 }

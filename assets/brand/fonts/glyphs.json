@@ -1,5 +1,5 @@
 {
-  "corpus": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÂÇÉÈÊËÎÏÑŊÔÓÙÛÜŸàâçéèêëîïñŋôóùûüÿ0123456789",
+  "corpus": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÂÇÉÈÊËÎÏÑŊÔÓÙÛÜŸàâçéèêëîïñŋôóùûüÿ0123456789  €+−%.,:;!?()’",
   "results": [
     {
       "font": "Manrope-Bold.ttf",
@@ -13,5 +13,6 @@
       "font": "NotoSans-SemiBold.ttf",
       "missing": []
     }
-  ]
+  ],
+  "notoAdditionalCorpus": "̀́̂̃̈ "
 }

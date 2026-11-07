@@ -18,3 +18,5 @@ Le front complet reste à développer. L’onboarding, le solde financier, l’e
 Avant de clôturer : vérifier les contrôles du commit publié, obtenir la relecture de Salam et conduire les essais Android restant nécessaires. Les tests de reconnaissance des icônes, le texte agrandi et TalkBack ne sont pas annoncés comme effectués sans leur compte rendu.
 
 Voir le [dossier design](../design/README.md), les [sources de marque](../../assets/brand/README.md) et le [relevé de validation](../design/validation.md). Commandes locales : `npm run test:tooling`, `npm test -- --ci`, `npm run repo:check`.
+
+Le 7 novembre, les six remarques de Salam sur la PR #47 sont traitées : polices latines allégées, accueil défilable, vérifications des cibles et du chargement, montant insécable, retour automatique aux polices prêtes et contrôle strict des polices vidéo. La branche T08 est remise au-dessus de T07 corrigée au commit `8d10132`. Les preuves locales et les limites sont consignées dans la validation ; l’approbation du nouveau commit reste à obtenir.
