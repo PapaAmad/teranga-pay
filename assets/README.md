@@ -1,8 +1,14 @@
-# Visuels du projet
+# 🎨 Visuels du projet
 
-PAN porte les ressources visuelles ; Salam relit les livrables. Ce dossier ne contient encore aucun logo final ni visuel de soumission.
+PAN porte les ressources visuelles ; Salam relit les livrables.
 
-- [brand](brand/README.md) : identité graphique, tâche T08.
-- [submission](submission/README.md) : captures, couverture et vidéo, tâches T37/T39.
+<p align="center">
+  <img src="brand/exports/planche.png" alt="Planche de l'identité Teranga Pay : directions explorées et direction B retenue" width="90%">
+</p>
 
-Conserver les sources éditables et les exports utiles, avec leur provenance et les droits d'utilisation. Les ressources techniques directement intégrées à l'application restent près de celle-ci.
+| Dossier                            | Contenu                                              | Tâche    |
+| ---------------------------------- | ---------------------------------------------------- | -------- |
+| [brand](brand/README.md)           | Logos, icônes, polices, tokens, charte PDF et motion | T08      |
+| [submission](submission/README.md) | Captures, couverture et vidéo de soumission          | T37, T39 |
+
+Conserver les sources éditables et les exports utiles, avec leur provenance et leurs droits d'utilisation. Les ressources techniques intégrées à l'application restent près de celle-ci.

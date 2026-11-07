@@ -1,5 +1,10 @@
-# Parcours mobile | emplacement réservé
+# 🧭 Parcours mobile | emplacement réservé
 
-PAN ajoutera en **T30** les scénarios Maestro du parcours nominal : créer un wallet de test, recevoir, payer et retirer en simulation. Salam relit ; le réseau et les données de démo viendront de T12/T29.
+PAN ajoutera en **T30** les scénarios Maestro du parcours nominal ; Salam relit. Le réseau et les données de démo viennent de T12 et T29.
 
-Aucun scénario Maestro ou test de paiement n'est disponible ici pour le moment. Quand l'application sera intégrée, documenter les appareils ciblés, les commandes, l'initialisation fictive et les artefacts de diagnostic sans données sensibles.
+```mermaid
+flowchart LR
+    A["Créer un wallet<br/>12 mots, PIN"] --> B["Recevoir<br/>paiement d'Ousmane"] --> C["Payer Awa<br/>QR en FCFA"] --> D["Retirer<br/>Wave simulé"] --> E["Historique<br/>reçus du jour"]
+```
+
+Aucun scénario Maestro ni test de paiement n'est encore disponible. Quand l'application sera intégrée, documenter ici les appareils ciblés, les commandes, l'initialisation fictive et les artefacts de diagnostic, sans données sensibles.

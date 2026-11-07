@@ -1,4 +1,8 @@
-# Application mobile
+# 📱 Application mobile
+
+<p align="center">
+  <img src="../../assets/brand/exports/composants.png" alt="Composants de marque : boutons, champs et cartes dans leurs différents états" width="90%">
+</p>
 
 Socle React Native et Expo en TypeScript, destiné d’abord à Android. PAN en est responsable ; Salam apporte ensuite la logique du wallet.
 
@@ -9,6 +13,21 @@ La navigation relie l’accueil provisoire, la présentation du projet et la gal
 T08 fournit des fondations réutilisables : identité B « Le courant commun », icônes originales, polices locales et composants bouton/carte/champ avec leurs états. La galerie est un atelier de vérification ; ses interactions sont fictives. Les maquettes financières de la charte montrent une intention graphique, sans constituer les écrans métier connectés.
 
 L’onboarding et le wallet, l’accueil financier, l’envoi, la réception, l’encaissement, l’historique et le retrait simulé restent les tâches suivantes du [plan](../../docs/planning/roadmap.md). PAN réalise les écrans ; Salam porte la logique wallet, Lightning et API. La démonstration financière future reste en regtest, avec cash-out Wave/Orange Money simulé.
+
+```mermaid
+flowchart LR
+    Home["🏠 Accueil"] --> About["ℹ️ À propos"]
+    Home --> Lab["🎨 Atelier visuel<br/>galerie T08"]
+    Home -. "à venir" .-> Flow["Onboarding · Recevoir · Envoyer<br/>Encaisser · Historique · Retirer"]
+```
+
+| Dossier                                          | Contenu                                             |
+| ------------------------------------------------ | --------------------------------------------------- |
+| [`src/screens`](src/screens/README.md)           | Écrans de l'application                             |
+| [`src/navigation`](src/navigation/README.md)     | Pile de navigation et identifiants d'écran typés    |
+| [`src/ui`](src/ui/README.md)                     | Bouton, champ, carte, icônes et jetons de la charte |
+| [`src/translations`](src/translations/README.md) | Catalogue des textes (français ; wolof en T33)      |
+| [`tests`](tests/README.md)                       | Tests Jest et Testing Library                       |
 
 Les textes sont centralisés dans `src/translations/fr.ts`. L’infrastructure de traduction vient en T09 ; les traductions wolof relues par des locuteurs sont prévues en T33. La présence des glyphes et d’un catalogue français ne constitue pas un système bilingue terminé. Voir la [charte et ses limites](../../docs/design/README.md).
 

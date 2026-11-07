@@ -1,60 +1,221 @@
-# Teranga Pay
+<p align="center">
+  <img src="assets/brand/exports/couverture.png" alt="Teranga Pay : la valeur circule, le lien reste" width="100%">
+</p>
 
-Application mobile Bitcoin/Lightning pour recevoir, payer et encaisser avec des montants affichés d'abord en FCFA. Projet de Salam (**Alioune Abdou Salam Kane**, [@AliouneKane](https://github.com/AliouneKane)) et PAN (**Papa Amadou Niang**, [@PapaAmad](https://github.com/PapaAmad)), pour le hackathon Dakar Bitcoin Trust.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/logos/logo-inverse.svg">
+    <img src="assets/brand/logos/logo-principal.svg" alt="Logo Teranga Pay" height="44">
+  </picture>
+</p>
 
-Le dépôt [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay) est **privé**, conformément au choix de PAN du 2 novembre 2026. Le tableau GitHub Projects doit également rester privé. Le fichier de licence MIT est conservé ; l'accès GitHub reste limité aux personnes autorisées. Cette décision remplace la visibilité publique initialement prévue dans les PDF ; voir la [décision 0002](docs/decisions/0002-visibilite-privee.md).
+<p align="center">
+  <strong>Portefeuille Bitcoin Lightning pour le Sénégal.</strong><br>
+  Recevoir l'argent de la diaspora, payer et encaisser par QR, tout en <strong>FCFA d'abord</strong>.<br>
+  Projet du hackathon <em>Dakar Bitcoin Trust</em>, novembre 2026.
+</p>
 
-Ce dépôt contient le **socle de travail jusqu'à T07** : application Expo navigable, outils communs, documentation, modèles GitHub, backlog et CI. Les fonctions de portefeuille, de paiement et de retrait seront réalisées dans les tâches suivantes. La démonstration visera regtest ; les retraits Wave et Orange Money seront simulés.
+<p align="center">
+  <a href="#-le-projet-en-une-image">Le projet</a> ·
+  <a href="#-parcours-de-démonstration">Démo</a> ·
+  <a href="#️-architecture">Architecture</a> ·
+  <a href="#-avancement">Avancement</a> ·
+  <a href="#-démarrer">Démarrer</a> ·
+  <a href="#️-organisation-du-dépôt">Dépôt</a> ·
+  <a href="#-travailler-ensemble">Équipe</a>
+</p>
 
-## Démarrer
+> [!IMPORTANT]
+> **Prototype de démonstration.** Tous les paiements passent par **regtest**, un réseau Bitcoin privé sans aucune valeur réelle. Les retraits Wave et Orange Money sont **simulés**. Les personnes et numéros des exemples sont fictifs.
 
-Prérequis : **Node.js 24** (version fixée dans `.nvmrc`), **npm 12**, Git, puis Expo Go compatible SDK57 sur Android ou un émulateur Android. Le simulateur iOS nécessite macOS.
+---
 
-```sh
-npm ci
-npm run mobile
-```
+## 🧭 Le projet en une image
 
-Scanner le QR Expo avec le téléphone sur le même réseau, ou lancer `npm run mobile:android`. L'application propose un accueil de préparation et une page de présentation. Aucun compte, secret ou serveur n'est nécessaire pour ce socle.
-
-Expo et React Native utilisent les versions du template officiel SDK57, compatibles avec Expo Go à l'initialisation. Les dépendances résolues sont verrouillées dans `package-lock.json`. Voir les [instructions officielles Expo](https://docs.expo.dev/get-started/create-a-project/) et le [guide local](docs/guides/demarrage.md).
-
-## Organisation
-
-| Dossier                                               | Rôle                                                          | Responsable                        |
-| ----------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------- |
-| [`apps/mobile/`](apps/mobile/README.md)               | Application Expo et navigation TypeScript                     | PAN ; Salam pour la logique wallet |
-| [`services/`](services/README.md)                     | Emplacements pour l'API, la passerelle simulée et les alertes | Salam ; PAN pour `bridge-sim`      |
-| [`packages/contracts/`](packages/contracts/README.md) | Emplacement des types et contrats communs à définir en T11    | Les deux                           |
-| [`infrastructure/`](infrastructure/README.md)         | Préparation du réseau regtest et du jeu de démonstration T12  | Salam                              |
-| [`tests/e2e/`](tests/e2e/README.md)                   | Futurs parcours mobiles Maestro T30                           | PAN                                |
-| [`assets/`](assets/README.md)                         | Charte et visuels de soumission à produire                    | PAN                                |
-| [`docs/`](docs/README.md)                             | Sources PDF, architecture, décisions, guides et suivi         | Les deux                           |
-| [`.github/`](.github/GUIDE.md)                        | CI, modèles, propriétaires, labels et règles préparées        | PAN                                |
-| [`scripts/`](scripts/README.md)                       | Vérifications du dépôt et préparation GitHub                  | PAN                                |
-| [`.husky/`](.husky/README.md)                         | Vérifications avant commit                                    | PAN                                |
-
-Chaque dossier maintenu contient un petit README. Le dossier réservé `.github` utilise [GUIDE.md](.github/GUIDE.md) pour laisser GitHub afficher ce README du projet à l'accueil. Les emplacements des futurs services contiennent uniquement leur documentation : ils ne démarrent aucun service. npm n'enregistre comme workspace que les dossiers possédant un `package.json`.
-
-## Architecture cible
+Ousmane travaille à Milan et envoie de l'argent à sa mère, Mame Diarra, à Thiès. Aujourd'hui, il passe par un opérateur, avec des frais et un taux de change peu lisibles. Avec Teranga Pay, il paie directement l'adresse Lightning de Mame : l'argent arrive en quelques secondes, Mame voit le montant en FCFA et peut le retirer vers Wave ou Orange Money.
 
 ```mermaid
 flowchart LR
-    Mobile["Application mobile<br/>Interface, wallet et coffre local"]
-    Lightning["Réseau Lightning"]
-    API["API Teranga<br/>Taux, adresses et alertes"]
-    Bridge["Passerelle cash-out<br/>Wave / Orange Money simulés"]
+    O(["👨🏾‍💼 Ousmane<br/>Milan, diaspora"])
+    M(["👵🏾 Mame Diarra<br/>Thiès"])
+    A(["🧺 Awa<br/>commerçante, marché HLM"])
+    C(["🧑🏾 Client d'Awa"])
+    W[["💸 Wave / Orange Money<br/>(simulé)"]]
 
-    Mobile <-->|Paiements directs| Lightning
-    Mobile <-->|Services auxiliaires| API
-    API -->|Retrait simulé| Bridge
+    O -- "⚡ paie l'adresse de Mame<br/>en quelques secondes" --> M
+    M -- "retire 20 000 FCFA" --> W
+    C -- "scanne le QR<br/>prix figé 5 min" --> A
 ```
 
-Ce schéma présente la cible après T07. Seuls les écrans de préparation et leur navigation sont disponibles aujourd'hui. Les clés doivent rester dans le coffre sécurisé du téléphone ; le choix du SDK Lightning appartient à T10. La [vue détaillée](docs/architecture/vue-ensemble.md) décrit les frontières du système et le futur réseau regtest.
+| Qui                   | Aujourd'hui                                          | Avec Teranga Pay                                                      |
+| --------------------- | ---------------------------------------------------- | --------------------------------------------------------------------- |
+| **Mame** reçoit       | Passage par un opérateur, frais et taux peu lisibles | Paiement direct sur son adresse Lightning, montant affiché en FCFA    |
+| **Awa** encaisse      | Espèces ou transfert mobile money                    | QR en FCFA, prix figé cinq minutes, confirmation en quelques secondes |
+| **Mame** veut du cash | Agent, frais de retrait                              | Choisit Wave ou Orange Money et voit les frais avant de confirmer     |
 
-Les schémas sont écrits en [Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams) dans le Markdown et rendus directement par GitHub. Ils restent modifiables comme le reste de la documentation.
+**Principe de confiance :** les clés du portefeuille restent **dans le téléphone**. Le serveur Teranga aide (taux, adresse Lightning, alertes), mais il **ne peut pas dépenser l'argent**. Si le serveur tombe, les paiements Lightning continuent.
 
-## Vérifier le socle
+## 🎬 Parcours de démonstration
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor O as Ousmane (diaspora)
+    participant LN as Réseau Lightning<br/>(regtest)
+    participant P as Téléphone de Mame<br/>(wallet LDK Node)
+    participant API as API Teranga
+    participant G as Passerelle simulée<br/>Wave / Orange Money
+
+    P->>P: Créer le wallet, noter 12 mots, choisir un PIN
+    O->>LN: Paie mame@teranga.example
+    LN->>P: ⚡ Paiement reçu en quelques secondes
+    P->>API: Quel est le taux BTC/FCFA ?
+    API-->>P: 1 BTC = 45 000 000 FCFA (source affichée)
+    P->>P: Solde affiché en FCFA, sats en petit
+    P->>G: Retirer 20 000 FCFA (frais affichés, PIN)
+    G-->>P: Retrait simulé confirmé, reçu
+```
+
+Jalons du plan : **8 novembre**, premier paiement reçu en regtest ; **15 novembre**, parcours complet (recevoir, payer un marchand, retirer) ; **19 novembre à midi**, gel du code ; **20 novembre au matin**, soumission.
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    subgraph Phone["📱 Téléphone : React Native et Expo"]
+        UI["Écrans<br/>FCFA d'abord, français puis wolof"]
+        Contract{{"Contrat Wallet<br/>packages/contracts"}}
+        Wallet["Wallet LDK Node<br/>module natif Android"]
+        Vault[("🔐 Coffre<br/>Keystore et PIN")]
+        UI <--> Contract <--> Wallet
+        Wallet --- Vault
+    end
+
+    subgraph Server["🖥️ Serveur Teranga"]
+        API["API Fastify<br/>santé, taux, devis"]
+        Alerts["Alertes fraude<br/>(T26)"]
+        Bridge["Passerelle simulée<br/>(T23)"]
+        API --> Alerts
+        API --> Bridge
+    end
+
+    subgraph Regtest["🧪 Réseau de démo : Docker regtest"]
+        BTC[("Bitcoin Core")]
+        EL["Electrum"]
+        LT["⚡ lnd-teranga"]
+        LD["⚡ lnd-diaspora"]
+        EL --> BTC
+        LT --> BTC
+        LD --> BTC
+        LD <-->|canal| LT
+    end
+
+    Wallet <-->|"canal privé ⚡"| LT
+    Wallet -->|lit la chaîne| EL
+    UI <-->|HTTPS| API
+```
+
+| Brique         | Technologie                                     | Rôle                                                     | État                                                                                                                      |
+| -------------- | ----------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Application    | Expo 57, React Native, TypeScript               | Écrans, navigation, traductions, identité visuelle       | [apps/mobile](apps/mobile/README.md)                                                                                      |
+| Identité       | SVG, tokens, polices libres                     | Direction « Le courant commun », marine et citron        | [assets/brand](assets/brand/README.md)                                                                                    |
+| Wallet         | LDK Node 0.7 dans un module Expo Kotlin         | Clés, canaux, factures et paiements, dans le téléphone   | T15 en cours ; choix en revue ([#50](https://github.com/PapaAmad/teranga-pay/pull/50))                                    |
+| Contrat        | TypeScript                                      | Interface commune écrans ↔ wallet, faux wallet de test   | en revue ([#53](https://github.com/PapaAmad/teranga-pay/pull/53))                                                         |
+| API            | Node 24, Fastify 5                              | Santé, validation, limite de débit, taux BTC/FCFA, devis | en revue ([#48](https://github.com/PapaAmad/teranga-pay/pull/48), [#52](https://github.com/PapaAmad/teranga-pay/pull/52)) |
+| Réseau de démo | Docker : Bitcoin Core 29.5, LND 0.21.6, electrs | Vrais paiements Lightning avec de la fausse monnaie      | en revue ([#49](https://github.com/PapaAmad/teranga-pay/pull/49))                                                         |
+
+La [vue d'architecture détaillée](docs/architecture/vue-ensemble.md) décrit les frontières du système, le modèle de confiance et les règles sur les montants.
+
+<details>
+<summary><strong>📖 Petit lexique</strong></summary>
+
+| Mot                  | En clair                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| **Nœud**             | Un programme qui participe au réseau et garde sa copie des comptes.                                 |
+| **Bitcoin Core**     | Le nœud officiel de Bitcoin : il tient le grand livre de toutes les transactions.                   |
+| **Lightning**        | Une couche au-dessus de Bitcoin pour des paiements instantanés et presque gratuits.                 |
+| **Canal**            | Un « compte commun » entre deux nœuds Lightning, ouvert une fois puis utilisé des milliers de fois. |
+| **Electrum**         | Un guichet qui renseigne le téléphone sur la chaîne, sans qu'il télécharge tout le grand livre.     |
+| **Regtest**          | Un réseau Bitcoin privé où l'on crée des blocs à la demande, avec de l'argent sans valeur.          |
+| **sats**             | La plus petite unité du bitcoin : 1 BTC = 100 000 000 sats.                                         |
+| **Facture (BOLT11)** | Une demande de paiement Lightning, souvent affichée en QR.                                          |
+
+</details>
+
+## 📊 Avancement
+
+```mermaid
+gantt
+    title Feuille de route T01 à T40 (novembre 2026, heure de Dakar)
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+    section Démarrage
+    Dépôt, CI, backlog (T01-T07)          :done,   p0, 2026-11-01, 3d
+    section Fondations
+    Charte et traductions (T08-T09)       :active, p1a, 2026-11-04, 2d
+    SDK, contrat, regtest, API (T10-T13)  :active, p1b, 2026-11-05, 3d
+    Onboarding, wallet, accueil (T14-T16) :        p1c, 2026-11-07, 2d
+    J1 premier paiement reçu              :milestone, m1, 2026-11-08, 0d
+    section Fonctions clés
+    Recevoir, envoyer, encaisser, retirer :        p2, 2026-11-09, 7d
+    J2 parcours complet                   :milestone, m2, 2026-11-15, 0d
+    section Finition et soumission
+    Tests, sécurité, APK, documentation   :        p3, 2026-11-16, 3d
+    Gel, vidéo, soumission Devpost        :crit,   p4, 2026-11-19, 2d
+```
+
+| Tâche   | Sujet                                     | Responsable | État                                                                                                                           |
+| ------- | ----------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| T01–T06 | Dépôt, modèles, backlog, application Expo | PAN         | ✅ sur `main` ([#36](https://github.com/PapaAmad/teranga-pay/pull/36), [#37](https://github.com/PapaAmad/teranga-pay/pull/37)) |
+| T07     | CI, hooks et contrôles du dépôt           | PAN         | 🔎 approuvée, à fusionner ([#38](https://github.com/PapaAmad/teranga-pay/pull/38))                                             |
+| T08     | Identité visuelle et composants           | PAN         | 🔎 en revue ([#47](https://github.com/PapaAmad/teranga-pay/pull/47))                                                           |
+| T10     | Choix du SDK Lightning : LDK Node         | Salam       | 🔎 en revue ([#50](https://github.com/PapaAmad/teranga-pay/pull/50)), essais natifs en cours                                   |
+| T11     | Contrat écrans ↔ wallet et faux wallet    | Les deux    | 🔎 en revue ([#53](https://github.com/PapaAmad/teranga-pay/pull/53))                                                           |
+| T12     | Réseau regtest Docker et seed de démo     | Salam       | 🔎 en revue ([#49](https://github.com/PapaAmad/teranga-pay/pull/49))                                                           |
+| T13     | Squelette de l'API                        | Salam       | 🔎 en revue ([#48](https://github.com/PapaAmad/teranga-pay/pull/48))                                                           |
+| T15     | Wallet LDK Node dans le téléphone         | Salam       | 🛠️ en cours                                                                                                                    |
+| T17     | Taux BTC/FCFA et devis figés cinq minutes | Salam       | 🔎 en revue ([#52](https://github.com/PapaAmad/teranga-pay/pull/52))                                                           |
+
+Ce tableau est daté du 7 novembre 2026. La liste complète, avec dates et responsables, est dans la [feuille de route](docs/planning/roadmap.md) ; le [tableau GitHub Projects](https://github.com/users/PapaAmad/projects/3) suit l'état de chaque issue.
+
+## 🚀 Démarrer
+
+**Prérequis :** Node.js 24 (fixé dans `.nvmrc`), npm 12 et Git. Pour le réseau de démo : Docker Desktop. Pour le wallet natif : JDK 17 et le SDK Android.
+
+```sh
+npm ci              # installe tout le monorepo
+npm run mobile      # application Expo (Expo Go ou émulateur Android)
+```
+
+Le [guide de démarrage](docs/guides/demarrage.md) détaille l'installation pas à pas.
+
+<details>
+<summary><strong>🧪 Réseau Lightning de démonstration (après fusion de la #49)</strong></summary>
+
+```sh
+npm run regtest:up      # Bitcoin Core, Electrum et deux nœuds LND
+npm run regtest:seed    # fonds de test, canal diaspora → teranga, paiement de vérification
+npm run regtest:down    # arrête en gardant les données
+npm run regtest:reset   # efface tout
+```
+
+Rien n'a de valeur : c'est un réseau privé. Détails dans le README `infrastructure` de la [#49](https://github.com/PapaAmad/teranga-pay/pull/49).
+
+</details>
+
+<details>
+<summary><strong>🖥️ API Teranga (après fusion des #48 et #52)</strong></summary>
+
+```sh
+npm run api                                   # http://127.0.0.1:3000
+curl http://127.0.0.1:3000/health             # {"status":"ok","service":"teranga-api"}
+curl http://127.0.0.1:3000/v1/rate            # taux BTC/FCFA et sa source
+```
+
+</details>
+
+<details>
+<summary><strong>✅ Vérifier avant une PR</strong></summary>
 
 ```sh
 npm run format:check
@@ -65,30 +226,72 @@ npm run test:tooling
 npm run repo:check
 ```
 
-La CI reprend les contrôles de format, lint, types, tests, titre de PR et secrets. Husky et lint-staged vérifient les fichiers indexés ; commitlint contrôle les messages. Le ruleset de `main` prévu dans les fichiers n'est pas actif : GitHub refuse cette fonction pour ce dépôt privé avec l'offre actuelle. L'analyse native des secrets et la protection au push ne sont pas activées ; le contrôle Gitleaks de la CI est distinct. La règle d'équipe reste une PR verte et relue par l'autre membre.
+La CI GitHub reprend ces contrôles, vérifie le titre de la PR et cherche les secrets avec Gitleaks. Les résultats détaillés et leurs limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
 
-L'installation par lockfile, les contrôles de code, les tests locaux et l'export Android ont été vérifiés. Les hooks ont contrôlé les fichiers indexés lors du premier commit. Après le déverrouillage du compte par le support GitHub, la [CI distante sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris les tests et Gitleaks. Avant les correctifs de revue, les six contrôles ont aussi réussi [sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41497845298), avec vérification réelle de son titre. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
+</details>
 
-La preuve CI citée pour la PR #38 couvre précisément le commit `e0124c184052d5529dc306f184bc764ef7ac0f8b`, avant les correctifs de revue. Elle ne valide pas les commits suivants. Pour la version courante, consulter les [contrôles de la PR #38](https://github.com/PapaAmad/teranga-pay/pull/38/checks) et vérifier leur SHA.
+## 🗂️ Organisation du dépôt
 
-## Travail d'équipe et GitHub
+```text
+teranga-pay/
+├── apps/mobile/          📱 application Expo : écrans, navigation, traductions, composants
+├── packages/contracts/   🤝 contrat commun écrans ↔ wallet (T11)
+├── services/             🖥️ API Teranga, passerelle simulée et alertes
+├── infrastructure/       🧪 réseau regtest Docker et seed de démonstration (T12)
+├── assets/brand/         🎨 logos, icônes, polices, charte et motion
+├── docs/                 📚 sources PDF, architecture, décisions, guides, planning
+├── scripts/              🔧 contrôles du dépôt, outils GitHub et de marque
+├── tests/e2e/            🧭 parcours mobiles Maestro (T30)
+└── .github/              ⚙️ CI, modèles d'issue et de PR (voir GUIDE.md)
+```
 
-Une tâche = une issue = une branche = une PR. Les commits et titres suivent `type(zone): description`, avec 72 caractères au maximum. La PR contient une explication « En clair », les vérifications et la référence à l'issue. Voir [CONTRIBUTING.md](CONTRIBUTING.md).
+| Dossier                                               | Rôle                                            | Responsable              |
+| ----------------------------------------------------- | ----------------------------------------------- | ------------------------ |
+| [`apps/mobile/`](apps/mobile/README.md)               | Application, interface et intégration du wallet | PAN ; Salam (wallet)     |
+| [`packages/contracts/`](packages/contracts/README.md) | Types et fonctions partagés                     | Les deux                 |
+| [`services/`](services/README.md)                     | API, passerelle simulée, alertes                | Salam ; PAN (passerelle) |
+| [`infrastructure/`](infrastructure/README.md)         | Bitcoin Core, Electrum et LND en regtest        | Salam                    |
+| [`assets/`](assets/README.md)                         | Identité visuelle puis visuels de soumission    | PAN                      |
+| [`docs/`](docs/README.md)                             | Conception, décisions, guides et suivi          | Les deux                 |
+| [`scripts/`](scripts/README.md)                       | Vérifications et préparation GitHub             | PAN                      |
+| [`tests/`](tests/README.md)                           | Parcours de bout en bout                        | PAN                      |
+| [`.github/`](.github/GUIDE.md)                        | CI, modèles, propriétaires                      | PAN                      |
 
-Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](docs/decisions/0003-initialisation-main.md), malgré le refus de démarrage de la CI distante et sans inventer une approbation de Salam. Les règles de relecture restent applicables aux tâches suivantes ; Salam dispose d'un accès en écriture au dépôt et au [Project privé #3](https://github.com/users/PapaAmad/projects/3). Le tableau contient 35 cartes : T06 et T07 en revue, les 33 autres à faire. Le champ natif `Status` porte les quatre états français ; les colonnes du [tableau](https://github.com/users/PapaAmad/projects/3/views/2) sont regroupées par ce champ, ce qui a été vérifié par l’API.
+Chaque dossier maintenu a son propre README. Le dossier `.github` utilise `GUIDE.md` pour laisser GitHub afficher ce README à l'accueil.
 
-Squash seul, suppression des branches fusionnées, permissions Actions en lecture, Dependabot, 16 labels et 35 issues avec leurs affectations ont été vérifiés. Consulter le [relevé GitHub vérifié](docs/planning/publication-github.md) et le [suivi T01 à T07](docs/planning/suivi-t01-t07.md) pour les preuves et les points ouverts.
+## 🤝 Travailler ensemble
 
-Le [guide du dépôt distant](docs/guides/depot-distant.md) est la procédure de référence pour publier et configurer ce dépôt privé. Les [scripts GitHub](scripts/github/README.md) préparent les réglages et le backlog ; leurs fichiers seuls ne prouvent pas qu'une opération distante a abouti.
+```mermaid
+flowchart LR
+    I["📋 Issue<br/>T01 à T40"] --> B["🌿 Branche<br/>type/Txx-sujet"]
+    B --> C["💾 Commits<br/>type(zone): description"]
+    C --> PR["🔀 Pull Request<br/>« En clair » + Closes #N"]
+    PR --> CI{"✅ CI verte ?<br/>6 contrôles"}
+    CI -- non --> C
+    CI -- oui --> R{"👀 Relue par<br/>l'autre membre ?"}
+    R -- remarques --> C
+    R -- approuvée --> M["🎯 Fusion squash<br/>sur main"]
+```
 
-Codex et Claude Code partagent [AGENTS.md](AGENTS.md) via [CLAUDE.md](CLAUDE.md). Les choix techniques sont consignés dans [docs/decisions](docs/decisions/README.md).
+| Personne                                                                             | S'occupe de                                            |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| **PAN**, Papa Amadou Niang ([@PapaAmad](https://github.com/PapaAmad))                | Dépôt, application, design, passerelle simulée         |
+| **Salam**, Alioune Abdou Salam Kane ([@AliouneKane](https://github.com/AliouneKane)) | Lightning, wallet, API, sécurité, documentation finale |
 
-## Suite du projet
+Règles complètes : [CONTRIBUTING.md](CONTRIBUTING.md) et [AGENTS.md](AGENTS.md), partagées par Codex et Claude Code. Les choix techniques sont expliqués dans les [notes de décision](docs/decisions/README.md).
 
-T08 et T09 apportent la charte et les traductions. T10 valide le SDK Lightning ; T11 fixe le contrat entre les écrans et la logique. Le réseau de démonstration arrive en T12, l'API en T13 et les premiers parcours wallet en T14 à T16. Consulter la [roadmap](docs/planning/roadmap.md) et la [vue d'architecture](docs/architecture/vue-ensemble.md).
+## 🔐 Sécurité et limites
 
-Les jalons du plan sont le 8 novembre 2026 pour le premier paiement de test, le 15 pour le parcours complet, le 19 à midi pour le gel du code et le 20 au matin pour la soumission. L'heure officielle de clôture reste à vérifier par l'équipe.
+- **Clés dans le téléphone :** la phrase de récupération reste dans le coffre sécurisé du téléphone ; le serveur ne la voit jamais (T15).
+- **Aucune donnée personnelle dans les journaux** de l'API : ni adresse IP, ni numéro, ni contenu de requête (T13).
+- **Aucun secret dans le dépôt :** fichiers `.env` ignorés, exemples neutres, Gitleaks dans la CI.
+- **Limites assumées du prototype :** regtest uniquement, retraits simulés, aucun APK signé pour l'instant (T35), essais sur un vrai téléphone encore à faire.
 
-Les clés du wallet doivent rester dans le coffre sécurisé du téléphone. Le SDK et les compromis éventuels ne sont pas encore décidés ; le repli LND côté serveur devra expliquer la garde des clés. Voir [SECURITY.md](SECURITY.md). Le socle n'a pas encore été validé sur un téléphone physique et aucun APK signé n'est fourni à ce stade.
+Signaler une faille : voir [SECURITY.md](SECURITY.md).
 
-Licence [MIT](LICENSE).
+---
+
+<p align="center">
+  <sub>Le dépôt <a href="https://github.com/PapaAmad/teranga-pay">PapaAmad/teranga-pay</a> est privé (<a href="docs/decisions/0002-visibilite-privee.md">décision 0002</a>). Code sous licence <a href="LICENSE">MIT</a>.<br>
+  Fait à Dakar avec ⚡ par PAN et Salam.</sub>
+</p>
