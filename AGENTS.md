@@ -1,10 +1,10 @@
-# Règles communes aux agents — Teranga Pay
+# Règles communes aux agents | Teranga Pay
 
 ## Contexte et périmètre
 
 - Lire [docs/README.md](docs/README.md), les deux sources PDF et le suivi des tâches avant une nouvelle intervention.
 - PAN (`PapaAmad`) porte le dépôt, l'application, le design et la passerelle simulée. Salam (`AliouneKane`) porte Lightning, le wallet, l'API et la sécurité. Respecter les responsables du plan.
-- Le socle initial couvre T01–T07. Les emplacements futurs ne constituent pas des services implémentés.
+- Le socle initial couvre T01 à T07. Les emplacements futurs ne constituent pas des services implémentés.
 - Travailler dans le périmètre de la tâche. Documenter les choix structurants dans `docs/decisions/`.
 
 ## Git et relecture
@@ -17,9 +17,10 @@
 
 ## Qualité
 
+- Utiliser `|` comme séparateur dans les titres et les libellés. Écrire les plages de tâches avec « à » et les dates avec « du ... au ... » ; conserver les tirets nécessaires à la syntaxe du code et aux commandes.
 - Avant de proposer un commit : `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test -- --ci`, `npm run test:tooling`, `npm run repo:check`.
 - Tester la logique ajoutée avec des cas qui échouent si son comportement est faux. Pour les écrans, fournir une capture ou une vérification de parcours adaptée.
-- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Le dossier réservé `.github` utilise `GUIDE.md` : ne pas y créer de fichier `README`, qui masquerait le README principal sur GitHub. Les dossiers générés sont exclus.
+- Chaque dossier source maintenu contient un court `README.md` : rôle, contenu, commande utile et tâche ou responsable si pertinent. Le dossier `.github` et ses sous-dossiers utilisent `GUIDE.md`, sauf `.github/ISSUE_TEMPLATE` qui utilise `GUIDE.txt` pour éviter un modèle Markdown involontaire. Les README documentaires (formats Markdown, texte et autres formats pris en charge par GitHub) sont interdits dans cet arbre réservé ; un fichier de configuration comme `workflows/readme.yml` reste autorisé. Les dossiers générés et les sous-modules externes sont exclus du parcours documentaire.
 - Garder le lockfile npm à jour. Ne pas ajouter Nx, Turbo, backend, SDK Lightning ou infrastructure exécutables sans tâche correspondante.
 
 ## Sécurité

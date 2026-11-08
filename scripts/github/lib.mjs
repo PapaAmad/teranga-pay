@@ -1,12 +1,86 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const root = fileURLToPath(new URL('../../', import.meta.url));
+export const NO_REVIEWER = null;
+const DEFAULT_VISIBILITY = 'private';
+const titleSeparators = ['|', '\u2014'];
+
+export function isMain(moduleUrl, entryPath = process.argv[1]) {
+  if (!entryPath || entryPath === '-') return false;
+  try {
+    return realpathSync(entryPath) === realpathSync(fileURLToPath(moduleUrl));
+  } catch {
+    return false;
+  }
+}
+
+export function normalizeDisplayName(value) {
+  if (typeof value !== 'string') return undefined;
+  return titleSeparators.reduce(
+    (name, separator) => name.replaceAll(` ${separator} `, ' | '),
+    value,
+  );
+}
+
+export function existingNamedResource(resources, expectedName, field, kind) {
+  if (typeof expectedName !== 'string' || !expectedName.trim())
+    throw new Error(`Nom attendu invalide pour ${kind}.`);
+  const expected = normalizeDisplayName(expectedName);
+  const matches = resources.filter(
+    (resource) => normalizeDisplayName(resource[field]) === expected,
+  );
+  if (matches.length > 1) {
+    throw new Error(`Plusieurs ${kind} correspondent à « ${expectedName} » ; résoudre le doublon.`);
+  }
+  return matches[0];
+}
+
+export function collectConnection(fetchPage, kind) {
+  const values = [];
+  const cursors = new Set();
+  const ids = new Set();
+  let after = null;
+  while (true) {
+    const page = fetchPage(after);
+    if (!Array.isArray(page?.nodes) || typeof page.pageInfo?.hasNextPage !== 'boolean') {
+      throw new Error(`Inventaire ${kind} incomplet ; réponse de pagination invalide.`);
+    }
+    for (const node of page.nodes) {
+      if (!node || typeof node.id !== 'string' || !node.id || ids.has(node.id)) {
+        throw new Error(`Inventaire ${kind} ambigu ; nœud inaccessible ou présent plusieurs fois.`);
+      }
+      ids.add(node.id);
+      values.push(node);
+    }
+    if (!page.pageInfo.hasNextPage) return values;
+    const cursor = page.pageInfo.endCursor;
+    if (typeof cursor !== 'string' || !cursor || cursors.has(cursor)) {
+      throw new Error(`Inventaire ${kind} incomplet ; curseur de pagination absent ou répété.`);
+    }
+    cursors.add(cursor);
+    after = cursor;
+  }
+}
+
+export function assertReusableProject(project) {
+  if (!project) return;
+  if (project.closed) throw new Error('Le Project existant est fermé ; le rouvrir explicitement.');
+  if (project.public !== false)
+    throw new Error(
+      'Le Project doit être privé ; corriger sa visibilité avant toute modification.',
+    );
+}
+
+export function existingLabel(labels, name) {
+  const matches = labels.filter((label) => label.name.toLowerCase() === name.toLowerCase());
+  if (matches.length > 1) throw new Error(`Plusieurs labels correspondent à « ${name} ».`);
+  return matches[0];
+}
 
 export function readJson(relativePath) {
-  return JSON.parse(
-    readFileSync(new URL(relativePath, new URL('../../', import.meta.url)), 'utf8'),
-  );
+  return JSON.parse(readFileSync(resolve(root, relativePath), 'utf8'));
 }
 
 export function validateConfig(config) {
@@ -29,7 +103,7 @@ export function validateConfig(config) {
   if (typeof config.projectTitle !== 'string' || !config.projectTitle.trim()) {
     throw new Error('projectTitle est nécessaire.');
   }
-  const visibility = config.visibility === undefined ? 'private' : config.visibility;
+  const visibility = config.visibility === undefined ? DEFAULT_VISIBILITY : config.visibility;
   if (!['private', 'public'].includes(visibility)) {
     throw new Error('visibility doit être private ou public.');
   }
@@ -37,7 +111,7 @@ export function validateConfig(config) {
 }
 
 export function assertRepositoryTarget(info, config) {
-  const expectedVisibility = config.visibility ?? 'private';
+  const expectedVisibility = config.visibility ?? DEFAULT_VISIBILITY;
   if (info.default_branch !== 'main') {
     throw new Error(
       'Le dépôt doit avoir main comme branche par défaut. Suivre le bootstrap documenté.',
@@ -64,11 +138,11 @@ export function validateBacklog(backlog, labels) {
     if (!['PAN', 'Salam', 'Les deux'].includes(task.responsible)) {
       throw new Error(`Responsable incorrect : ${id}`);
     }
-    if (!['PAN', 'Salam', '—'].includes(task.reviewer)) {
+    if (!['PAN', 'Salam', NO_REVIEWER].includes(task.reviewer)) {
       throw new Error(`Relecteur incorrect : ${id}`);
     }
     const expectedReviewer =
-      task.responsible === 'Les deux' ? '—' : task.responsible === 'PAN' ? 'Salam' : 'PAN';
+      task.responsible === 'Les deux' ? NO_REVIEWER : task.responsible === 'PAN' ? 'Salam' : 'PAN';
     if (task.reviewer !== expectedReviewer) {
       throw new Error(`La relecture doit être croisée : ${id}`);
     }
@@ -153,7 +227,7 @@ export function hasFrenchTrackingOptions(field) {
 
 export function buildIssueBody(task, config) {
   const reviewer =
-    task.reviewer === '—'
+    task.reviewer === NO_REVIEWER
       ? 'validation commune'
       : `@${task.reviewer === 'PAN' ? config.pan : config.salam}`;
   return [
@@ -185,14 +259,48 @@ export function buildIssueBody(task, config) {
 }
 
 export function existingTaskIssue(task, issues) {
-  const matches = issues.filter(
-    (issue) =>
-      issue.body?.includes(`<!-- teranga-task:${task.id} -->`) ||
-      issue.title?.startsWith(`${task.id} — `),
-  );
+  const matches = issues.filter((issue) => {
+    const markers = new Set(
+      [...(issue.body?.matchAll(/<!-- teranga-task:(T\d{2}) -->/gu) ?? [])].map(
+        (match) => match[1],
+      ),
+    );
+    if (markers.size > 1) {
+      const issueReference = issue.number
+        ? `#${issue.number}`
+        : (issue.html_url ?? '(sans numéro)');
+      throw new Error(
+        `L’issue ${issueReference} porte plusieurs marqueurs de tâches (${[...markers].join(', ')}) ; conserver un seul marqueur canonique avant de continuer.`,
+      );
+    }
+    return markers.size
+      ? markers.has(task.id)
+      : normalizeDisplayName(issue.title)?.startsWith(`${task.id} | `);
+  });
   if (matches.length > 1)
     throw new Error(
       `Plusieurs issues correspondent à ${task.id} : résoudre le doublon avant de continuer.`,
     );
   return matches[0];
+}
+
+export function selectTaskIssues(backlog, issues) {
+  return [...indexTaskIssues(backlog, issues).values()].filter(Boolean);
+}
+
+export function indexTaskIssues(backlog, issues) {
+  const candidates = issues.filter((issue) => !issue.pull_request);
+  const claimed = new Map();
+  return new Map(
+    backlog.map((task) => {
+      const issue = existingTaskIssue(task, candidates);
+      if (issue && claimed.has(issue)) {
+        throw new Error(
+          `La même issue correspond à ${claimed.get(issue)} et ${task.id} ; corriger son titre ou son marqueur de tâche.`,
+        );
+      }
+      if (issue) claimed.set(issue, task.id);
+      return [task.id, issue];
+    }),
+  );
 }

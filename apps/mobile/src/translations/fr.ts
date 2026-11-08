@@ -1,7 +1,6 @@
 export const fr = {
   appName: 'Teranga Pay',
   navigation: {
-    home: 'Accueil',
     about: 'À propos',
     back: 'Retour',
   },

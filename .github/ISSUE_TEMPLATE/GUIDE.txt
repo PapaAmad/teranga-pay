@@ -1,0 +1,10 @@
+Modèles d'issues
+
+GitHub propose ces formulaires à la création d'une issue. Une fonction décrit un
+objectif et des critères vérifiables ; un bug fournit des étapes reproductibles.
+Les tâches planifiées T06 à T40 sont préparées dans
+scripts/github/backlog.json, à la racine du dépôt.
+
+Ce guide utilise .txt pour ne pas être interprété comme un modèle Markdown.
+Responsable : PAN ; relecture : Salam. Prévisualiser avec :
+node scripts/github/setup.mjs --dry-run --section=issues

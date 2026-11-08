@@ -48,9 +48,16 @@ node scripts/github/setup.mjs --apply --section=project
 ```
 
 `--section=all` applique ces quatre sections dans l’ordre réglages, labels, issues,
-Project. Les labels sont mis à jour sans suppression ; le ruleset du même nom est
-mis à jour ; les issues existantes TXX sont conservées avec leurs discussions et
-leur état, y compris fermé. Un doublon interrompt l’exécution. Un échec arrête le
+Project. Les labels sont reconnus sans tenir compte de la casse et mis à jour sans suppression.
+Les anciens noms de rulesets et de Projects utilisant le séparateur historique
+sont reconnus par la même normalisation que les titres d'issues. La ressource
+existante est réutilisée et renommée avec `|` ; si plusieurs variantes existent,
+le script s'arrête avant de créer une autre ressource.
+Les issues existantes TXX sont conservées avec leurs discussions et
+leur état, y compris fermé. Le marqueur canonique `teranga-task:TXX` du corps
+reste prioritaire lorsqu’un titre est renommé ; le titre ne sert de repli que
+pour une issue sans marqueur. Plusieurs marqueurs distincts sur une même issue
+ou plusieurs issues pour une tâche interrompent l’exécution. Un échec arrête le
 script mais n’annule pas les étapes précédentes : il est possible de relancer la
 section après correction. Les règles appliquées n’accordent aucun contournement.
 L’exception d’urgence du plan d’équipe se gère explicitement dans GitHub avec une
@@ -58,7 +65,7 @@ trace dans la PR, jamais automatiquement.
 
 Le [Project privé n°3](https://github.com/users/PapaAmad/projects/3) existe déjà
 avec ses 35 cartes et l’accès de Salam en écriture. Ne pas le recréer : le script
-le retrouve par le titre de la configuration et ajoute seulement les issues
+le retrouve par le titre de la configuration ou sa variante historique et ajoute seulement les issues
 absentes. Son champ intégré `Status` porte les quatre étapes françaises :
 À faire → En cours → En revue → Terminé.
 
@@ -71,10 +78,30 @@ Aucun second champ de suivi n’est créé pour remplacer `Status`.
 La vue Board doit être groupée par le nom réel du champ retenu. Le script
 conserve l’état des cartes existantes et ne prétend pas configurer les vues ni
 les automatismes du tableau. Finaliser seulement les nouvelles cartes dans
-GitHub. Le jeton doit autoriser les Projects. Au-delà de 100 Projects ou 1 000
-cartes, vérifier les limites avant de relancer la section Project.
+GitHub. Le jeton doit autoriser les Projects. Les Projects, cartes et champs
+sont lus par pages GraphQL de 100 éléments jusqu’à `pageInfo.hasNextPage=false`,
+sans plafond global et sans déduire la fin d’un compteur `totalCount`.
+Les cartes archivées sont incluses explicitement dans la lecture : elles
+restent archivées et ne sont pas ajoutées de nouveau. Un avertissement donne
+le lien de chaque issue attendue qui reste archivée et invite à restaurer sa
+carte manuellement si elle doit revenir sur le tableau, uniquement si aucune
+carte active de cette même issue n'est déjà présente. Les requêtes utilisées
+ont été vérifiées en lecture seule sur le Project existant ; les tests simulent
+les pages supplémentaires et les erreurs sans écrire sur GitHub.
 
 ## Vérification humaine restante
+
+Les relances incluent les Projects fermés et refusent leur réouverture implicite.
+Un Project public ou de visibilité inconnue est refusé avant modification.
+Une erreur GraphQL, une page sans métadonnées de pagination, un curseur absent
+ou répété et un nœud inaccessible interrompent le script avant modification
+du Project existant. Une carte dont le contenu est masqué impose de vérifier
+les permissions, afin de ne pas traiter une issue invisible comme absente.
+Une carte supprimée peut aussi rendre son contenu illisible : le message donne
+le Project à vérifier et la section à relancer après correction manuelle.
+Le script ne supprime ni n’ignore automatiquement ces cartes.
+Le mode `--section=project` vérifie les doublons sur l'ensemble des issues,
+même sans lancer la section `issues`.
 
 - Conserver le dépôt et le Project privés, vérifier le collaborateur et la branche `main`.
 - Confirmer squash seul, suppression automatique et protection contre force push.
@@ -85,4 +112,6 @@ cartes, vérifier les limites avant de relancer la section Project.
 
 Documentation de référence : [rulesets REST](https://docs.github.com/en/rest/repos/rules),
 [règles disponibles](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets),
-[GitHub Projects CLI](https://cli.github.com/manual/gh_project).
+[GitHub Projects CLI](https://cli.github.com/manual/gh_project),
+[schéma GraphQL Projects](https://docs.github.com/en/graphql/reference/projects),
+[pagination GraphQL](https://docs.github.com/en/graphql/guides/using-pagination-in-the-graphql-api).

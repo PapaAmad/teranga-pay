@@ -4,14 +4,22 @@ import test from 'node:test';
 import { isConventionalTitle } from './check-pr-title.mjs';
 import {
   assertRepositoryTarget,
+  assertReusableProject,
   buildIssueBody,
+  collectConnection,
+  existingLabel,
+  existingNamedResource,
   existingTaskIssue,
   hasFrenchTrackingOptions,
+  indexTaskIssues,
   labelPayload,
+  NO_REVIEWER,
+  normalizeDisplayName,
   planTaskAssignees,
   readJson,
   root,
   selectTrackingField,
+  selectTaskIssues,
   taskAssignees,
   validateBacklog,
   validateConfig,
@@ -53,6 +61,9 @@ test('les réglages acceptent un dépôt privé et refusent un écart sans chang
   const privateRepo = { default_branch: 'main', private: true };
   assertRepositoryTarget(privateRepo, { ...config, visibility: 'private' });
   assertRepositoryTarget(privateRepo, {});
+  const withoutVisibility = { ...config };
+  delete withoutVisibility.visibility;
+  assertRepositoryTarget(privateRepo, validateConfig(withoutVisibility));
   assert.throws(
     () =>
       assertRepositoryTarget({ default_branch: 'main', private: false }, { visibility: 'private' }),
@@ -77,6 +88,111 @@ test('les labels existants utilisent new_name pour PATCH et les nouveaux name po
     color: label.color,
     description: label.description,
   });
+});
+
+test('les labels existants sont reconnus sans casse avant de choisir PATCH', () => {
+  const current = { name: 'Mobile', color: '000000' };
+  const expected = { name: 'mobile', color: '5319E7', description: 'Application mobile' };
+  const existing = existingLabel([current], expected.name);
+  assert.equal(existing, current);
+  assert.equal(labelPayload(expected, Boolean(existing)).new_name, 'mobile');
+  assert.equal(existingLabel([current], 'api'), undefined);
+  assert.throws(() => existingLabel([current, { name: 'MOBILE' }], 'mobile'), /Plusieurs labels/u);
+});
+
+test('les noms historiques de rulesets et de Projects réutilisent le même identifiant', () => {
+  const resources = [
+    { field: 'name', kind: 'rulesets', expected: readJson('.github/main-ruleset.json').name },
+    { field: 'title', kind: 'Projects', expected: config.projectTitle },
+  ];
+  for (const { field, kind, expected } of resources) {
+    const legacyName = expected.replace(' | ', ' \u2014 ');
+    const legacy = { id: 'existant', [field]: legacyName };
+    const current = { id: 'actuel', [field]: expected };
+    assert.equal(existingNamedResource([legacy], expected, field, kind), legacy);
+    assert.equal(existingNamedResource([current], expected, field, kind), current);
+    assert.equal(existingNamedResource([], expected, field, kind), undefined);
+    assert.equal(
+      existingNamedResource([{ [field]: `${expected} autre` }], expected, field, kind),
+      undefined,
+    );
+    assert.throws(
+      () => existingNamedResource([legacy, current], expected, field, kind),
+      /résoudre le doublon/u,
+    );
+    assert.equal(legacy[field], legacyName);
+  }
+  assert.equal(normalizeDisplayName(undefined), undefined);
+  assert.throws(
+    () => existingNamedResource([{}], undefined, 'name', 'rulesets'),
+    /Nom attendu invalide/u,
+  );
+});
+
+test('la pagination parcourt tous les curseurs sans se fier à totalCount', () => {
+  const cursors = [];
+  const values = collectConnection((after) => {
+    cursors.push(after);
+    return after === null
+      ? {
+          nodes: [{ id: 'premier' }],
+          totalCount: 20,
+          pageInfo: { hasNextPage: true, endCursor: 'suite' },
+        }
+      : {
+          nodes: [{ id: 'second' }],
+          totalCount: 30,
+          pageInfo: { hasNextPage: false, endCursor: null },
+        };
+  }, 'des cartes');
+  assert.deepEqual(cursors, [null, 'suite']);
+  assert.deepEqual(
+    values.map(({ id }) => id),
+    ['premier', 'second'],
+  );
+});
+
+test('les pages incomplètes, les nœuds inaccessibles et les curseurs répétés sont refusés', () => {
+  const invalidPages = [
+    undefined,
+    { nodes: [] },
+    { nodes: [], pageInfo: { hasNextPage: 'false' } },
+    { nodes: [], pageInfo: { hasNextPage: true, endCursor: null } },
+    { nodes: [null], pageInfo: { hasNextPage: false } },
+    { nodes: [{}], pageInfo: { hasNextPage: false } },
+  ];
+  for (const page of invalidPages) {
+    assert.throws(() => collectConnection(() => page, 'des cartes'), /Inventaire/u);
+  }
+  assert.throws(
+    () =>
+      collectConnection(
+        () => ({ nodes: [], pageInfo: { hasNextPage: true, endCursor: 'identique' } }),
+        'des cartes',
+      ),
+    /curseur.*répété/u,
+  );
+  assert.throws(
+    () =>
+      collectConnection(
+        () => ({
+          nodes: [{ id: 'identique' }],
+          pageInfo: { hasNextPage: true, endCursor: 'suite' },
+        }),
+        'des cartes',
+      ),
+    /présent plusieurs fois/u,
+  );
+});
+
+test('un Project fermé ou public est refusé avant sa réutilisation', () => {
+  assertReusableProject(undefined);
+  const project = { id: 'conservé', public: false, closed: false };
+  assertReusableProject(project);
+  assert.throws(() => assertReusableProject({ ...project, closed: true }), /fermé/u);
+  assert.throws(() => assertReusableProject({ ...project, public: true }), /privé/u);
+  assert.throws(() => assertReusableProject({ id: 'visibilité inconnue' }), /privé/u);
+  assert.deepEqual(project, { id: 'conservé', public: false, closed: false });
 });
 
 test('une invitation en attente ne bloque pas une tâche partagée et conserve ses responsabilités', () => {
@@ -155,6 +271,18 @@ test('les responsabilités partagées assignent les deux comptes et la relecture
   assert.match(body, /- \[ \] L’application démarre/u);
 });
 
+test('la validation commune utilise une valeur explicite sans autoriser l’auto-relecture', () => {
+  const shared = backlog.find(({ id }) => id === 'T11');
+  assert.equal(shared.reviewer, NO_REVIEWER);
+  assert.match(buildIssueBody(shared, config), /Relecture : validation commune/u);
+  const invalidShared = structuredClone(backlog);
+  invalidShared.find(({ id }) => id === 'T11').reviewer = 'PAN';
+  assert.throws(() => validateBacklog(invalidShared, labels), /relecture doit être croisée/u);
+  const missingReviewer = structuredClone(backlog);
+  missingReviewer[0].reviewer = NO_REVIEWER;
+  assert.throws(() => validateBacklog(missingReviewer, labels), /relecture doit être croisée/u);
+});
+
 test('la détection conserve une issue existante, même fermée, et refuse les doublons', () => {
   const existing = {
     number: 12,
@@ -163,10 +291,36 @@ test('la détection conserve une issue existante, même fermée, et refuse les d
     state: 'closed',
   };
   assert.equal(existingTaskIssue(backlog[0], [existing]), existing);
+  for (const title of ['T06 | titre sans marqueur', 'T06 \u2014 titre sans marqueur']) {
+    const byTitle = { number: 13, title, state: 'closed' };
+    assert.equal(existingTaskIssue(backlog[0], [byTitle]), byTitle);
+    assert.throws(() => existingTaskIssue(backlog[0], [existing, byTitle]), /Plusieurs issues/u);
+  }
+  assert.equal(existingTaskIssue(backlog[0], [{ title: 'T060 | autre tâche' }]), undefined);
+});
+
+test('la sélection autonome pour le Project détecte les doublons sur tout le backlog', () => {
+  const first = { number: 1, title: 'T06 | existante', state: 'closed' };
+  const second = { number: 2, body: '<!-- teranga-task:T06 -->' };
+  const pull = { number: 38, title: 'T06 | une PR', pull_request: {} };
+  assert.deepEqual(selectTaskIssues(backlog, [first, pull, { title: 'Hors backlog' }]), [first]);
+  const indexed = indexTaskIssues(backlog, [first, pull]);
+  assert.equal(indexed.get('T06'), first);
+  assert.equal(indexed.get('T07'), undefined);
+  assert.throws(() => selectTaskIssues(backlog, [first, second]), /Plusieurs issues/u);
+});
+
+test('plusieurs marqueurs distincts signalent l’issue à corriger, une simple mention reste permise', () => {
+  const ambiguous = {
+    number: 12,
+    body: '<!-- teranga-task:T06 -->\n<!-- teranga-task:T07 -->',
+  };
   assert.throws(
-    () => existingTaskIssue(backlog[0], [existing, { title: 'T06 — doublon' }]),
-    /Plusieurs issues/u,
+    () => existingTaskIssue(backlog[0], [ambiguous]),
+    /issue #12 porte plusieurs marqueurs de tâches \(T06, T07\).*un seul marqueur canonique/u,
   );
+  const mention = { number: 13, body: '<!-- teranga-task:T06 -->\nVoir T07 pour la suite.' };
+  assert.equal(existingTaskIssue(backlog[0], [mention]), mention);
 });
 
 test('les titres refusent messages multilignes, types inconnus et titres trop longs', () => {

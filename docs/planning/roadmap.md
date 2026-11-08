@@ -1,12 +1,12 @@
-# Feuille de route T01–T40
+# Feuille de route T01 à T40
 
-Reprise du [plan d'équipe v1.0](../sources/Teranga_Pay_Plan_equipe_et_regles.pdf), pages 7 à 10. Les dates ci-dessous sont des objectifs de novembre 2026, en heure de Dakar. Ce tableau décrit le travail prévu ; seul le [suivi T01–T07](suivi-t01-t07.md) décrit le socle préparé dans cette livraison.
+Reprise du [plan d'équipe v1.0](../sources/Teranga_Pay_Plan_equipe_et_regles.pdf), pages 7 à 10. Les dates ci-dessous sont des objectifs de novembre 2026, en heure de Dakar. Ce tableau décrit le travail prévu ; seul le [suivi T01 à T07](suivi-t01-t07.md) décrit le socle préparé dans cette livraison.
 
 La visibilité a été adaptée après le plan : PAN a choisi un dépôt et un Project **privés** le 2 novembre 2026. La [décision 0002](../decisions/0002-visibilite-privee.md) explique cet écart aux PDF ; le [relevé GitHub](publication-github.md) décrit les opérations réellement vérifiées.
 
 PAN porte l'interface, le dépôt et les visuels ; Salam porte le wallet, Lightning et le serveur. L'autre membre relit chaque tâche, sauf les tâches explicitement communes.
 
-## Phase 0 — Démarrage, 1er–2 novembre
+## Phase 0 | Démarrage, du 1er au 2 novembre
 
 | Tâche | Livrable attendu                                                    | Responsable | Pour le  |
 | ----- | ------------------------------------------------------------------- | ----------- | -------- |
@@ -14,10 +14,10 @@ PAN porte l'interface, le dépôt et les visuels ; Salam porte le wallet, Lightn
 | T02   | Protection de main, squash, suppression des branches, secrets       | PAN         | 2 nov.   |
 | T03   | Modèles, labels, CODEOWNERS, GitHub Projects                        | PAN         | 2 nov.   |
 | T04   | AGENTS.md et CLAUDE.md                                              | PAN         | 2 nov.   |
-| T05   | Issues T06–T40 dans le tableau                                      | PAN         | 2 nov.   |
+| T05   | Issues T06 à T40 dans le tableau                                    | PAN         | 2 nov.   |
 | T06   | Expo TypeScript, navigation, ESLint/Prettier communs                | PAN         | 2 nov.   |
 
-## Phase 1 — Fondations, 3–8 novembre
+## Phase 1 | Fondations, du 3 au 8 novembre
 
 | Tâche | Livrable attendu                                                         | Responsable | Pour le |
 | ----- | ------------------------------------------------------------------------ | ----------- | ------- |
@@ -34,7 +34,7 @@ PAN porte l'interface, le dépôt et les visuels ; Salam porte le wallet, Lightn
 
 **J1, dimanche 8 novembre :** installer l'application, créer un wallet et recevoir un premier paiement en regtest. T10 commence dès le démarrage, en parallèle du socle du dépôt. Si le SDK n'est pas utilisable le 5 novembre, décider ensemble du repli LND et documenter sa différence de garde des clés.
 
-## Phase 2 — Fonctions clés, 9–15 novembre
+## Phase 2 | Fonctions clés, du 9 au 15 novembre
 
 | Tâche | Livrable attendu                                             | Responsable | Pour le |
 | ----- | ------------------------------------------------------------ | ----------- | ------- |
@@ -54,7 +54,7 @@ PAN porte l'interface, le dépôt et les visuels ; Salam porte le wallet, Lightn
 
 **J2, dimanche 15 novembre :** recevoir, payer un marchand par QR et retirer en simulation. Les fonctions indispensables doivent être intégrées et testées ; aucune nouvelle fonction majeure ne commence ensuite.
 
-## Phase 3 — Finition, 16–18 novembre
+## Phase 3 | Finition, du 16 au 18 novembre
 
 | Tâche | Livrable attendu                                                        | Responsable | Pour le |
 | ----- | ----------------------------------------------------------------------- | ----------- | ------- |
@@ -68,7 +68,7 @@ PAN porte l'interface, le dépôt et les visuels ; Salam porte le wallet, Lightn
 | T37   | Couverture et captures de soumission                                    | PAN         | 18 nov. |
 | T38   | Script du pitch de trois minutes                                        | Salam       | 18 nov. |
 
-## Phase 4 — Démo et soumission, 19–20 novembre
+## Phase 4 | Démo et soumission, du 19 au 20 novembre
 
 | Tâche | Livrable attendu                                                               | Responsable | Pour le          |
 | ----- | ------------------------------------------------------------------------------ | ----------- | ---------------- |

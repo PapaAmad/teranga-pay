@@ -1,20 +1,20 @@
 # Vue d'ensemble
 
-Teranga Pay vise un portefeuille Lightning mobile pour le Sénégal : recevoir des remises de la diaspora, encaisser par QR et simuler un retrait vers Wave ou Orange Money. Les montants sont présentés d'abord en FCFA. Le socle T01–T07 prépare le dépôt, l'application et les outils de collaboration.
+Teranga Pay vise un portefeuille Lightning mobile pour le Sénégal : recevoir des remises de la diaspora, encaisser par QR et simuler un retrait vers Wave ou Orange Money. Les montants sont présentés d'abord en FCFA. Le socle T01 à T07 prépare le dépôt, l'application et les outils de collaboration.
 
 ## Organisation du code
 
-| Emplacement                           | Rôle prévu                                                            | Responsable                                | Introduction      |
-| ------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------ | ----------------- |
-| `apps/mobile`                         | Application Expo/React Native en TypeScript, navigation puis parcours | PAN pour l'interface, Salam pour le wallet | T06, puis T14–T16 |
-| `packages/contracts`                  | Types et fonctions communs entre écrans et logique                    | Les deux                                   | T11               |
-| `services/api`                        | Santé, validation, accès contrôlé, taux et Lightning Address          | Salam                                      | T13, T17, T19     |
-| `services/bridge-sim`                 | Simulation des retraits Wave/Orange Money                             | PAN                                        | T23               |
-| `services/ai`                         | Règles d'alerte et estimation ; déploiement à décider                 | Salam                                      | T26, T34          |
-| `infrastructure/lightning`            | Bitcoin Core regtest et deux nœuds Lightning de démo                  | Salam                                      | T12               |
-| `infrastructure/seed`                 | Initialisation reproductible du réseau et données fictives            | Salam                                      | T12               |
-| `tests/e2e`                           | Parcours nominal mobile                                               | PAN                                        | T30               |
-| `assets/brand` et `assets/submission` | Identité visuelle puis captures et vidéo                              | PAN                                        | T08, T37, T39     |
+| Emplacement                           | Rôle prévu                                                            | Responsable                                | Introduction        |
+| ------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------ | ------------------- |
+| `apps/mobile`                         | Application Expo/React Native en TypeScript, navigation puis parcours | PAN pour l'interface, Salam pour le wallet | T06, puis T14 à T16 |
+| `packages/contracts`                  | Types et fonctions communs entre écrans et logique                    | Les deux                                   | T11                 |
+| `services/api`                        | Santé, validation, accès contrôlé, taux et Lightning Address          | Salam                                      | T13, T17, T19       |
+| `services/bridge-sim`                 | Simulation des retraits Wave/Orange Money                             | PAN                                        | T23                 |
+| `services/ai`                         | Règles d'alerte et estimation ; déploiement à décider                 | Salam                                      | T26, T34            |
+| `infrastructure/lightning`            | Bitcoin Core regtest et deux nœuds Lightning de démo                  | Salam                                      | T12                 |
+| `infrastructure/seed`                 | Initialisation reproductible du réseau et données fictives            | Salam                                      | T12                 |
+| `tests/e2e`                           | Parcours nominal mobile                                               | PAN                                        | T30                 |
+| `assets/brand` et `assets/submission` | Identité visuelle puis captures et vidéo                              | PAN                                        | T08, T37, T39       |
 
 Seuls les dossiers qui ont un `package.json` sont des packages npm. Les répertoires réservés aux services et aux contrats ne sont pas des applications démarrables.
 

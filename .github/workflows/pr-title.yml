@@ -1,0 +1,29 @@
+name: Titre de PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  title:
+    name: Titre PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Vérifier le titre
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/github/check-pr-title.mjs

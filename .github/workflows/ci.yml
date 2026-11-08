@@ -3,7 +3,7 @@ name: CI
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   push:
     branches: [main]
 
@@ -12,7 +12,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action == 'edited' && !github.event.changes.base && 'metadata' || 'quality' }}
   cancel-in-progress: true
 
 env:
@@ -20,10 +20,27 @@ env:
   CI: 'true'
 
 jobs:
-  format:
-    name: Format
+  quality:
+    # Un événement ignoré ne doit pas masquer un contrôle obligatoire échoué.
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Qualité | métadonnées ignorées' || matrix.check }}
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check: Format
+            command: npm run format:check
+          - check: Lint
+            command: npm run lint
+          - check: Types
+            command: npm run typecheck
+          - check: Tests
+            command: |
+              npm test -- --ci
+              npm run test:tooling
+              npm run repo:check
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,80 +51,12 @@ jobs:
           cache: npm
       - run: npm install --global npm@12.2.1
       - run: npm ci
-      - run: npm run format:check
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm install --global npm@12.2.1
-      - run: npm ci
-      - run: npm run lint
-
-  types:
-    name: Types
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm install --global npm@12.2.1
-      - run: npm ci
-      - run: npm run typecheck
-
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm install --global npm@12.2.1
-      - run: npm ci
-      - run: npm test -- --ci
-      - run: npm run test:tooling
-      - run: npm run repo:check
-
-  title:
-    name: Titre PR
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-      - name: Vérifier le titre
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: node scripts/github/check-pr-title.mjs
-      - name: Sans PR
-        if: github.event_name != 'pull_request'
-        run: echo "Contrôle applicable aux Pull Requests."
+      - name: Exécuter les contrôles
+        run: ${{ matrix.command }}
 
   secrets:
-    name: Secrets
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Secrets | métadonnées ignorées' || 'Secrets' }}
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

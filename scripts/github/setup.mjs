@@ -3,19 +3,61 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   assertRepositoryTarget,
+  assertReusableProject,
   buildIssueBody,
-  existingTaskIssue,
+  collectConnection,
+  existingLabel,
+  existingNamedResource,
   hasFrenchTrackingOptions,
+  indexTaskIssues,
+  isMain,
   labelPayload,
   planTaskAssignees,
   readJson,
   root,
   selectTrackingField,
+  selectTaskIssues,
   validateBacklog,
   validateConfig,
 } from './lib.mjs';
 
 const sections = ['settings', 'labels', 'issues', 'project'];
+const projectQuery = `query($owner: String!, $after: String) {
+  repositoryOwner(login: $owner) {
+    ... on ProjectV2Owner {
+      projectsV2(first: 100, after: $after) {
+        nodes { id number title url public closed }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
+const itemsQuery = `query($project: ID!, $after: String) {
+  node(id: $project) {
+    ... on ProjectV2 {
+      items(first: 100, after: $after, archivedStates: [ARCHIVED, NOT_ARCHIVED]) {
+        nodes {
+          id isArchived
+          content { __typename ... on Issue { url } ... on PullRequest { url } }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
+const fieldsQuery = `query($project: ID!, $after: String) {
+  node(id: $project) {
+    ... on ProjectV2 {
+      fields(first: 100, after: $after) {
+        nodes {
+          ... on ProjectV2FieldCommon { id name }
+          ... on ProjectV2SingleSelectField { options { id name } }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}`;
 
 function options(args) {
   const result = { apply: false, section: 'all', config: resolve(root, '.github/repository.json') };
@@ -70,6 +112,15 @@ function apiList(endpoint) {
   return ghJson(['api', endpoint, '--paginate', '--slurp']).flat();
 }
 
+function graphql(query, variables, call) {
+  const result = call(['api', 'graphql', '--input', '-'], JSON.stringify({ query, variables }));
+  if (result?.errors?.length) {
+    throw new Error(result.errors.map(({ message }) => message).join(' | '));
+  }
+  if (!result?.data) throw new Error('La réponse GraphQL ne contient aucune donnée.');
+  return result.data;
+}
+
 function ensureSettings(config) {
   const repo = config.repository;
   const info = api(`repos/${repo}`, 'GET');
@@ -97,44 +148,45 @@ function ensureSettings(config) {
     );
   }
   const ruleset = readJson('.github/main-ruleset.json');
-  const matches = apiList(`repos/${repo}/rulesets?per_page=100`).filter(
-    ({ name }) => name === ruleset.name,
+  const existing = existingNamedResource(
+    apiList(`repos/${repo}/rulesets?per_page=100`),
+    ruleset.name,
+    'name',
+    'rulesets',
   );
-  if (matches.length > 1)
-    throw new Error('Plusieurs rulesets ont le nom prévu ; résoudre le doublon.');
   api(
-    `repos/${repo}/rulesets${matches[0] ? `/${matches[0].id}` : ''}`,
-    matches[0] ? 'PUT' : 'POST',
+    `repos/${repo}/rulesets${existing ? `/${existing.id}` : ''}`,
+    existing ? 'PUT' : 'POST',
     ruleset,
   );
   console.info(`Réglages et protection main appliqués : ${repo}`);
 }
 
 function ensureLabels(config, labels) {
-  const current = new Set(
-    apiList(`repos/${config.repository}/labels?per_page=100`).map(({ name }) => name),
-  );
+  const current = apiList(`repos/${config.repository}/labels?per_page=100`);
   for (const label of labels) {
+    const existing = existingLabel(current, label.name);
     api(
-      `repos/${config.repository}/labels${current.has(label.name) ? `/${encodeURIComponent(label.name)}` : ''}`,
-      current.has(label.name) ? 'PATCH' : 'POST',
-      labelPayload(label, current.has(label.name)),
+      `repos/${config.repository}/labels${existing ? `/${encodeURIComponent(existing.name)}` : ''}`,
+      existing ? 'PATCH' : 'POST',
+      labelPayload(label, Boolean(existing)),
     );
   }
   console.info(`${labels.length} labels synchronisés.`);
 }
 
-function ensureIssues(config, backlog) {
-  const issues = apiList(`repos/${config.repository}/issues?state=all&per_page=100`).filter(
-    (issue) => !issue.pull_request,
-  );
-  const assignableLogins = apiList(`repos/${config.repository}/assignees?per_page=100`).map(
-    ({ login }) => login,
-  );
+export function ensureIssues(config, backlog, remote = { apiList, api }) {
+  const issues = remote
+    .apiList(`repos/${config.repository}/issues?state=all&per_page=100`)
+    .filter((issue) => !issue.pull_request);
+  const assignableLogins = remote
+    .apiList(`repos/${config.repository}/assignees?per_page=100`)
+    .map(({ login }) => login);
+  const selectedIssues = indexTaskIssues(backlog, issues);
   const pendingAssignees = new Set();
   const result = [];
   for (const task of backlog) {
-    let issue = existingTaskIssue(task, issues);
+    let issue = selectedIssues.get(task.id);
     const assignment = planTaskAssignees(
       task,
       config,
@@ -143,17 +195,16 @@ function ensureIssues(config, backlog) {
     );
     for (const login of assignment.pending) pendingAssignees.add(login);
     if (!issue) {
-      issue = api(`repos/${config.repository}/issues`, 'POST', {
-        title: `${task.id} — ${task.title}`,
+      issue = remote.api(`repos/${config.repository}/issues`, 'POST', {
+        title: `${task.id} | ${task.title}`,
         body: buildIssueBody(task, config),
         labels: task.labels,
         assignees: assignment.assignable,
       });
-      issues.push(issue);
       console.info(`Créée : ${task.id} → #${issue.number}`);
     } else {
       if (assignment.toAdd.length) {
-        issue = api(`repos/${config.repository}/issues/${issue.number}/assignees`, 'POST', {
+        issue = remote.api(`repos/${config.repository}/issues/${issue.number}/assignees`, 'POST', {
           assignees: assignment.toAdd,
         });
         console.info(`Assignations ajoutées : ${task.id} → ${assignment.toAdd.join(', ')}`);
@@ -170,24 +221,16 @@ function ensureIssues(config, backlog) {
   return result;
 }
 
-function ensureProject(config, issues) {
+export function ensureProject(config, issues, remote = { gh, ghJson }) {
   const owner = config.repository.split('/')[0];
-  const projects = ghJson([
-    'project',
-    'list',
-    '--owner',
-    owner,
-    '--limit',
-    '100',
-    '--format',
-    'json',
-  ]).projects;
-  const matches = projects.filter((project) => project.title === config.projectTitle);
-  if (matches.length > 1)
-    throw new Error('Plusieurs Projects portent ce titre ; résoudre le doublon.');
+  const projects = collectConnection(
+    (after) => graphql(projectQuery, { owner, after }, remote.ghJson).repositoryOwner?.projectsV2,
+    'des Projects',
+  );
+  const existing = existingNamedResource(projects, config.projectTitle, 'title', 'Projects');
   const project =
-    matches[0] ??
-    ghJson([
+    existing ??
+    remote.ghJson([
       'project',
       'create',
       '--owner',
@@ -197,20 +240,43 @@ function ensureProject(config, issues) {
       '--format',
       'json',
     ]);
-  if (project.closed) throw new Error('Le Project existant est fermé ; le rouvrir explicitement.');
-  gh(['project', 'link', String(project.number), '--owner', owner, '--repo', config.repository]);
-  const fields = ghJson([
+  assertReusableProject(project);
+  const items = collectConnection(
+    (after) => graphql(itemsQuery, { project: project.id, after }, remote.ghJson).node?.items,
+    'des cartes',
+  );
+  if (items.some((item) => !item.content)) {
+    throw new Error(
+      `Des cartes sont inaccessibles ; ouvrir ${project.url ?? `le Project n°${project.number} de ${owner}`} et vérifier les permissions ou les cartes supprimées avant de relancer --apply --section=project. Aucune carte n’est supprimée automatiquement.`,
+    );
+  }
+  const fields = collectConnection(
+    (after) => graphql(fieldsQuery, { project: project.id, after }, remote.ghJson).node?.fields,
+    'des champs',
+  );
+  if (project.title !== config.projectTitle) {
+    const result = graphql(
+      'mutation($input: UpdateProjectV2Input!) { updateProjectV2(input: $input) { projectV2 { id title } } }',
+      { input: { projectId: project.id, title: config.projectTitle } },
+      remote.ghJson,
+    );
+    const renamed = result.updateProjectV2?.projectV2;
+    if (renamed?.id !== project.id || renamed.title !== config.projectTitle) {
+      throw new Error('Le renommage du Project existant n’a pas été confirmé.');
+    }
+  }
+  remote.gh([
     'project',
-    'field-list',
+    'link',
     String(project.number),
     '--owner',
     owner,
-    '--format',
-    'json',
-  ]).fields;
+    '--repo',
+    config.repository,
+  ]);
   let trackingField = selectTrackingField(fields);
   if (!trackingField) {
-    trackingField = ghJson([
+    trackingField = remote.ghJson([
       'project',
       'field-create',
       String(project.number),
@@ -231,21 +297,21 @@ function ensureProject(config, issues) {
       'Le champ Status existant est conservé. Finaliser ses options À faire, En cours, En revue et Terminé dans GitHub ; aucun second champ de suivi n’est créé.',
     );
   }
-  const items = ghJson([
-    'project',
-    'item-list',
-    String(project.number),
-    '--owner',
-    owner,
-    '--limit',
-    '1000',
-    '--format',
-    'json',
-  ]).items;
   const urls = new Set(items.map((item) => item.content?.url));
+  const activeUrls = new Set(
+    items.filter((item) => !item.isArchived).map((item) => item.content?.url),
+  );
+  const archivedUrls = new Set(
+    items.filter((item) => item.isArchived).map((item) => item.content?.url),
+  );
   for (const issue of issues) {
+    if (archivedUrls.has(issue.html_url) && !activeUrls.has(issue.html_url)) {
+      console.warn(
+        `Carte archivée conservée pour ${issue.html_url} ; la restaurer dans les archives du Project si elle doit revenir sur le tableau.`,
+      );
+    }
     if (!urls.has(issue.html_url)) {
-      gh([
+      remote.gh([
         'project',
         'item-add',
         String(project.number),
@@ -254,6 +320,7 @@ function ensureProject(config, issues) {
         '--url',
         issue.html_url,
       ]);
+      urls.add(issue.html_url);
     }
   }
   console.info(
@@ -261,8 +328,8 @@ function ensureProject(config, issues) {
   );
 }
 
-try {
-  const opts = options(process.argv.slice(2));
+export function runSetup(args = process.argv.slice(2)) {
+  const opts = options(args);
   if (!opts) {
     console.info(
       'node scripts/github/setup.mjs [--dry-run|--apply] [--section=all|settings|labels|issues|project] [--config=chemin.json]',
@@ -274,7 +341,7 @@ try {
     validateBacklog(backlog, labels);
     const selected = opts.section === 'all' ? sections : [opts.section];
     console.info(
-      `${opts.apply ? 'APPLICATION' : 'PRÉVISUALISATION LOCALE'} — ${config.repository} (visibilité attendue : ${config.visibility})`,
+      `${opts.apply ? 'APPLICATION' : 'PRÉVISUALISATION LOCALE'} | ${config.repository} (visibilité attendue : ${config.visibility})`,
     );
     console.info(`Sections : ${selected.join(', ')} ; PAN @${config.pan} ; Salam @${config.salam}`);
     if (!opts.apply) {
@@ -286,7 +353,7 @@ try {
         console.info(`Prévu : synchroniser ${labels.length} labels sans supprimer les autres.`);
       if (selected.includes('issues')) {
         console.info(
-          `Prévu : créer les ${backlog.length} tâches absentes T06–T40 et conserver les issues déjà présentes.`,
+          `Prévu : créer les ${backlog.length} tâches absentes T06 à T40 et conserver les issues déjà présentes.`,
         );
         for (const task of backlog)
           console.info(`${task.id} | ${task.due} | ${task.responsible} | ${task.title}`);
@@ -305,21 +372,27 @@ try {
       let issues;
       if (selected.includes('issues')) issues = ensureIssues(config, backlog);
       if (selected.includes('project')) {
-        issues ??= apiList(`repos/${config.repository}/issues?state=all&per_page=100`).filter(
-          (issue) =>
-            !issue.pull_request && backlog.some((task) => existingTaskIssue(task, [issue])),
+        issues ??= selectTaskIssues(
+          backlog,
+          apiList(`repos/${config.repository}/issues?state=all&per_page=100`),
         );
         ensureProject(config, issues);
       }
       console.info(
-        'Sections demandées appliquées. Relire les réglages et vérifier une PR de test avant de clôturer T02–T07.',
+        'Sections demandées appliquées. Relire les réglages et vérifier une PR de test avant de clôturer T02 à T07.',
       );
     }
   }
-} catch (error) {
-  console.error(error.message);
-  console.error(
-    'Arrêt : des étapes précédentes peuvent déjà avoir été appliquées. Corriger puis relancer ; les issues existantes sont conservées.',
-  );
-  process.exitCode = 1;
+}
+
+if (isMain(import.meta.url)) {
+  try {
+    runSetup();
+  } catch (error) {
+    console.error(error.message);
+    console.error(
+      'Arrêt : des étapes précédentes peuvent déjà avoir été appliquées. Corriger puis relancer ; les issues existantes sont conservées.',
+    );
+    process.exitCode = 1;
+  }
 }
