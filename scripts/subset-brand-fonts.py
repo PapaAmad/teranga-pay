@@ -5,6 +5,7 @@ from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
+import sys
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -17,6 +18,8 @@ UNICODES = (
 
 
 def rebuild(originals):
+    if sys.version_info < (3, 10):
+        raise RuntimeError("Python 3.10 ou plus requis avant toute regeneration de police.")
     import fontTools
     from fontTools import subset
     from fontTools.ttLib import TTFont

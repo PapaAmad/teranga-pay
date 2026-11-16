@@ -13,7 +13,13 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={[styles.status, { fontFamily: fonts.label }]}>{fr.home.status}</Text>
-      <Text accessibilityRole="header" style={[styles.title, { fontFamily: fonts.title }]}>
+      <Text
+        accessibilityRole="header"
+        style={[
+          styles.title,
+          { fontFamily: fonts.title, fontWeight: fonts.title ? undefined : '700' },
+        ]}
+      >
         {fr.home.title}
       </Text>
       <Text style={[styles.description, { fontFamily: fonts.body }]}>{fr.home.description}</Text>

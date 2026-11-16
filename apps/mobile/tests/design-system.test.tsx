@@ -184,7 +184,7 @@ describe('démarrage des polices', () => {
     render(<App />);
     expect(screen.getByText(fr.fonts.loading)).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(screen.getByRole('header', { name: fr.home.title })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: fr.home.title })).toHaveStyle({ fontWeight: '700' });
     expect(screen.getByText(fr.fonts.fallback)).toBeOnTheScreen();
   });
 
