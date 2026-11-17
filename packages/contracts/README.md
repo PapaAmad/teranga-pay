@@ -49,7 +49,7 @@ sequenceDiagram
 
 - `Wallet` : `state`, `create`, `restore`, `unlock`, `lock`, `balance`, `receive`, `lookupInvoice`, `preview`, `send`, `history` et `subscribe`.
 - Types : `WalletState`, `Balance`, `Invoice`, `PaymentPreview`, `Payment`, `WalletEvent`, `RateInfo`, `Result` et `WalletError`.
-- `walletErrorCodes` : liste fermée des codes d'erreur. L'application traduit chaque code ; aucun texte n'est fourni ici.
+- `walletErrorCodes` : liste fermée des codes d'erreur. L'application traduit chaque code ; aucun texte n'est fourni ici. `PAYMENT_PENDING` (T21) signale qu'un envoi identique est encore en cours : l'écran doit proposer d'attendre, pas de renvoyer.
 - Conversions de montants :
   - `xofToSats` arrondit au sat supérieur, comme l'API T17 ;
   - `satsToXof` arrondit au FCFA inférieur, pour ne jamais afficher un solde trop élevé.

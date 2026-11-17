@@ -6,6 +6,8 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import android.util.AtomicFile
 import android.view.WindowManager
 import java.io.File
+import java.security.MessageDigest
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 import org.lightningdevkit.ldknode.AnchorChannelsConfig
 import org.lightningdevkit.ldknode.Bolt11Invoice
@@ -33,6 +35,9 @@ private class WalletException(code: String, message: String) : CodedException(co
 class TerangaWalletModule : Module() {
   @Volatile private var node: Node? = null
   @Volatile private var eventsRunning = false
+  // Raison du dernier échec par paiement, lue dans les événements LDK (T21) :
+  // listPayments() ne la donne pas.
+  private val failureReasons = ConcurrentHashMap<String, String>()
 
   private val context
     get() = requireNotNull(appContext.reactContext) { "contexte Android indisponible" }
@@ -172,7 +177,19 @@ class TerangaWalletModule : Module() {
         "expired" to invoice.isExpired(),
         "regtest" to (invoice.network() == Network.REGTEST),
         "payee" to invoice.recoverPayeePubKey(),
+        "paymentHash" to invoice.paymentHash(),
+        // Adresse Lightning (LUD-06) : la facture doit porter le hachage des métadonnées.
+        "descriptionHash" to when (val description = invoice.invoiceDescription()) {
+          is Bolt11InvoiceDescription.Hash -> description.hash.lowercase()
+          is Bolt11InvoiceDescription.Direct -> null
+        },
       )
+    }
+
+    Function("sha256Hex") { text: String ->
+      MessageDigest.getInstance("SHA-256")
+        .digest(text.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
     }
 
     AsyncFunction("send") { text: String, amountSats: Double?, maxFeeSats: Double? ->
@@ -220,6 +237,7 @@ class TerangaWalletModule : Module() {
           "amountSats" to ((payment.amountMsat ?: 0uL) / 1000uL).toDouble(),
           "feeSats" to (((payment.feePaidMsat ?: 0uL) + 999uL) / 1000uL).toDouble(),
           "updatedAt" to payment.latestUpdateTimestamp.toDouble(),
+          "failureReason" to if (payment.status == PaymentStatus.FAILED) failureReasons[payment.id] else null,
         )
       }
     }
@@ -293,11 +311,16 @@ class TerangaWalletModule : Module() {
             "amountSats" to (event.amountMsat / 1000uL).toDouble(),
           )
           is Event.PaymentSuccessful -> mapOf("type" to "paiement_envoye", "id" to event.paymentId)
-          is Event.PaymentFailed -> mapOf(
-            "type" to "paiement_echoue",
-            "id" to event.paymentId,
-            "reason" to event.reason?.name,
-          )
+          is Event.PaymentFailed -> {
+            val id = event.paymentId
+            val reason = event.reason?.name
+            if (id != null && reason != null) failureReasons[id] = reason
+            mapOf(
+              "type" to "paiement_echoue",
+              "id" to id,
+              "reason" to reason,
+            )
+          }
           is Event.ChannelReady -> mapOf("type" to "canal_pret")
           is Event.ChannelClosed -> mapOf("type" to "canal_ferme")
           else -> null

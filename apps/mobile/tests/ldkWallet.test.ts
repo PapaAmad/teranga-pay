@@ -1,4 +1,5 @@
 import type {
+  NativeInvoiceInfo,
   NativePayment,
   NativeWallet,
   NativeWalletEvent,
@@ -6,7 +7,7 @@ import type {
 } from '../modules/teranga-wallet/src';
 import type { WalletEvent } from '@teranga-pay/contracts';
 import { createJournal, journalFor, parseJournal } from '../src/wallet/journal';
-import { createLdkWallet, maxFeeFor, toErrorCode } from '../src/wallet/ldkWallet';
+import { createLdkWallet, failureCode, maxFeeFor, toErrorCode } from '../src/wallet/ldkWallet';
 
 const settings = {
   electrumUrl: 'tcp://10.0.2.2:50001',
@@ -16,8 +17,11 @@ const settings = {
 const pin = '135790';
 const codedError = (code: string) => Object.assign(new Error(code), { code });
 
+/** Hachage factice et déterministe : les tests ne comparent que des égalités. */
+const fakeSha256 = (text: string) => `sha256(${text})`;
+
 /** Faux module natif : reproduit les réponses du module Kotlin. */
-function fakeNative() {
+function fakeNative({ invoices = new Map<string, Partial<NativeInvoiceInfo>>() } = {}) {
   let created = false;
   let running = false;
   let attempts = 0;
@@ -25,7 +29,7 @@ function fakeNative() {
   const sends: { invoice: string; amountSats: number | null; maxFeeSats: number | null }[] = [];
   let listener: ((event: NativeWalletEvent) => void) | null = null;
   let journalText: string | null = null;
-  let invoices = 0;
+  let invoiceCount = 0;
   /** Réserve de canal : comptée dans le total, jamais envoyable. */
   let reserveSats = 0;
   let sendStatus: NativePayment['status'] | null = null;
@@ -80,8 +84,8 @@ function fakeNative() {
       };
     }),
     receive: jest.fn(async (amountSats: number | null) => {
-      invoices += 1;
-      const paymentId = `hash-${invoices}`;
+      invoiceCount += 1;
+      const paymentId = `hash-${invoiceCount}`;
       // Comme LDK : une entrée « en attente » existe dès la création de la facture.
       payments.push({
         id: paymentId,
@@ -89,7 +93,7 @@ function fakeNative() {
         status: 'en_attente',
         amountSats: amountSats ?? 0,
         feeSats: 0,
-        updatedAt: 1_700_000_000 + invoices,
+        updatedAt: 1_700_000_000 + invoiceCount,
       });
       return { paymentRequest: `lnbcrt${amountSats ?? 0}fausse`, paymentId };
     }),
@@ -101,21 +105,49 @@ function fakeNative() {
         expired: invoice.includes('expiree'),
         regtest: invoice.startsWith('lnbcrt'),
         payee: invoice.includes('awa') ? 'awa' : 'autre',
+        paymentHash: `empreinte-${invoice}`,
+        descriptionHash: null,
+        ...invoices.get(invoice),
       };
     }),
     send: jest.fn(async (invoice: string, amountSats: number | null, maxFeeSats: number | null) => {
       sends.push({ invoice, amountSats, maxFeeSats });
+      if (invoice.includes('coupure')) {
+        // Arrêt brutal pendant l'appel : LDK a enregistré l'envoi (identifié par le
+        // hash de la facture), mais l'application n'a jamais reçu la réponse.
+        payments.push({
+          id: `empreinte-${invoice}`,
+          direction: 'envoye',
+          status: 'en_attente',
+          amountSats: invoices.get(invoice)?.amountSats ?? 2_000,
+          feeSats: 0,
+          updatedAt: 1_700_000_100,
+        });
+        throw codedError('UNKNOWN');
+      }
       const id = `envoi-${sends.length}`;
       payments.push({
         id,
         direction: 'envoye',
-        status: sendStatus ?? (invoice.includes('echec') ? 'echoue' : 'reussi'),
-        amountSats: amountSats ?? 2_000,
+        status:
+          sendStatus ??
+          (invoice.includes('echec')
+            ? 'echoue'
+            : invoice.includes('lent')
+              ? 'en_attente'
+              : 'reussi'),
+        amountSats: amountSats ?? invoices.get(invoice)?.amountSats ?? 2_000,
         feeSats: 3,
         updatedAt: 1_700_000_100 + sends.length,
+        failureReason: invoice.includes('echecexpire')
+          ? 'PAYMENT_EXPIRED'
+          : invoice.includes('echec')
+            ? 'ROUTE_NOT_FOUND'
+            : null,
       });
       return id;
     }),
+    sha256Hex: fakeSha256,
     payments: jest.fn(async () => payments.map((payment) => ({ ...payment }))),
     journalRead: jest.fn(async () => journalText),
     journalWrite: jest.fn(async (text: string) => {
@@ -129,6 +161,7 @@ function fakeNative() {
   return {
     native,
     sends,
+    payments,
     setReserve(sats: number) {
       reserveSats = sats;
     },
@@ -250,9 +283,9 @@ describe('wallet LDK Node (adaptateur du contrat T11)', () => {
     expect(await code('lnbc1mainnet')).toBe('DESTINATION_WRONG_NETWORK');
     expect(await code('lnbcrtexpiree')).toBe('INVOICE_EXPIRED');
     expect(await code('lnbcrtillisible')).toBe('DESTINATION_INVALID');
-    expect(await code('mame@teranga.example', 100)).toBe('DESTINATION_INVALID');
     expect(await code('lnbcrtawa', 5)).toBe('AMOUNT_INVALID');
     expect(await code('lnbcrtsansmontant')).toBe('ok');
+    fake.receiveFromDiaspora(50_000);
     const failed = await wallet.send({ destination: 'lnbcrtawaechec', pin });
     expect(failed).toEqual({ ok: false, error: { code: 'NO_ROUTE' } });
   });
@@ -390,7 +423,11 @@ describe('remarques de relecture T16/T22', () => {
 
 describe('journal', () => {
   it('repart vide sur un fichier illisible et ignore les valeurs invalides', () => {
-    expect(parseJournal('pas du json')).toEqual({ version: 1, xof: {}, invoices: {} });
+    expect(parseJournal('pas du json')).toEqual({ version: 1, xof: {}, invoices: {}, sends: {} });
+    expect(
+      parseJournal(JSON.stringify({ version: 1, sends: { 'a|1': 'id-1', 'b|2': '', 'c|3': 7 } }))
+        .sends,
+    ).toEqual({ 'a|1': 'id-1' });
     expect(parseJournal(JSON.stringify({ version: 2, xof: { a: 1 } })).xof).toEqual({});
     const data = parseJournal(
       JSON.stringify({ version: 1, xof: { a: 10, b: -1, c: 1.5, d: null }, invoices: {} }),
@@ -520,5 +557,347 @@ describe('aides', () => {
     expect(toErrorCode(codedError('INSUFFICIENT_FUNDS'))).toBe('INSUFFICIENT_FUNDS');
     expect(toErrorCode(codedError('ERR_INTERNE'))).toBe('UNKNOWN');
     expect(toErrorCode(null)).toBe('UNKNOWN');
+  });
+});
+
+/** Faux serveur LNURL (T19) pour `mame@teranga.example`, servi par l'API de démo. */
+function fakeLnurl({
+  metadata = '[["text/plain","Payer mame@teranga.example"]]',
+  callback = 'http://api.test/v1/lnurlp/mame/callback',
+  answer = (amountMsat: number): unknown => ({ pr: `lnbcrtadresse${amountMsat}`, routes: [] }),
+  offline = false,
+} = {}) {
+  const urls: string[] = [];
+  const fetch = jest.fn(async (url: string) => {
+    urls.push(url);
+    if (offline) throw new TypeError('Network request failed');
+    const parsed = new URL(url);
+    const body =
+      parsed.pathname === '/.well-known/lnurlp/mame'
+        ? { tag: 'payRequest', callback, minSendable: 1_000, maxSendable: 50_000_000, metadata }
+        : parsed.pathname === '/v1/lnurlp/mame/callback'
+          ? answer(Number(parsed.searchParams.get('amount')))
+          : { status: 'ERROR', reason: 'inconnu' };
+    return { ok: true, status: 200, json: async () => body };
+  });
+  return { fetch, urls, metadataHash: fakeSha256(metadata) };
+}
+
+describe('envoi Lightning T21', () => {
+  const demo = { domain: 'teranga.example', apiUrl: 'http://api.test' };
+
+  async function ready(
+    lnurl = fakeLnurl(),
+    invoices = new Map<string, Partial<NativeInvoiceInfo>>([
+      ['lnbcrtadresse5000000', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }],
+    ]),
+  ) {
+    const fake = fakeNative({ invoices });
+    let clock = 0;
+    const wallet = createLdkWallet(fake.native, settings, {
+      ...options,
+      now: () => clock,
+      sleep: async (ms: number) => {
+        clock += ms;
+      },
+      paymentTimeoutMs: 2_000,
+      lightningAddress: { fetch: lnurl.fetch, demo },
+    });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(100_000);
+    return { fake, wallet, lnurl };
+  }
+
+  it('paie une adresse Lightning après avoir vérifié la facture', async () => {
+    const { fake, wallet, lnurl } = await ready();
+    const preview = await wallet.preview('Mame@Teranga.example', 5_000);
+    expect(preview.ok && preview.value).toMatchObject({
+      kind: 'adresse_lightning',
+      destination: 'mame@teranga.example',
+      amountSats: 5_000,
+      maxFeeSats: 50,
+      expiresAt: null,
+      newRecipient: true,
+    });
+    const sent = await wallet.send({ destination: 'mame@teranga.example', amountSats: 5_000, pin });
+    expect(sent.ok && sent.value).toMatchObject({ direction: 'envoye', amountSats: 5_000 });
+    expect(fake.sends).toEqual([
+      { invoice: 'lnbcrtadresse5000000', amountSats: null, maxFeeSats: 50 },
+    ]);
+    expect(lnurl.urls).toContain('http://api.test/v1/lnurlp/mame/callback?amount=5000000');
+    const again = await wallet.preview('mame@teranga.example', 5_000);
+    expect(again.ok && again.value.newRecipient).toBe(false);
+  });
+
+  const refusals: Array<
+    [
+      string,
+      () => ReturnType<typeof fakeLnurl>,
+      Map<string, Partial<NativeInvoiceInfo>> | null,
+      string,
+    ]
+  > = [
+    [
+      'une facture dont la description ne correspond pas aux métadonnées',
+      () => fakeLnurl(),
+      new Map([
+        ['lnbcrtadresse5000000', { amountSats: 5_000, descriptionHash: 'sha256(autre chose)' }],
+      ]),
+      'DESTINATION_INVALID',
+    ],
+    ['une facture d’un autre montant', () => fakeLnurl(), null, 'AMOUNT_INVALID'],
+    [
+      'une facture hors regtest',
+      () => fakeLnurl({ answer: () => ({ pr: 'lnbc1mainnet' }) }),
+      null,
+      'DESTINATION_WRONG_NETWORK',
+    ],
+    [
+      'un callback qui pointe vers un autre site',
+      () => fakeLnurl({ callback: 'https://ailleurs.example/vol' }),
+      null,
+      'DESTINATION_INVALID',
+    ],
+    [
+      'un téléphone destinataire hors ligne (erreur LNURL)',
+      () => fakeLnurl({ answer: () => ({ status: 'ERROR', reason: 'Téléphone hors ligne' }) }),
+      null,
+      'NO_ROUTE',
+    ],
+    ['un réseau coupé', () => fakeLnurl({ offline: true }), null, 'NETWORK_OFFLINE'],
+  ];
+
+  for (const [label, makeLnurl, invoices, code] of refusals) {
+    it(`ne paie pas ${label}`, async () => {
+      const lnurl = makeLnurl();
+      const { fake, wallet } = await ready(
+        lnurl,
+        invoices ??
+          new Map([
+            ['lnbcrtadresse5000000', { amountSats: 4_999, descriptionHash: lnurl.metadataHash }],
+          ]),
+      );
+      const result = await wallet.send({
+        destination: 'mame@teranga.example',
+        amountSats: 5_000,
+        pin,
+      });
+      expect(result).toEqual({ ok: false, error: { code } });
+      expect(fake.sends).toHaveLength(0);
+    });
+  }
+
+  it('refuse un montant hors des bornes annoncées', async () => {
+    const { wallet } = await ready();
+    const result = await wallet.preview('mame@teranga.example', 60_000);
+    expect(result).toEqual({ ok: false, error: { code: 'AMOUNT_INVALID' } });
+  });
+
+  it('n’envoie pas deux fois après un délai dépassé, puis réautorise après l’échec', async () => {
+    const lnurl = fakeLnurl({ answer: () => ({ pr: 'lnbcrtadresselent' }) });
+    const { fake, wallet } = await ready(
+      lnurl,
+      new Map([['lnbcrtadresselent', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }]]),
+    );
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    expect(await wallet.send(request)).toEqual({
+      ok: false,
+      error: { code: 'PAYMENT_TIMEOUT', paymentId: 'envoi-1' },
+    });
+    expect(await wallet.send(request)).toEqual({
+      ok: false,
+      error: { code: 'PAYMENT_PENDING', paymentId: 'envoi-1' },
+    });
+    expect(fake.sends).toHaveLength(1);
+
+    const pending = fake.payments.find((payment) => payment.id === 'envoi-1');
+    if (pending) {
+      pending.status = 'echoue';
+      pending.failureReason = 'ROUTE_NOT_FOUND';
+    }
+    expect(await wallet.send(request)).toEqual({
+      ok: false,
+      error: { code: 'PAYMENT_TIMEOUT', paymentId: 'envoi-2' },
+    });
+    expect(fake.sends).toHaveLength(2);
+  });
+
+  it('ne paie qu’une fois quand on appuie deux fois très vite', async () => {
+    const lnurl = fakeLnurl({ answer: () => ({ pr: 'lnbcrtadresselent' }) });
+    const { fake, wallet } = await ready(
+      lnurl,
+      new Map([['lnbcrtadresselent', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }]]),
+    );
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    const results = await Promise.all([wallet.send(request), wallet.send(request)]);
+    expect(results.map((result) => (result.ok ? 'ok' : result.error.code)).sort()).toEqual([
+      'PAYMENT_PENDING',
+      'PAYMENT_TIMEOUT',
+    ]);
+    expect(fake.sends).toHaveLength(1);
+    // Une seule facture demandée au destinataire.
+    expect(lnurl.urls.filter((url) => url.includes('/callback')).length).toBe(1);
+  });
+
+  it('refuse toujours un renvoi après redémarrage tant que le premier envoi est en attente', async () => {
+    const lnurl = fakeLnurl({ answer: () => ({ pr: 'lnbcrtadresselent' }) });
+    const { fake, wallet } = await ready(
+      lnurl,
+      new Map([['lnbcrtadresselent', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }]]),
+    );
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    expect(await wallet.send(request)).toEqual({
+      ok: false,
+      error: { code: 'PAYMENT_TIMEOUT', paymentId: 'envoi-1' },
+    });
+
+    // Nouvel adaptateur, comme après un redémarrage de l'application : mémoire vide,
+    // mais même module natif (paiements LDK et journal sur le disque).
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      paymentTimeoutMs: 0,
+      lightningAddress: { fetch: lnurl.fetch, demo },
+    });
+    expect(await restarted.send(request)).toEqual({
+      ok: false,
+      error: { code: 'PAYMENT_PENDING', paymentId: 'envoi-1' },
+    });
+    expect(fake.sends).toHaveLength(1);
+  });
+
+  it('refuse un renvoi quand l’application s’est arrêtée pendant l’envoi', async () => {
+    const lnurl = fakeLnurl({ answer: () => ({ pr: 'lnbcrtadressecoupure' }) });
+    const { fake, wallet } = await ready(
+      lnurl,
+      new Map([
+        ['lnbcrtadressecoupure', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }],
+      ]),
+    );
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    expect(await wallet.send(request)).toEqual({ ok: false, error: { code: 'UNKNOWN' } });
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      paymentTimeoutMs: 0,
+      lightningAddress: { fetch: lnurl.fetch, demo },
+    });
+    expect(await restarted.send(request)).toEqual({
+      ok: false,
+      // Même après un arrêt brutal, l'identifiant (hash de la facture) est connu.
+      error: { code: 'PAYMENT_PENDING', paymentId: 'empreinte-lnbcrtadressecoupure' },
+    });
+    expect(fake.sends).toHaveLength(1);
+  });
+
+  it('reprend un envoi réservé mais jamais parti (arrêt avant le paiement)', async () => {
+    const { fake, wallet } = await ready();
+    // Réservation laissée par un arrêt brutal juste avant l'appel natif : LDK ne connaît pas ce paiement.
+    await fake.native.journalWrite(
+      JSON.stringify({
+        version: 1,
+        xof: {},
+        invoices: {},
+        sends: { 'mame@teranga.example|5000': 'empreinte-jamais-partie' },
+      }),
+    );
+    const sent = await wallet.send({ destination: 'mame@teranga.example', amountSats: 5_000, pin });
+    expect(sent.ok).toBe(true);
+    expect(fake.sends).toHaveLength(1);
+  });
+
+  it('ne paie qu’une fois quand deux adaptateurs envoient en même temps', async () => {
+    const lnurl = fakeLnurl({ answer: () => ({ pr: 'lnbcrtadresselent' }) });
+    const { fake, wallet } = await ready(
+      lnurl,
+      new Map([['lnbcrtadresselent', { amountSats: 5_000, descriptionHash: lnurl.metadataHash }]]),
+    );
+    const other = createLdkWallet(fake.native, settings, {
+      ...options,
+      paymentTimeoutMs: 0,
+      lightningAddress: { fetch: lnurl.fetch, demo },
+    });
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    const results = await Promise.all([wallet.send(request), other.send(request)]);
+    expect(
+      results.filter((result) => !result.ok && result.error.code === 'PAYMENT_PENDING'),
+    ).toHaveLength(1);
+    expect(fake.sends).toHaveLength(1);
+  });
+
+  it('ne bloque pas un envoi à cause d’une facture reçue au même identifiant', async () => {
+    const { fake, wallet } = await ready();
+    // Réservation pointant vers un identifiant qui n'existe que comme réception en attente.
+    const received = await wallet.receive({ amountSats: 5_000 });
+    const sharedId = received.ok ? received.value.paymentId : '';
+    await fake.native.journalWrite(
+      JSON.stringify({
+        version: 1,
+        xof: {},
+        invoices: {},
+        sends: { 'mame@teranga.example|5000': sharedId },
+      }),
+    );
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      journal: createJournal(fake.native),
+      lightningAddress: { fetch: fakeLnurl().fetch, demo },
+    });
+    const sent = await restarted.send({
+      destination: 'mame@teranga.example',
+      amountSats: 5_000,
+      pin,
+    });
+    expect(sent.ok).toBe(true);
+  });
+
+  it('ne répond jamais « inconnu » une fois l’argent parti', async () => {
+    const { fake, wallet } = await ready();
+    const write = fake.native.journalWrite;
+    // Disque plein juste après l'envoi : le paiement est parti, le journal ne s'écrit plus.
+    fake.native.journalWrite = jest.fn(async (text: string) => {
+      if (fake.sends.length > 0) throw new Error('disque plein');
+      return write(text);
+    });
+    const sent = await wallet.send({ destination: 'mame@teranga.example', amountSats: 5_000, pin });
+    expect(sent).toEqual({ ok: false, error: { code: 'PAYMENT_TIMEOUT', paymentId: 'envoi-1' } });
+    expect(fake.sends).toHaveLength(1);
+  });
+
+  it('attend la raison d’un échec avant de répondre', async () => {
+    const { fake, wallet } = await ready();
+    const payments = fake.native.payments;
+    let calls = 0;
+    // Les deux premières lectures voient l'échec sans sa raison, comme juste après LDK.
+    fake.native.payments = jest.fn(async () => {
+      calls += 1;
+      const list = await payments();
+      return calls <= 2 ? list.map((p) => ({ ...p, failureReason: null })) : list;
+    });
+    const sent = await wallet.send({ destination: 'lnbcrtawaechecexpire', pin });
+    expect(sent).toEqual({ ok: false, error: { code: 'INVOICE_EXPIRED' } });
+  });
+
+  it('autorise un second envoi identique une fois le premier réussi', async () => {
+    const { fake, wallet } = await ready();
+    const request = { destination: 'mame@teranga.example', amountSats: 5_000, pin };
+    expect((await wallet.send(request)).ok).toBe(true);
+    expect((await wallet.send(request)).ok).toBe(true);
+    expect(fake.sends).toHaveLength(2);
+  });
+
+  it('refuse avant d’envoyer quand le solde ne couvre pas montant et frais', async () => {
+    const { fake, wallet } = await ready();
+    // 99 500 sats + 995 sats de frais maximum > 100 000 sats disponibles.
+    const result = await wallet.send({ destination: 'lnbcrtsansmontant', amountSats: 99_500, pin });
+    expect(result).toEqual({ ok: false, error: { code: 'INSUFFICIENT_FUNDS' } });
+    expect(fake.sends).toHaveLength(0);
+  });
+
+  it('traduit la raison LDK d’un échec', async () => {
+    const { wallet } = await ready();
+    const expired = await wallet.send({ destination: 'lnbcrtawaechecexpire', pin });
+    expect(expired).toEqual({ ok: false, error: { code: 'INVOICE_EXPIRED' } });
+    expect(failureCode('RETRIES_EXHAUSTED')).toBe('NO_ROUTE');
+    expect(failureCode('UNEXPECTED_ERROR')).toBe('UNKNOWN');
+    expect(failureCode(null)).toBe('NO_ROUTE');
   });
 });
