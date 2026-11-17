@@ -21,6 +21,16 @@ export const errorCodes = {
   capacityReached: 'CAPACITY_REACHED',
   requestNotFound: 'REQUEST_NOT_FOUND',
   invoiceInvalid: 'INVOICE_INVALID',
+  bridgeInvalidInput: 'INVALID_INPUT',
+  bridgeAccountNotFound: 'ACCOUNT_NOT_FOUND',
+  bridgeQuoteAlreadyUsed: 'QUOTE_ALREADY_USED',
+  bridgeIdempotencyConflict: 'IDEMPOTENCY_CONFLICT',
+  bridgeInsufficientFunds: 'INSUFFICIENT_FUNDS',
+  bridgeProviderUnavailable: 'PROVIDER_UNAVAILABLE',
+  bridgeProviderMismatch: 'PROVIDER_MISMATCH',
+  bridgeQuoteConflict: 'QUOTE_CONFLICT',
+  withdrawalNotFound: 'WITHDRAWAL_NOT_FOUND',
+  storageClosed: 'STORAGE_CLOSED',
 } as const;
 
 export type ErrorCode = (typeof errorCodes)[keyof typeof errorCodes];
@@ -31,6 +41,8 @@ export type ErrorBody = {
     requestId: string;
     /** Champs refusés, sans leurs valeurs, pour les erreurs de validation. */
     fields?: string[];
+    /** Référence existante, uniquement après vérification du propriétaire authentifié. */
+    withdrawalId?: string;
   };
 };
 
@@ -41,8 +53,10 @@ export function sendError(
   statusCode: number,
   code: ErrorCode,
   fields?: string[],
+  metadata?: { withdrawalId?: string },
 ): FastifyReply {
   const body: ErrorBody = { error: { code, requestId: request.id } };
   if (fields && fields.length > 0) body.error.fields = fields;
+  if (metadata?.withdrawalId) body.error.withdrawalId = metadata.withdrawalId;
   return reply.code(statusCode).send(body);
 }

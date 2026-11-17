@@ -9,5 +9,7 @@
 - `fraud.ts` : règles d'alerte fraude explicables et score (T26).
 - `savings.ts` calcule l'estimation d'économies (T34) et lit ses hypothèses configurables.
 - `routes/` contient une fonction d'enregistrement par groupe de routes.
+- `bridge.ts` monte le module fictif T23 et associe le jeton à une identité de démonstration ; aucun secret wallet.
+- `setup-bridge.ts` crée un fichier de configuration ignoré sans afficher son jeton ; `demo-bridge.ts` vérifie le parcours HTTP local des deux opérateurs.
 
-Les tests sont à côté du code (`*.test.ts`) et se lancent avec `npm test --workspace @teranga-pay/api`. Responsable : Salam (T13).
+Les tests sont à côté du code (`*.test.ts`) et se lancent avec `npm test --workspace @teranga-pay/api`. Salam porte T13/T17 ; PAN porte les ajouts de retrait T23, relus par Salam.

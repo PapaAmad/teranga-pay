@@ -20,7 +20,7 @@ Seuls les dossiers qui ont un `package.json` sont des packages npm. Les réperto
 
 ## Architecture cible
 
-Les blocs ci-dessous représentent les composants à construire après le socle T01 à T07. Aujourd'hui, seule la navigation de préparation Expo est disponible. Les chemins d'API, le SDK et les contrats seront définis en T10, T11 et T13.
+Les blocs ci-dessous représentent la cible du produit. Cette branche comprend le socle API Fastify T13 et les taux/devis T17 ; T23 y propose le module de retrait simulé décrit plus bas. Les parcours mobiles T14 à T22 sont proposés dans une autre pile de branches, conservée dans le checkout principal. La présence de ces travaux ne prouve ni leur fusion ni une intégration native complète.
 
 ```mermaid
 flowchart LR
@@ -89,11 +89,13 @@ Le plan d'équipe prévoit un repli si le SDK mobile échoue au 5 novembre : une
 
 - Utiliser des montants entiers et des unités explicites : XOF/FCFA et sats. Les règles d'arrondi et de conversion seront partagées en T11/T17.
 - Afficher les frais avant confirmation et fixer le devis marchand pendant cinq minutes en T17/T22.
-- Introduire les états de retrait, l'idempotence et la réconciliation en T23 pour éviter un double retrait lors d'un réessai.
+- T23 introduit les états de retrait, l'idempotence et la réconciliation dans un registre durable pour éviter un double retrait simulé lors d'un réessai.
 - Utiliser des comptes et numéros fictifs ; la passerelle du MVP ne représente pas une intégration commerciale Wave ou Orange Money.
 - Ne jamais écrire de phrase secrète, de clé, de numéro personnel ou d'identité réelle dans les exemples et les journaux.
 
-Ces règles sont des exigences pour les futures implémentations ; ce document ne définit pas encore un contrat exécutable.
+Le [module T23](../../services/bridge-sim/README.md) conserve comptes fictifs, devis, réservations, retraits et journal opérateur dans un fichier SQLite ignoré par Git. Ses routes sont montées par l’API existante, avec activation explicite et authentification propres à la simulation. Elles ne peuvent ni lire le coffre du téléphone ni dépenser ses fonds. Les identifiants `wave-demo-001` et `orange-demo-001` remplacent des numéros de téléphone ; les frais fixes de 100 FCFA sont une règle fictive de démonstration.
+
+Une même identité et une même clé retrouvent le retrait existant. Une contrainte supplémentaire empêche de confirmer deux fois un devis sous deux clés. La réservation est enregistrée avant l’attente du simulateur, et son journal garde un effet unique par retrait. En cas de réponse perdue, la réconciliation lit cette référence ; une opération incertaine conserve ses fonds fictifs réservés. Les détails et limites sont dans l’[ADR 0017](../decisions/0017-passerelle-simulee-et-idempotence.md).
 
 ## Décisions encore ouvertes
 

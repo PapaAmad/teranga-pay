@@ -1,4 +1,5 @@
 import { MAX_XOF_PER_BTC, MIN_XOF_PER_BTC } from './rates.ts';
+import type { Scenario } from '@teranga-pay/bridge-sim';
 
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
 
@@ -11,6 +12,7 @@ export type ApiConfig = {
   rate: RateConfig;
   quoteTtlSeconds: number;
   lightningAddress: LightningAddressConfig;
+  bridge?: { token: string; path: string; scenario: Scenario };
 };
 
 export type LightningAddressConfig = {
@@ -107,8 +109,31 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     throw new Error(`API_LOG_LEVEL doit valoir : ${logLevels.join(', ')}.`);
   }
   const host = env.API_HOST || defaultConfig.host;
+  const enabled = env.BRIDGE_SIM_ENABLED;
+  if (enabled !== undefined && enabled !== '' && enabled !== 'true' && enabled !== 'false')
+    throw new Error('BRIDGE_SIM_ENABLED doit valoir true ou false.');
+  let bridge: ApiConfig['bridge'];
+  if (enabled === 'true') {
+    if (!['127.0.0.1', '::1'].includes(host))
+      throw new Error('La passerelle simulée nécessite une écoute loopback.');
+    const token = env.BRIDGE_SIM_TOKEN ?? '';
+    if (!/^[A-Za-z0-9_-]{32,128}$/.test(token))
+      throw new Error('BRIDGE_SIM_TOKEN doit être un jeton aléatoire de 32 à 128 caractères.');
+    const path = env.BRIDGE_SIM_DB_PATH || '.data/bridge-sim.sqlite';
+    if (
+      path === ':memory:' ||
+      /^file:/i.test(path) ||
+      [...path].some((character) => character.charCodeAt(0) < 32)
+    )
+      throw new Error('BRIDGE_SIM_DB_PATH doit désigner une base persistante.');
+    const scenario = env.BRIDGE_SIM_SCENARIO || 'success';
+    if (!['success', 'declined', 'timeout_after_success', 'unavailable'].includes(scenario))
+      throw new Error('BRIDGE_SIM_SCENARIO est invalide.');
+    bridge = { token, path, scenario: scenario as Scenario };
+  }
   return {
     host,
+    ...(bridge ? { bridge } : {}),
     port: readInteger(env, 'API_PORT', defaultConfig.port, 1, 65_535),
     logLevel: logLevel as LogLevel,
     rateLimit: {
