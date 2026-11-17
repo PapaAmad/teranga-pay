@@ -148,6 +148,7 @@ function fakeNative({ invoices = new Map<string, Partial<NativeInvoiceInfo>>() }
       return id;
     }),
     sha256Hex: fakeSha256,
+    receiveForDescriptionHash: jest.fn(async (msat: number) => `lnbcrthash${msat}`),
     payments: jest.fn(async () => payments.map((payment) => ({ ...payment }))),
     journalRead: jest.fn(async () => journalText),
     journalWrite: jest.fn(async (text: string) => {

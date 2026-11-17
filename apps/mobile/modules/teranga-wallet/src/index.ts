@@ -62,6 +62,15 @@ export type NativeWalletEvent =
 export interface NativeWallet {
   exists(): boolean;
   isRunning(): boolean;
+  /**
+   * Facture au montant exact (millisats) portant le hachage des métadonnées LNURL,
+   * pour répondre à une demande reçue sur l'adresse Lightning (T19).
+   */
+  receiveForDescriptionHash(
+    amountMsat: number,
+    descriptionHash: string,
+    expirySecs: number,
+  ): Promise<string>;
   /** SHA-256 (hexadécimal) d'un texte UTF-8 : métadonnées LNURL (T21). */
   sha256Hex(text: string): string;
   /** Bloque (true) ou rétablit (false) captures et enregistrements d'écran. */
