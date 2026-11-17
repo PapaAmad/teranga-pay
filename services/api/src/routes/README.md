@@ -4,4 +4,6 @@ Un fichier par groupe de routes, enregistré dans `app.ts`. Chaque route déclar
 
 - `health.ts` : `GET /health`, contrôle de santé sans détail interne (T13).
 
-Les routes de taux (T17) et de Lightning Address (T19) viendront ici. Responsable : Salam.
+- `rates.ts` : `GET /v1/rate`, `POST /v1/quotes`, `GET /v1/quotes/:id` (T17).
+
+La Lightning Address (T19) viendra ici. Responsable : Salam.

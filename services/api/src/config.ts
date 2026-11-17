@@ -1,3 +1,5 @@
+import { MAX_XOF_PER_BTC, MIN_XOF_PER_BTC } from './rates.ts';
+
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
 
 export type ApiConfig = {
@@ -6,7 +8,12 @@ export type ApiConfig = {
   logLevel: LogLevel;
   rateLimit: { max: number; windowMs: number };
   bodyLimitBytes: number;
+  rate: RateConfig;
+  quoteTtlSeconds: number;
 };
+
+export type RateSource = 'fixe' | 'kraken';
+export type RateConfig = { source: RateSource; fixedXofPerBtc: number };
 
 const logLevels: readonly LogLevel[] = [
   'fatal',
@@ -24,6 +31,9 @@ export const defaultConfig: ApiConfig = {
   logLevel: 'info',
   rateLimit: { max: 60, windowMs: 60_000 },
   bodyLimitBytes: 16 * 1024,
+  // Taux de démonstration reproductible, proche du marché de novembre 2026.
+  rate: { source: 'fixe', fixedXofPerBtc: 45_000_000 },
+  quoteTtlSeconds: 300,
 };
 
 function readInteger(
@@ -41,6 +51,14 @@ function readInteger(
     throw new Error(`${name} doit être compris entre ${min} et ${max}.`);
   }
   return value;
+}
+
+function readRateSource(env: NodeJS.ProcessEnv): RateSource {
+  const source = env.RATE_SOURCE || defaultConfig.rate.source;
+  if (source !== 'fixe' && source !== 'kraken') {
+    throw new Error('RATE_SOURCE doit valoir : fixe, kraken.');
+  }
+  return source;
 }
 
 /** Lit la configuration depuis l'environnement et refuse toute valeur invalide. */
@@ -65,5 +83,22 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
       ),
     },
     bodyLimitBytes: defaultConfig.bodyLimitBytes,
+    rate: {
+      source: readRateSource(env),
+      fixedXofPerBtc: readInteger(
+        env,
+        'RATE_FIXED_XOF_PER_BTC',
+        defaultConfig.rate.fixedXofPerBtc,
+        MIN_XOF_PER_BTC,
+        MAX_XOF_PER_BTC,
+      ),
+    },
+    quoteTtlSeconds: readInteger(
+      env,
+      'QUOTE_TTL_SECONDS',
+      defaultConfig.quoteTtlSeconds,
+      30,
+      3_600,
+    ),
   };
 }
