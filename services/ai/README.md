@@ -1,7 +1,7 @@
-# Alertes et estimation | emplacement réservé
+# Alertes et estimation
 
-Salam porte **T26** pour les règles et le score d'alerte fraude, puis **T34** pour l'estimation d'économies souhaitable. PAN relit les règles et réalise l'affichage d'alerte en T27.
+Salam porte **T26** (alerte fraude) et **T34** (estimation d'économies, souhaitable). PAN relit les règles et réalise l'affichage d'alerte en T27.
 
-Ce dossier ne livre aucun modèle, moteur d'inférence ou endpoint. La séparation en service indépendant reste à décider : les premières règles peuvent vivre dans l'API si cela simplifie le MVP.
+Pour le MVP, les règles d'alerte vivent **dans l'API**, sous forme d'un module simple et explicable : [services/api/src/fraud.ts](../api/src/fraud.ts), exposé par `POST /v1/alerts/payment-check`. Les règles, poids et seuils sont décrits dans le [README de l'API](../api/README.md). Aucun modèle d'apprentissage ni service séparé n'est déployé : un service indépendant ne serait justifié que si les alertes demandaient des ressources propres.
 
-Les alertes aideront l'utilisateur à décider sans exécuter de paiement. Elles n'auront jamais accès aux clés ou à la phrase secrète. Documenter ultérieurement les règles, seuils, limites et tests, sans données personnelles.
+Les alertes aident l'utilisateur à décider sans exécuter de paiement. Elles n'ont jamais accès aux clés, à la phrase secrète ni à l'identité de la personne.
