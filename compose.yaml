@@ -1,0 +1,5 @@
+# Point d'entrée Docker Compose de Teranga Pay. Les services s'ajoutent tâche par tâche.
+name: teranga-pay
+
+include:
+  - infrastructure/lightning/compose.yaml

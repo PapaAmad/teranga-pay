@@ -1,0 +1,148 @@
+# Réseau Lightning de démonstration (T12) : regtest uniquement, aucun fonds réel.
+# Lancement depuis la racine : docker compose up -d --wait, puis le service seed.
+
+x-lnd: &lnd
+  image: lightninglabs/lnd:v0.21.6-beta
+  restart: unless-stopped
+  depends_on:
+    bitcoind:
+      condition: service_healthy
+  volumes:
+    - bitcoind-data:/bitcoin:ro
+  healthcheck:
+    test: ['CMD', 'lncli', '--network=regtest', 'getinfo']
+    interval: 5s
+    timeout: 5s
+    retries: 30
+    start_period: 10s
+
+services:
+  bitcoind:
+    image: bitcoin/bitcoin:29.5
+    restart: unless-stopped
+    command:
+      - -regtest
+      - -server
+      - -txindex
+      # Interface REST en lecture seule, utilisée par electrs ; non publiée sur l'hôte.
+      - -rest
+      - -printtoconsole
+      - -fallbackfee=0.0002
+      - -rpcbind=0.0.0.0
+      # Le port RPC n'est publié sur aucune interface de l'hôte : seuls les
+      # conteneurs du réseau Compose peuvent l'atteindre.
+      - -rpcallowip=0.0.0.0/0
+      # Authentification par cookie : aucun mot de passe écrit dans le dépôt.
+      - -rpccookieperms=all
+      - -zmqpubrawblock=tcp://0.0.0.0:28332
+      - -zmqpubrawtx=tcp://0.0.0.0:28333
+    volumes:
+      - bitcoind-data:/home/bitcoin/.bitcoin
+    healthcheck:
+      test:
+        ['CMD', 'bitcoin-cli', '-regtest', '-datadir=/home/bitcoin/.bitcoin', 'getblockchaininfo']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+
+  electrs:
+    # Serveur Electrum : le wallet LDK Node du téléphone lit la chaîne regtest par lui.
+    image: getumbrel/electrs:v0.11.1
+    restart: unless-stopped
+    # Le dossier de bitcoind est en 700 : lecture du cookie en root, dans ce réseau jetable.
+    user: '0'
+    depends_on:
+      bitcoind:
+        condition: service_healthy
+    command:
+      - --network=regtest
+      - --daemon-dir=/bitcoin
+      - --cookie-file=/bitcoin/regtest/.cookie
+      - --daemon-rpc-addr=bitcoind:18443
+      - --daemon-p2p-addr=bitcoind:18444
+      - --electrum-rpc-addr=0.0.0.0:50001
+      - --db-dir=/data
+      - --log-filters=INFO
+    volumes:
+      - bitcoind-data:/bitcoin:ro
+      - electrs-data:/data
+    ports:
+      # REGTEST_BIND=0.0.0.0 seulement pendant une démo sur téléphone physique.
+      - '${REGTEST_BIND:-127.0.0.1}:50001:50001'
+
+  lnd-teranga:
+    <<: *lnd
+    command:
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpccookie=/bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      # Portefeuille de nœud créé sans phrase de récupération : acceptable
+      # uniquement pour ce réseau de test jetable.
+      - --noseedbackup
+      - --listen=0.0.0.0:9735
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --tlsextradomain=lnd-teranga
+      - --tlsextradomain=lnd-diaspora
+      - --alias=teranga
+      # Le téléphone n'a pas de fonds on-chain : canaux sans ancres, plus simples
+      # pour LDK Node dans ce réseau de test.
+      - --protocol.no-anchors
+    volumes:
+      - bitcoind-data:/bitcoin:ro
+      - lnd-teranga-data:/root/.lnd
+    ports:
+      # REST publié sur la boucle locale seulement, pour les tâches API suivantes.
+      - '127.0.0.1:8080:8080'
+      # Pair Lightning joignable par le téléphone (émulateur : 10.0.2.2:9735).
+      - '${REGTEST_BIND:-127.0.0.1}:9735:9735'
+
+  lnd-diaspora:
+    <<: *lnd
+    command:
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpccookie=/bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --noseedbackup
+      - --listen=0.0.0.0:9735
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --tlsextradomain=lnd-teranga
+      - --tlsextradomain=lnd-diaspora
+      - --alias=diaspora
+    volumes:
+      - bitcoind-data:/bitcoin:ro
+      - lnd-diaspora-data:/root/.lnd
+    ports:
+      - '127.0.0.1:8082:8080'
+
+  seed:
+    image: node:24.22.0-alpine
+    profiles: [seed]
+    depends_on:
+      lnd-teranga:
+        condition: service_healthy
+      lnd-diaspora:
+        condition: service_healthy
+    working_dir: /seed
+    command: ['node', 'seed.mjs']
+    environment:
+      SEED_VERIFY_PAYMENT: ${SEED_VERIFY_PAYMENT:-1}
+    volumes:
+      - ../seed:/seed:ro
+      - bitcoind-data:/bitcoin:ro
+      - lnd-teranga-data:/lnd-teranga:ro
+      - lnd-diaspora-data:/lnd-diaspora:ro
+
+volumes:
+  electrs-data:
+  bitcoind-data:
+  lnd-teranga-data:
+  lnd-diaspora-data:

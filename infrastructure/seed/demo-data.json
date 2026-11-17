@@ -1,0 +1,28 @@
+{
+  "avertissement": "Données entièrement fictives pour la démonstration regtest. Les numéros utilisent le préfixe inexistant +221 00 pour ne désigner personne.",
+  "personas": [
+    {
+      "id": "awa",
+      "prenom": "Awa",
+      "role": "Commerçante, marché HLM",
+      "noeud": "lnd-teranga",
+      "telephoneFictif": "+221 00 000 00 01",
+      "operateurFictif": "wave"
+    },
+    {
+      "id": "mame",
+      "prenom": "Mame Diarra",
+      "role": "Mère de famille, Thiès",
+      "noeud": "lnd-teranga",
+      "adresseLightning": "mame@teranga.example",
+      "telephoneFictif": "+221 00 000 00 02",
+      "operateurFictif": "orange-money"
+    },
+    {
+      "id": "ousmane",
+      "prenom": "Ousmane",
+      "role": "Chauffeur, Milan (diaspora)",
+      "noeud": "lnd-diaspora"
+    }
+  ]
+}
