@@ -6,7 +6,12 @@ Le démarrage permet de continuer avec les polices du téléphone pendant l'atte
 
 Les textes passent par les ressources de traduction ou les propriétés des composants. Les boutons ont des états appuyé, désactivé et occupé ; un bouton occupé bloque les appuis répétés. Les cartes associent chaque état à une icône et un texte. Les champs associent une étiquette permanente, une aide et un message d'erreur explicite. Les contrôles gardent une cible d'au moins 48 points et une hauteur adaptable au texte agrandi.
 
-La galerie « Atelier visuel » présente ces fondations depuis l'accueil. Ses interactions sont des exemples locaux ; elles ne déclenchent aucun paiement. Lancer `npm run mobile` pour la consulter et `npm test -- --ci` pour vérifier les états et interactions. Les écrans de wallet et le système de traduction complet restent les tâches suivantes.
+La galerie « Atelier visuel » présente ces fondations depuis la présentation du
+projet et son accueil technique. Ses interactions sont des exemples locaux ;
+elles ne déclenchent aucun paiement. T14 ajoute la variante de bouton `accent`
+et adapte les attributs accessibles des SVG à la prévisualisation Web tout en
+conservant les attributs natifs. Lancer `npm run mobile` pour consulter l’atelier
+et `npm test -- --ci` pour vérifier les états et interactions.
 
 Après une saisie dans la galerie, le premier appui sur un bouton reste transmis
 à ce bouton ; le défilement permet de fermer le clavier. Sous iOS, le contenu

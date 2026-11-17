@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Revue locale de l’onboarding</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.55;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 8px;
+      }
+      h1 {
+        font-size: clamp(28px, 4vw, 46px);
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 760px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 28px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 10px 4px;
+        font-weight: 600;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="tag">T14 | Proposition locale</span>
+      <h1>Teranga Pay | L’onboarding à regarder ensemble.</h1>
+      <p>
+        Projet de Salam et PAN. Captures des vrais composants React Native, rendus dans Edge le 9
+        novembre 2026. Cliquer sur une image ouvre sa taille originale.
+      </p>
+      <p>
+        Le parcours complet est un aperçu en mémoire avec des jetons fictifs. Aucun portefeuille,
+        clé ou paiement n’est créé. La création normale reste indisponible avant le PIN jusqu’au
+        branchement validé avec Salam.
+      </p>
+      <p>
+        <strong>Écrans confirmés par PAN le 9 novembre 2026 avant commit et PR.</strong> Pour
+        essayer le parcours : lancer <code>npm run mobile:web -- --offline --port 8092</code>, puis
+        ouvrir <a href="http://localhost:8092">l’aperçu local</a>.
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-accueil.png"
+          ><img src="01-accueil.png" alt="Accueil" width="390" height="844" loading="lazy"
+        /></a>
+        <figcaption>Accueil</figcaption>
+      </figure>
+      <figure>
+        <a href="02-langue.png"
+          ><img src="02-langue.png" alt="Langue" width="390" height="844" loading="lazy"
+        /></a>
+        <figcaption>Langue</figcaption>
+      </figure>
+      <figure>
+        <a href="03-preparation.png"
+          ><img src="03-preparation.png" alt="Préparation" width="390" height="844" loading="lazy"
+        /></a>
+        <figcaption>Préparation</figcaption>
+      </figure>
+      <figure>
+        <a href="04-wallet-indisponible.png"
+          ><img
+            src="04-wallet-indisponible.png"
+            alt="Entrée normale | wallet indisponible"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Entrée normale | wallet indisponible</figcaption>
+      </figure>
+      <figure>
+        <a href="05-code.png"
+          ><img src="05-code.png" alt="Code | aperçu" width="390" height="844" loading="lazy"
+        /></a>
+        <figcaption>Code | aperçu</figcaption>
+      </figure>
+      <figure>
+        <a href="06-confirmation.png"
+          ><img
+            src="06-confirmation.png"
+            alt="Confirmation | aperçu"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Confirmation | aperçu</figcaption>
+      </figure>
+      <figure>
+        <a href="07-copie.png"
+          ><img
+            src="07-copie.png"
+            alt="Copie | jetons fictifs"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Copie | jetons fictifs</figcaption>
+      </figure>
+      <figure>
+        <a href="07-copie-bas.png"
+          ><img
+            src="07-copie-bas.png"
+            alt="Copie | jetons fictifs | suite"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Copie | jetons fictifs | suite</figcaption>
+      </figure>
+      <figure>
+        <a href="08-verification.png"
+          ><img
+            src="08-verification.png"
+            alt="Vérification | aperçu"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Vérification | aperçu</figcaption>
+      </figure>
+      <figure>
+        <a href="08-verification-bas.png"
+          ><img
+            src="08-verification-bas.png"
+            alt="Vérification | aperçu | suite"
+            width="390"
+            height="844"
+            loading="lazy"
+        /></a>
+        <figcaption>Vérification | aperçu | suite</figcaption>
+      </figure>
+      <figure>
+        <a href="09-fin.png"
+          ><img src="09-fin.png" alt="Fin | aperçu" width="390" height="844" loading="lazy"
+        /></a>
+        <figcaption>Fin | aperçu</figcaption>
+      </figure>
+      <figure>
+        <a href="10-accueil-360.png"
+          ><img
+            src="10-accueil-360.png"
+            alt="Accueil 360 × 800"
+            width="360"
+            height="800"
+            loading="lazy"
+        /></a>
+        <figcaption>Accueil 360 × 800</figcaption>
+      </figure>
+      <figure>
+        <a href="11-actions-360.png"
+          ><img
+            src="11-actions-360.png"
+            alt="Actions après défilement 360"
+            width="360"
+            height="800"
+            loading="lazy"
+        /></a>
+        <figcaption>Actions après défilement 360</figcaption>
+      </figure>
+      <figure>
+        <a href="10-accueil-320.png"
+          ><img
+            src="10-accueil-320.png"
+            alt="Accueil 320 × 568"
+            width="320"
+            height="568"
+            loading="lazy"
+        /></a>
+        <figcaption>Accueil 320 × 568</figcaption>
+      </figure>
+      <figure>
+        <a href="11-actions-320.png"
+          ><img
+            src="11-actions-320.png"
+            alt="Actions après défilement 320"
+            width="320"
+            height="568"
+            loading="lazy"
+        /></a>
+        <figcaption>Actions après défilement 320</figcaption>
+      </figure>
+    </main>
+    <footer>
+      <p>
+        Les vues « suite » montrent le bas du défilement. Les trois tailles d’accueil sont 390 ×
+        844, 360 × 800 et 320 × 568. Cette revue Web ne remplace pas les essais Android, clavier,
+        TalkBack et protection d’écran.
+      </p>
+    </footer>
+  </body>
+</html>

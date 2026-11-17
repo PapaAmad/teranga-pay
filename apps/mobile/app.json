@@ -6,8 +6,8 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "terangapay",
-    "platforms": ["android", "ios"],
-    "plugins": ["expo-font"],
+    "platforms": ["android", "ios", "web"],
+    "plugins": ["expo-font", "expo-status-bar"],
     "android": {
       "package": "pay.teranga.demo",
       "allowBackup": false

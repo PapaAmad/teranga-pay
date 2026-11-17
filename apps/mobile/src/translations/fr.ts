@@ -101,6 +101,153 @@ export const fr = {
     },
     backAction: 'Revenir à l’accueil',
   },
+  onboarding: {
+    welcome: {
+      eyebrow: 'Teranga Pay, à vos côtés',
+      title: 'L’argent bouge.\nGardez la main.',
+      description: 'Recevoir, payer et encaisser.\nEn FCFA, simplement.',
+      start: 'Créer mon portefeuille',
+      discover: 'Découvrir le projet',
+      network: 'Version de test | regtest',
+      note: 'Le réseau de démonstration utilise de l’argent fictif.',
+    },
+    progress: 'Étape {{current}} sur {{total}} | {{phase}}',
+    phases: {
+      language: 'Votre langue',
+      code: 'Votre code',
+      backup: 'Votre sauvegarde',
+      check: 'Votre vérification',
+    },
+    actions: {
+      back: 'Retour',
+      continue: 'Continuer',
+      retry: 'Réessayer',
+      creating: 'Création du portefeuille…',
+      finishing: 'Enregistrement de votre progression…',
+      preparing: 'Préparation…',
+      review: 'Revoir mes mots',
+      finish: 'Vérifier ma copie',
+      enter: 'Continuer vers l’accueil',
+      show: 'Afficher le code',
+      hide: 'Masquer le code',
+      unlock: 'Ouvrir mon portefeuille',
+    },
+    language: {
+      title: 'On se comprend.',
+      description: 'Choisissez la langue qui vous accompagne.',
+      french: 'Français',
+      frenchDetail: 'Disponible dès maintenant',
+      wolof: 'Wolof',
+      wolofDetail: 'Bientôt, après relecture des traductions',
+      note: 'Vous pourrez changer de langue plus tard.',
+    },
+    prepare: {
+      title: 'Un petit moment.\nPour vous protéger.',
+      description:
+        'Votre portefeuille sera créé sur ce téléphone. Prenez de quoi noter avant de commencer.',
+      codeTitle: 'Un code pour l’ouvrir',
+      codeDetail: 'Six chiffres, choisis par vous. Ils protègent l’accès sur ce téléphone.',
+      wordsTitle: 'Douze mots à garder',
+      wordsDetail:
+        'Notez-les dans l’ordre, à l’abri des regards. Ils protègent l’accès à vos clés.',
+      privacyTitle: 'Votre phrase reste privée',
+      privacyDetail: 'Ni Teranga Pay, ni une personne qui vous aide ne doit recevoir ces mots.',
+      ready: 'J’ai de quoi noter',
+    },
+    pin: {
+      title: 'Votre code.\nVotre accès.',
+      description:
+        'Choisissez un code de six chiffres pour ouvrir votre portefeuille sur ce téléphone.',
+      label: 'Code à six chiffres',
+      hint: 'Ce code est différent de vos douze mots de récupération.',
+      confirmTitle: 'Encore une fois.',
+      confirmDescription: 'Saisissez le même code pour vérifier qu’il est bien le vôtre.',
+      confirmLabel: 'Confirmer le code à six chiffres',
+      create: 'Créer et voir mes mots',
+    },
+    words: {
+      help: 'À quoi servent mes douze mots ?',
+      title: 'Ces mots\nsont à vous.',
+      description: 'Notez les douze mots dans cet ordre. Prenez votre temps.',
+      wordLabel: 'Mot {{position}} : {{word}}',
+      privacy:
+        'Gardez votre note hors de ce téléphone. Ne photographiez pas vos mots et ne les envoyez à personne.',
+      lightning:
+        'La récupération Lightning dépend aussi des sauvegardes prévues par le portefeuille. Les douze mots ne sauvegardent pas seuls tous les états des canaux.',
+      noted: 'J’ai noté mes douze mots',
+    },
+    verify: {
+      title: 'Votre note\nest-elle complète ?',
+      description:
+        'Regardez votre note et choisissez les mots demandés. Rien à apprendre par cœur.',
+      question: 'Quel est le mot n° {{position}} ?',
+      choice: 'Mot {{position}}, choix {{word}}',
+      note: 'Ce petit test vérifie votre copie, pas la sécurité de l’endroit où vous la gardez.',
+    },
+    complete: {
+      title: 'Vous avez\npris la main.',
+      description:
+        'Votre copie est vérifiée et votre code est défini. Gardez votre note dans un endroit sûr.',
+      previewTitle: 'Le parcours\nest entre vos mains.',
+      previewDescription: 'Vous avez terminé l’aperçu. Aucun portefeuille ni clé n’a été créé.',
+      summary: 'Code défini | Copie vérifiée',
+      previewSummary: 'Aperçu terminé | Données fictives',
+    },
+    unlock: {
+      title: 'Heureux de\nvous retrouver.',
+      description:
+        'Votre portefeuille est déjà sur ce téléphone. Saisissez votre code pour l’ouvrir.',
+    },
+    unavailable: {
+      title: 'Le portefeuille\narrive bientôt.',
+      description:
+        'Cette version de test ne permet pas encore de créer un portefeuille. Vous pouvez découvrir le projet ou essayer le parcours avec des données fictives en développement.',
+    },
+    blocked: {
+      title: 'Votre sauvegarde\nreste à terminer.',
+      description:
+        'Un portefeuille est déjà présent. Cette version ne permet pas encore de reprendre l’affichage de ses mots. Ne le recréez pas : il n’a pas été effacé.',
+    },
+    error: {
+      title: 'On reprend\ntranquillement.',
+      description: 'Une étape n’a pas pu se terminer. Réessayez avant de continuer.',
+    },
+    preview: {
+      launch: 'Essayer le parcours fictif',
+      notice: 'Aperçu fictif | aucun portefeuille créé',
+      pinHint: 'Utilisez un code fictif pour cet aperçu.',
+      exit: 'Quitter l’aperçu',
+    },
+    leave: {
+      title: 'Masquer votre sauvegarde ?',
+      description:
+        'Cette version ne peut pas encore réafficher les mots après une interruption. Terminez votre note avant de quitter.',
+      stay: 'Rester ici',
+      confirm: 'Quitter et masquer',
+    },
+    errors: {
+      pinFormat: 'Saisissez exactement six chiffres.',
+      pinMismatch: 'Les deux codes sont différents. Vérifiez votre confirmation.',
+      pinInvalid: 'Ce code ne correspond pas. Réessayez.',
+      pinLocked: 'Trop d’essais. Patientez avant de réessayer.',
+      pinLockedDelay: 'Trop d’essais. Réessayez dans {{seconds}} secondes.',
+      language:
+        'Le wolof sera disponible après la relecture des traductions. Le français reste actif.',
+      storage:
+        'Votre progression n’a pas pu être conservée. Réessayez ; la création ne sera pas relancée automatiquement.',
+      protection:
+        'Cet écran ne peut pas être protégé dans cette version. Aucun mot ne sera affiché.',
+      backup:
+        'Votre choix ne correspond pas à votre note. Vérifiez les positions ou revoyez vos mots.',
+      interrupted: 'Le parcours a été interrompu. Les informations sensibles ont été masquées.',
+      recovery: 'La sauvegarde de ce portefeuille doit être reprise avec une version compatible.',
+      offline: 'La connexion est indisponible. Vérifiez votre réseau et réessayez.',
+      exists: 'Un portefeuille est déjà présent. Il ne sera pas remplacé.',
+      absent: 'Aucun portefeuille n’a été trouvé sur ce téléphone.',
+      unavailable: 'Le portefeuille n’est pas disponible dans cette version de test.',
+      generic: 'Cette étape n’a pas pu se terminer. Réessayez sans recréer votre portefeuille.',
+    },
+  },
   walletLab: {
     title: 'Atelier wallet (regtest)',
     receiveMemo: 'Atelier Teranga Pay',

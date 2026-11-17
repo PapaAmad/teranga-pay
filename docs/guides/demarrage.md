@@ -30,7 +30,7 @@ Un nom préfixé `EXPO_PUBLIC_` est exposé dans l'application : aucune clé ou 
 npm run mobile
 ```
 
-Le socle utilise Expo SDK 57. Le serveur de développement indique comment ouvrir l'application avec Expo Go compatible. Depuis son terminal, `a` lance Android si l'environnement est prêt ; `npm run mobile:android` permet aussi de demander directement le lancement Android. Un émulateur ou un téléphone reste nécessaire pour vérifier le rendu et les interactions ; des contrôles TypeScript réussis ne prouvent pas le fonctionnement sur appareil.
+Cette branche T14 utilise Expo SDK 58 après la migration de PAN. Le serveur de développement indique comment ouvrir l'application avec Expo Go compatible SDK 58. Depuis son terminal, `a` lance Android si l'environnement est prêt ; `npm run mobile:android` permet aussi de demander directement le lancement Android. Un émulateur ou un téléphone reste nécessaire pour vérifier le rendu et les interactions ; des contrôles TypeScript réussis ne prouvent pas le fonctionnement sur appareil. Le [guide mobile](../../apps/mobile/README.md) explique l’aperçu fictif T14 et ses limites.
 
 Le socle ne crée ni clés, ni phrase secrète, ni facture Lightning. Il ne comporte pas de passerelle de retrait opérationnelle. Les README des [services](../../services/README.md) et de l'[infrastructure](../../infrastructure/README.md) indiquent les tâches qui les introduiront.
 

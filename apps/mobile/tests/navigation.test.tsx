@@ -9,7 +9,7 @@ jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 describe('navigation du socle mobile', () => {
   it('ouvre les informations du projet puis revient à l’accueil', async () => {
     const i18n = createAppI18n();
-    render(<App i18n={i18n} />);
+    render(<App initialRoute="Home" i18n={i18n} />);
 
     expect(
       await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' }),
@@ -33,7 +33,7 @@ describe('navigation du socle mobile', () => {
   });
 
   it('ouvre la galerie, utilise les exemples locaux puis revient à l’accueil', async () => {
-    render(<App i18n={createAppI18n()} />);
+    render(<App initialRoute="Home" i18n={createAppI18n()} />);
     await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
 

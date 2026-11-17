@@ -8,6 +8,8 @@ import ManropeBold from '../../assets/brand/fonts/Manrope-Bold.ttf';
 import NotoSansRegular from '../../assets/brand/fonts/NotoSans-Regular.ttf';
 import NotoSansSemiBold from '../../assets/brand/fonts/NotoSans-SemiBold.ttf';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import type { RootStackParamList } from './src/navigation/types';
+import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
 
@@ -17,15 +19,21 @@ const fontAssets = {
   [tokens.fonts.title]: ManropeBold,
 };
 
-export default function App({ i18n = appI18n }: { i18n?: AppI18n } = {}) {
+type AppProps = {
+  i18n?: AppI18n;
+  initialRoute?: keyof RootStackParamList;
+  onboardingServices?: OnboardingServices;
+};
+
+export default function App({ i18n = appI18n, initialRoute, onboardingServices }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
-      <AppContent />
+      <AppContent initialRoute={initialRoute} onboardingServices={onboardingServices} />
     </TranslationProvider>
   );
 }
 
-function AppContent() {
+function AppContent({ initialRoute, onboardingServices }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
   const [continueWithoutFonts, setContinueWithoutFonts] = useState(false);
@@ -60,7 +68,7 @@ function AppContent() {
                 </Text>
               </SafeAreaView>
             )}
-            <RootNavigator />
+            <RootNavigator initialRoute={initialRoute} onboardingServices={onboardingServices} />
           </View>
         </BrandTypographyProvider>
       )}

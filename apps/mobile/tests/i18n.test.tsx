@@ -127,7 +127,7 @@ describe('changement de langue dans le parcours existant', () => {
         backAction: 'Retour témoin',
       },
     });
-    render(<App i18n={instance} />);
+    render(<App initialRoute="Home" i18n={instance} />);
     await screen.findByRole('header', { name: homeTitle });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     fireEvent.changeText(screen.getByLabelText(fr.design.fields.label), 'Saisie conservée');

@@ -12,4 +12,10 @@ Ce dossier réunit les recherches et règles de l'identité T08 du projet de Sal
 
 Les fichiers graphiques vivent dans [assets/brand](../../assets/brand/README.md), les composants mobiles dans `apps/mobile`.
 
+T14 prolonge ces fondations avec la [recherche sur l’onboarding](onboarding-recherche.md),
+la [direction artistique et le parcours](onboarding-direction.md) et les
+[captures du parcours](validation-t14/README.md). PAN a confirmé les écrans T14 le
+9 novembre 2026 avant commit et PR ; cette validation visuelle ne remplace pas la
+relecture du code par Salam ni les essais sur appareil.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

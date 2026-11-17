@@ -1,22 +1,58 @@
-# Application mobile
+# Application mobile | Teranga Pay
 
-Socle React Native et Expo en TypeScript, destiné d’abord à Android. PAN en est responsable ; Salam apporte ensuite la logique du wallet.
+Projet de Salam et PAN. Socle React Native et Expo en TypeScript, destiné d’abord
+à Android. PAN porte les écrans ; Salam apporte le wallet, Lightning et le coffre.
 
-Depuis la racine du dépôt : `npm ci`, puis `npm run mobile`. Scanner le QR avec Expo Go compatible SDK57, ou utiliser un émulateur Android. `npm run android --workspace @teranga-pay/mobile` ouvre directement Android ; iOS nécessite macOS pour le simulateur.
+Depuis la racine : `npm ci`, puis `npm run mobile`. Le projet utilise **Expo SDK 58**,
+avec React 19.3.0 et React Native 0.88.1, suite à la migration de PAN pour son Expo Go
+Android. Utiliser une version d’Expo Go compatible SDK 58. Le téléphone et le PC
+doivent pouvoir communiquer sur le même réseau ; scanner le QR affiché par Expo.
+Pour demander explicitement le réseau local :
+`npm run start --workspace @teranga-pay/mobile -- --lan`.
+Depuis le terminal Expo, `a` ouvre Android si un appareil ou un émulateur est prêt.
+Le simulateur iOS nécessite macOS.
 
-La navigation relie l’accueil provisoire, la présentation du projet et la galerie T08. Elle utilise React Navigation et sa pile native ; les identifiants d’écran sont typés. Le front complet de l’application n’est pas encore développé : aucun wallet, paiement, encaissement ou retrait n’est opérationnel.
+L’ouverture T14 propose un accueil illustré, le choix de langue et la préparation
+de la sauvegarde. **La création réelle n’est pas branchée** : l’entrée normale
+s’arrête avant le PIN avec une explication. Le bouton de développement
+« Essayer le parcours fictif » permet d’examiner le PIN, sa confirmation, la copie
+et sa vérification avec des jetons non Bitcoin et un état uniquement en mémoire.
+Il reste explicitement marqué comme aperçu et n’existe pas dans une version de
+production. Aucun portefeuille, clé ou paiement n’est créé par cet aperçu.
 
-T08 fournit des fondations réutilisables : identité B « Le courant commun », icônes originales, polices locales et composants bouton/carte/champ avec leurs états. La galerie est un atelier de vérification ; ses interactions sont fictives. Les maquettes financières de la charte montrent une intention graphique, sans constituer les écrans métier connectés.
+La [recherche T14](../../docs/design/onboarding-recherche.md) et la
+[direction](../../docs/design/onboarding-direction.md) motivent le parcours.
+Les [captures](../../docs/design/validation-t14/README.md) permettent de le relire.
+**PAN a confirmé les écrans le 9 novembre 2026 avant commit et PR.** Le branchement natif attend
+la reprise authentifiée de la sauvegarde et les essais convenus avec Salam :
+[ADR 0012](../../docs/decisions/0012-onboarding-protection-et-integration.md).
+Les dépendances du coffre ne sont pas ajoutées ici ; Expo Go sert à examiner l’UI,
+pas à prouver le fonctionnement d’un futur module wallet personnalisé.
 
-L’onboarding et le wallet, l’accueil financier, l’envoi, la réception, l’encaissement, l’historique et le retrait simulé restent les tâches suivantes du [plan](../../docs/planning/roadmap.md). PAN réalise les écrans ; Salam porte la logique wallet, Lightning et API. La démonstration financière future reste en regtest, avec cash-out Wave/Orange Money simulé.
+Pour revoir les vrais composants dans un navigateur :
+`npm run mobile:web -- --offline --port 8092`, puis ouvrir
+`http://localhost:8092`. Le Web est une cible de prévisualisation ; il ne valide
+pas les protections Android. La galerie T08 et la présentation du projet restent
+accessibles via « Découvrir le projet ». L’accueil financier, les paiements,
+la réception et les retraits restent leurs tâches du
+[plan](../../docs/planning/roadmap.md). Démonstration en regtest uniquement,
+cash-out Wave/Orange Money simulé.
 
-T09 relie les textes au contexte i18next, y compris les titres de navigation et les messages de chargement. Les ressources françaises sont embarquées dans `src/translations/fr.ts` ; les clés viennent du [moteur de traduction](src/translations/README.md). Le catalogue wolof préparé est vide et se replie sur le français : sa traduction relue par des locuteurs reste T33. Le choix de langue dans l’onboarding et sa persistance restent T14. La présence des glyphes et du moteur ne constitue pas un système bilingue terminé. Voir la [charte et ses limites](../../docs/design/README.md).
+T08 fournit l’identité B « Le courant commun », les icônes originales, les polices
+locales et les composants. T09 fournit le contexte i18next et les ressources FR.
+Le français est actif et mémorisé ; le wolof est annoncé mais non sélectionnable
+avant traduction et relecture native T33. Tous les textes de l’UI viennent des
+[ressources de traduction](src/translations/README.md).
 
-`npm run typecheck --workspace @teranga-pay/mobile` vérifie les types. `npm test --workspace @teranga-pay/mobile -- --ci` vérifie la navigation, les composants, leurs états et le repli typographique dans Jest. Ces tests ne remplacent pas un essai clavier, texte agrandi ou TalkBack sur appareil Android.
+Commandes utiles : `npm run typecheck --workspace @teranga-pay/mobile` et
+`npm test --workspace @teranga-pay/mobile -- --ci`. Les tests utilisent
+`jest-expo` 58, Jest 30, le preset React Native 0.88 et un renderer React 19.3 aligné.
+Ces tests et les captures Web ne remplacent pas un essai clavier, texte agrandi,
+TalkBack, interruption et capture d’écran sur un téléphone Android.
 
-Les versions proviennent du template officiel `expo-template-blank-typescript@sdk-57`. SDK57 suit la recommandation Expo Go au moment de l’initialisation. Les tests restent sur Jest29 et Testing Library13, compatibles avec `jest-expo`57.
-
-Sources : [création Expo](https://docs.expo.dev/get-started/create-a-project/), [navigation native](https://reactnavigation.org/docs/native-stack-navigator/), [tests Expo](https://docs.expo.dev/develop/unit-testing/).
+Sources : [migration Expo](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/),
+[tests Expo](https://docs.expo.dev/develop/unit-testing/),
+[navigation native](https://reactnavigation.org/docs/native-stack-navigator/).
 
 ## Wallet Lightning (T15)
 
