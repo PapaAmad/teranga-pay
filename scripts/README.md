@@ -14,6 +14,16 @@ L'arbre réservé `.github` utilise `GUIDE.md`, sauf `ISSUE_TEMPLATE` qui utilis
 
 `subset-brand-fonts.py` produit les deux sous-ensembles Noto avec Python et FontTools 4.68.0 fournis séparément. Il exige les originaux dont les SHA-256 sont épinglés, conserve les plages latines, contrôle les glyphes requis et leurs avances, puis actualise le manifeste et le relevé de glyphes. Aucun téléchargement automatique ; voir la [reproduction des polices](../assets/brand/fonts/README.md). La commande n'appartient pas au démarrage ni au bundle mobile.
 
+## Vérifier les textes mobiles | T09
+
+`npm run i18n:check` analyse `apps/mobile/App.tsx` et les sources TypeScript et JavaScript de `apps/mobile/src` avec l'AST du compilateur TypeScript. La racine déclare directement TypeScript 6.0.3 en dépendance de développement, à la même version que le workspace mobile. `repo:check` exécute aussi le garde, donc la CI existante conserve ce contrôle. PAN porte T09 ; Salam relit.
+
+Le garde refuse les textes JSX, les chaînes directement affichées dans les enfants JSX et les libellés visibles ou accessibles écrits en dur, dont `aria-label`, `children` et `accessibilityValue.text`. Il examine les titres et `tabBarLabel` des options de navigation, les messages et boutons de `Alert.alert`, ainsi que les messages des méthodes `ToastAndroid.show`, `showWithGravity` et `showWithGravityAndOffset`. Ces appels sont reconnus depuis leurs imports React Native et leurs alias ; les arguments techniques et les fonctions homonymes restent autorisés.
+
+Les imports directs des catalogues français/wolof sont contrôlés avec ou sans extension TypeScript ou JavaScript, y compris les réexports et les appels `import()` ou `require()`. Les parenthèses, assertions, concaténations, branches conditionnelles et gabarits ne masquent pas les chaînes affichées. Seuls les dossiers `src/translations`, `src/tests`, les dossiers `__tests__`, déclarations de types et fichiers de test sont exclus ; un dossier fonctionnel imbriqué nommé `translations` ou `tests` reste contrôlé. Les identifiants techniques de routes, rôles accessibles et styles restent autorisés. Les diagnostics donnent fichier et emplacement sans recopier le texte.
+
+Ce contrôle ciblé n'est pas une analyse complète des flux de données : il ne détermine pas l'origine d'un texte placé dans une variable ou renvoyé par une fonction quelconque. Les valeurs de données telles que les montants et codes de couleur restent autorisées. La revue humaine et les tests du changement de langue complètent cette limite. `npm run test:tooling` exerce les régressions sur des fixtures isolées, sans modifier les sources mobiles.
+
 ## Reproduire les exports T08
 
 `npm run brand:build` régénère les 16 SVG d’icônes et le rapport des 18 couples de contraste sans réseau ni outil externe. `npm run brand:contrast` et `npm run brand:icons` restent disponibles séparément. `npm run test:tooling` détecte les sources graphiques ou rapports périmés et les fichiers de police ou de licence altérés.

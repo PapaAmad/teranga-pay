@@ -8,7 +8,7 @@ import ManropeBold from '../../assets/brand/fonts/Manrope-Bold.ttf';
 import NotoSansRegular from '../../assets/brand/fonts/NotoSans-Regular.ttf';
 import NotoSansSemiBold from '../../assets/brand/fonts/NotoSans-SemiBold.ttf';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { fr } from './src/translations/fr';
+import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
 
 const fontAssets = {
@@ -17,7 +17,16 @@ const fontAssets = {
   [tokens.fonts.title]: ManropeBold,
 };
 
-export default function App() {
+export default function App({ i18n = appI18n }: { i18n?: AppI18n } = {}) {
+  return (
+    <TranslationProvider i18n={i18n}>
+      <AppContent />
+    </TranslationProvider>
+  );
+}
+
+function AppContent() {
+  const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
   const [continueWithoutFonts, setContinueWithoutFonts] = useState(false);
   const waiting = !loaded && !fontError && !continueWithoutFonts;
@@ -30,15 +39,15 @@ export default function App() {
         <SafeAreaView style={styles.loading}>
           <ActivityIndicator accessible={false} color={tokens.colors.primary} />
           <Text accessibilityLiveRegion="polite" style={styles.body}>
-            {fr.fonts.loading}
+            {t('fonts.loading', { appName: t('appName') })}
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={fr.fonts.continueAction}
+            accessibilityLabel={t('fonts.continueAction')}
             onPress={() => setContinueWithoutFonts(true)}
             style={styles.continueAction}
           >
-            <Text style={styles.continueLabel}>{fr.fonts.continueAction}</Text>
+            <Text style={styles.continueLabel}>{t('fonts.continueAction')}</Text>
           </Pressable>
         </SafeAreaView>
       ) : (
@@ -47,7 +56,7 @@ export default function App() {
             {fallback && (
               <SafeAreaView edges={['top']} style={styles.fallback}>
                 <Text accessibilityRole={fontError ? 'alert' : undefined} style={styles.body}>
-                  {fontError ? fr.fonts.error : fr.fonts.fallback}
+                  {t(fontError ? 'fonts.error' : 'fonts.fallback')}
                 </Text>
               </SafeAreaView>
             )}

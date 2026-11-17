@@ -10,7 +10,7 @@ T08 fournit des fondations réutilisables : identité B « Le courant commun »,
 
 L’onboarding et le wallet, l’accueil financier, l’envoi, la réception, l’encaissement, l’historique et le retrait simulé restent les tâches suivantes du [plan](../../docs/planning/roadmap.md). PAN réalise les écrans ; Salam porte la logique wallet, Lightning et API. La démonstration financière future reste en regtest, avec cash-out Wave/Orange Money simulé.
 
-Les textes sont centralisés dans `src/translations/fr.ts`. L’infrastructure de traduction vient en T09 ; les traductions wolof relues par des locuteurs sont prévues en T33. La présence des glyphes et d’un catalogue français ne constitue pas un système bilingue terminé. Voir la [charte et ses limites](../../docs/design/README.md).
+T09 relie les textes au contexte i18next, y compris les titres de navigation et les messages de chargement. Les ressources françaises sont embarquées dans `src/translations/fr.ts` ; les clés viennent du [moteur de traduction](src/translations/README.md). Le catalogue wolof préparé est vide et se replie sur le français : sa traduction relue par des locuteurs reste T33. Le choix de langue dans l’onboarding et sa persistance restent T14. La présence des glyphes et du moteur ne constitue pas un système bilingue terminé. Voir la [charte et ses limites](../../docs/design/README.md).
 
 `npm run typecheck --workspace @teranga-pay/mobile` vérifie les types. `npm test --workspace @teranga-pay/mobile -- --ci` vérifie la navigation, les composants, leurs états et le repli typographique dans Jest. Ces tests ne remplacent pas un essai clavier, texte agrandi ou TalkBack sur appareil Android.
 

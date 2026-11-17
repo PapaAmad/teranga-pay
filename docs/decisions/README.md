@@ -12,7 +12,8 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0006](0006-identite-visuelle.md)         | Identité et signes propres à Teranga Pay     | Direction B choisie, réalisation à relire                         |
 | [0007](0007-squelette-api.md)             | Socle d'exécution de l'API (T13)             | Proposée par Salam, relecture de PAN attendue                     |
 | [0008](0008-sdk-lightning.md)             | Choix du SDK Lightning mobile (T10)          | LDK Node retenu par Salam, validation de PAN attendue             |
+| [0009](0009-i18n-francais-wolof.md)       | Traduction française et préparation du wolof | T09 proposée, relecture Salam attendue                            |
 
-Pour la prochaine note, utiliser le premier numéro libre après ceux des PR ouvertes (plusieurs PR en préparent : vérifier avec `gh pr list` avant de choisir) et préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
+Pour la prochaine note, vérifier les décisions présentes et les PR ouvertes, puis utiliser le premier numéro libre. Préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
 
 Notes attendues ensuite : contrat écrans/logique en T11 et choix structurants d'exécution du backend en T13.
