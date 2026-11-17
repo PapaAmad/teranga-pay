@@ -11,3 +11,13 @@ export const demoNodeSettings: NodeSettings = {
   peerId: process.env.EXPO_PUBLIC_TERANGA_PEER_ID ?? '',
   peerAddress: process.env.EXPO_PUBLIC_TERANGA_PEER_ADDRESS ?? '10.0.2.2:9735',
 };
+
+/**
+ * Adresses Lightning (T19, T21). Le domaine de démonstration n'existe pas sur
+ * Internet : ses requêtes LNURL partent vers l'API locale. Toute autre adresse
+ * est jointe en HTTPS sur son propre domaine.
+ */
+export const demoLightningAddressSettings = {
+  domain: process.env.EXPO_PUBLIC_LNADDRESS_DOMAIN ?? 'teranga.example',
+  apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000',
+};

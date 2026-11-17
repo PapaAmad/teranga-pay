@@ -10,6 +10,8 @@ export type JournalData = {
   xof: Record<string, number | null>;
   /** Factures créées par ce téléphone, par `paymentId`. */
   invoices: Record<string, Invoice>;
+  /** Envois sans issue établie : « destination|montant » → identifiant du paiement (T21). */
+  sends: Record<string, string>;
 };
 
 export type JournalStorage = {
@@ -23,7 +25,7 @@ export type Journal = {
   update(change: (data: JournalData) => void): Promise<JournalData>;
 };
 
-const empty = (): JournalData => ({ version: 1, xof: {}, invoices: {} });
+const empty = (): JournalData => ({ version: 1, xof: {}, invoices: {}, sends: {} });
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -48,6 +50,11 @@ export function parseJournal(text: string | null): JournalData {
         if (isRecord(value) && value.paymentId === id && typeof value.paymentRequest === 'string') {
           data.invoices[id] = value as Invoice;
         }
+      }
+    }
+    if (isRecord(parsed.sends)) {
+      for (const [key, value] of Object.entries(parsed.sends)) {
+        if (typeof value === 'string' && value.length > 0) data.sends[key] = value;
       }
     }
     return data;

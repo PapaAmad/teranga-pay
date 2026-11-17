@@ -134,12 +134,15 @@ export const walletErrorCodes = [
    * `paymentId` permet de le suivre (`subscribe`, `history`). Ne pas renvoyer.
    */
   'PAYMENT_TIMEOUT',
+  /**
+   * Un envoi identique (même destination, même montant) est encore en cours :
+   * ne pas en lancer un second tant que le premier n'a pas abouti ou échoué.
+   */
+  'PAYMENT_PENDING',
   /** Pas de réseau : action impossible maintenant, réessayer plus tard. */
   'NETWORK_OFFLINE',
   /** Frais nécessaires supérieurs à `maxFeeSats`. */
   'FEE_TOO_HIGH',
-  /** Un envoi vers cette destination est déjà en cours : attendre son issue. */
-  'PAYMENT_PENDING',
   /** Durée de validité de facture hors bornes (`invoiceExpiryBounds`). */
   'EXPIRY_INVALID',
   'UNKNOWN',

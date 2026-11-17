@@ -33,6 +33,10 @@ export type NativeInvoiceInfo = {
   expired: boolean;
   regtest: boolean;
   payee: string;
+  /** Empreinte du paiement (hexadécimal), identique à l'`id` du paiement envoyé. */
+  paymentHash: string;
+  /** Hachage SHA-256 de la description, si la facture n'en porte que le hachage (LUD-06). */
+  descriptionHash: string | null;
 };
 
 export type NativePayment = {
@@ -43,6 +47,8 @@ export type NativePayment = {
   feeSats: number;
   /** Secondes depuis l'époque Unix. */
   updatedAt: number;
+  /** Raison LDK d'un échec (`ROUTE_NOT_FOUND`, `PAYMENT_EXPIRED`…), sinon null. */
+  failureReason?: string | null;
 };
 
 export type NativeWalletEvent =
@@ -56,6 +62,8 @@ export type NativeWalletEvent =
 export interface NativeWallet {
   exists(): boolean;
   isRunning(): boolean;
+  /** SHA-256 (hexadécimal) d'un texte UTF-8 : métadonnées LNURL (T21). */
+  sha256Hex(text: string): string;
   /** Bloque (true) ou rétablit (false) captures et enregistrements d'écran. */
   setScreenSecure(secure: boolean): Promise<boolean>;
   create(pin: string): Promise<string[]>;

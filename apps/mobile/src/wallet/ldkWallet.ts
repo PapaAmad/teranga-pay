@@ -24,6 +24,13 @@ import type {
   NodeSettings,
   PinResult,
 } from '../../modules/teranga-wallet/src';
+import {
+  fetchPayParams,
+  normalizeAddress,
+  requestInvoice,
+  type LightningAddressDeps,
+} from './lightningAddress';
+import { demoLightningAddressSettings } from './settings';
 import { journalFor, type Journal, type JournalData } from './journal';
 
 /** Frais maximum acceptés : 1 % du montant, avec un minimum de 10 sats. */
@@ -32,6 +39,20 @@ export function maxFeeFor(amountSats: number): number {
 }
 
 const knownCodes = new Set<string>(walletErrorCodes);
+
+/** Raison d'échec LDK → code du contrat. « Pas passé, argent intact » par défaut. */
+export function failureCode(reason: string | null | undefined): WalletErrorCode {
+  switch (reason) {
+    case 'PAYMENT_EXPIRED':
+      return 'INVOICE_EXPIRED';
+    case 'UNEXPECTED_ERROR':
+    case 'UNKNOWN_REQUIRED_FEATURES':
+      return 'UNKNOWN';
+    default:
+      // ROUTE_NOT_FOUND, RETRIES_EXHAUSTED, RECIPIENT_REJECTED, USER_ABANDONED…
+      return 'NO_ROUTE';
+  }
+}
 
 /** Transforme une erreur du module natif en code du contrat, sans jamais lever. */
 export function toErrorCode(error: unknown): WalletErrorCode {
@@ -43,6 +64,17 @@ function pinFailure<T>(result: Exclude<PinResult, { ok: true }>): Result<T> {
   return result.code === 'PIN_INVALID'
     ? fail(result.code, { attemptsLeft: result.attemptsLeft })
     : fail(result.code, { retryAfterSeconds: result.retryAfterSeconds });
+}
+
+const sendingByNative = new WeakMap<object, Set<string>>();
+
+function sendingFor(native: object): Set<string> {
+  let set = sendingByNative.get(native);
+  if (!set) {
+    set = new Set();
+    sendingByNative.set(native, set);
+  }
+  return set;
 }
 
 /**
@@ -57,6 +89,10 @@ export function createLdkWallet(
     now = Date.now,
     sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
     paymentTimeoutMs = 60_000,
+    lightningAddress = {
+      fetch: (url, init) => fetch(url, init),
+      demo: demoLightningAddressSettings,
+    },
     journal = journalFor(native),
   }: {
     journal?: Journal;
@@ -64,9 +100,22 @@ export function createLdkWallet(
     now?: () => number;
     sleep?: (ms: number) => Promise<void>;
     paymentTimeoutMs?: number;
+    lightningAddress?: Pick<LightningAddressDeps, 'fetch' | 'demo' | 'timeoutMs'>;
   } = {},
 ): Wallet {
   const paidPayees = new Set<string>();
+  const addressDeps: LightningAddressDeps = {
+    ...lightningAddress,
+    decode: (invoice) => native.decode(invoice),
+    sha256Hex: (text) => native.sha256Hex(text),
+  };
+  /**
+   * Envois en cours dans ce processus, par « destination|montant », partagés par
+   * tous les adaptateurs d'un même module natif. Rempli de façon synchrone avant
+   * la première attente : un second appel identique est refusé même si le premier
+   * n'a pas encore atteint le natif.
+   */
+  const sending = sendingFor(native);
   const iso = (ms: number) => new Date(ms).toISOString();
   const xof = (sats: number) => {
     const current = rate();
@@ -96,7 +145,7 @@ export function createLdkWallet(
       amountXof: invoice?.amountXof ?? data.xof[payment.id] ?? null,
       memo: invoice?.memo ?? null,
       createdAt: iso(payment.updatedAt * 1000),
-      failure: payment.status === 'echoue' ? 'NO_ROUTE' : null,
+      failure: payment.status === 'echoue' ? failureCode(payment.failureReason) : null,
     };
   }
 
@@ -134,6 +183,109 @@ export function createLdkWallet(
     return (await native.payments()).find((payment) => payment.id === id);
   }
 
+  /**
+   * Suite de `send`, clé déjà réservée en mémoire. Le journal garde « clé →
+   * identifiant du paiement » jusqu'à une issue établie : après un redémarrage,
+   * un envoi encore en attente chez LDK bloque toujours un nouvel essai.
+   */
+  async function sendReserved(
+    key: string,
+    preview: PaymentPreview & { payee: string },
+    amount: number,
+    maxFee: number,
+    requestedAmount: number | undefined,
+  ): Promise<Result<Payment>> {
+    const previousId = (await journal.read()).sends[key];
+    if (previousId) {
+      // Seuls les envois comptent : une facture reçue partage le même identifiant
+      // (payer sa propre facture) et resterait « en attente » pour toujours.
+      const previous = (await native.payments()).find(
+        (payment) => payment.id === previousId && payment.direction === 'envoye',
+      );
+      if (previous?.status === 'en_attente') {
+        return fail('PAYMENT_PENDING', { paymentId: previous.id });
+      }
+      // Réussi, échoué ou jamais parti (arrêt avant l'appel natif) : issue connue.
+      await forgetSend(key, previousId);
+    }
+
+    const balance = await balanceNow();
+    if (amount + maxFee > balance.spendableSats) return fail('INSUFFICIENT_FUNDS');
+
+    let invoice = preview.destination;
+    if (preview.kind === 'adresse_lightning') {
+      const params = await fetchPayParams(invoice, addressDeps);
+      if (!params.ok) return params;
+      const fresh = await requestInvoice(params.value, amount, addressDeps);
+      if (!fresh.ok) return fresh;
+      invoice = fresh.value.paymentRequest;
+    }
+    // LDK Node identifie un envoi BOLT11 par le hash de la facture : connu avant
+    // l'envoi, il est enregistré d'abord pour pouvoir réconcilier après un arrêt.
+    const expectedId = (await native.decode(invoice)).paymentHash;
+    await journal.update((data) => {
+      data.sends[key] = expectedId;
+    });
+
+    const amountForNative = preview.kind === 'facture' ? (requestedAmount ?? null) : null;
+    const id = await native.send(invoice, amountForNative, maxFee);
+    // L'argent est parti : à partir d'ici, aucune panne (journal, lecture du nœud)
+    // ne doit devenir « erreur inconnue ». L'écran reçoit l'identifiant pour suivre
+    // le paiement, au lieu de proposer un renvoi qui paierait deux fois.
+    try {
+      return await followSend(key, id, amount, preview.payee);
+    } catch {
+      return fail('PAYMENT_TIMEOUT', { paymentId: id });
+    }
+  }
+
+  /** Suit un envoi déjà parti jusqu'à son issue ou jusqu'au délai d'attente. */
+  async function followSend(
+    key: string,
+    id: string,
+    amount: number,
+    payee: string,
+  ): Promise<Result<Payment>> {
+    const expectedId = (await journal.read()).sends[key];
+    if (id !== expectedId) {
+      await journal.update((data) => {
+        data.sends[key] = id;
+      });
+    }
+    await noteXof(id, amount);
+    const deadline = now() + paymentTimeoutMs;
+    // LDK peut marquer l'échec un instant avant que l'événement portant sa raison
+    // soit lu : on laisse deux tours de plus pour donner la vraie raison.
+    let reasonWaits = 2;
+    while (now() < deadline) {
+      const found = await findPayment(id);
+      if (found && found.status === 'reussi') {
+        await forgetSend(key, id);
+        paidPayees.add(payee);
+        return ok(toPayment(found, await journal.read()));
+      }
+      if (found && found.status === 'echoue') {
+        if (!found.failureReason && reasonWaits > 0) {
+          reasonWaits -= 1;
+          await sleep(500);
+          continue;
+        }
+        await forgetSend(key, id);
+        return fail(failureCode(found.failureReason));
+      }
+      await sleep(500);
+    }
+    // Issue inconnue : le paiement peut encore aboutir. La réservation reste dans
+    // le journal ; un nouvel essai est refusé tant que LDK le dit en attente.
+    return fail('PAYMENT_TIMEOUT', { paymentId: id });
+  }
+
+  async function forgetSend(key: string, id: string): Promise<void> {
+    await journal.update((data) => {
+      if (data.sends[key] === id) delete data.sends[key];
+    });
+  }
+
   async function balanceNow(): Promise<Balance> {
     const balance = await native.balance();
     // Réserves et limites des canaux : comptés à part, jamais présentés comme dépensables.
@@ -147,13 +299,42 @@ export function createLdkWallet(
     };
   }
 
+  async function addressPreview(
+    input: string,
+    amountSats?: number,
+  ): Promise<Result<PaymentPreview & { payee: string }>> {
+    const address = normalizeAddress(input);
+    if (!address) return fail('DESTINATION_INVALID');
+    if (amountSats === undefined || !Number.isSafeInteger(amountSats) || amountSats <= 0) {
+      return fail('AMOUNT_INVALID');
+    }
+    const params = await fetchPayParams(address, addressDeps);
+    if (!params.ok) return params;
+    if (amountSats < params.value.minSats || amountSats > params.value.maxSats) {
+      return fail('AMOUNT_INVALID');
+    }
+    const maxFee = maxFeeFor(amountSats);
+    return ok({
+      kind: 'adresse_lightning',
+      destination: address,
+      amountSats,
+      maxFeeSats: maxFee,
+      amountXof: xof(amountSats),
+      maxFeeXof: xof(maxFee),
+      memo: null,
+      expiresAt: null,
+      newRecipient: !paidPayees.has(address),
+      payee: address,
+    });
+  }
+
   async function decodePreview(
     destination: string,
     amountSats?: number,
   ): Promise<Result<PaymentPreview & { payee: string }>> {
     const value = destination.trim().replace(/^lightning:/i, '');
     const kind = detectDestination(value);
-    if (kind === 'adresse_lightning') return fail('DESTINATION_INVALID'); // T19
+    if (kind === 'adresse_lightning') return addressPreview(value, amountSats);
     if (kind !== 'facture') return fail('DESTINATION_INVALID');
     const info = await native.decode(value);
     if (!info.regtest) return fail('DESTINATION_WRONG_NETWORK');
@@ -282,20 +463,17 @@ export function createLdkWallet(
           return fail('AMOUNT_INVALID');
         }
         const maxFee = Math.min(requestedMax ?? preview.value.maxFeeSats, preview.value.maxFeeSats);
-        const id = await native.send(preview.value.destination, request.amountSats ?? null, maxFee);
-        await noteXof(id, amount);
-        const deadline = now() + paymentTimeoutMs;
-        while (now() < deadline) {
-          const found = (await native.payments()).find((payment) => payment.id === id);
-          if (found && found.status === 'reussi') {
-            paidPayees.add(preview.value.payee);
-            return ok(toPayment(found, await journal.read()));
-          }
-          if (found && found.status === 'echoue') return fail('NO_ROUTE');
-          await sleep(500);
+        // Clé de l'envoi : destination et montant. Réservée en mémoire avant toute
+        // attente, puis dans le journal avant le paiement : deux appuis rapides ou
+        // un renvoi après redémarrage ne paient pas deux fois.
+        const key = `${preview.value.destination.toLowerCase()}|${amount}`;
+        if (sending.has(key)) return fail('PAYMENT_PENDING');
+        sending.add(key);
+        try {
+          return await sendReserved(key, preview.value, amount, maxFee, request.amountSats);
+        } finally {
+          sending.delete(key);
         }
-        // Issue inconnue : l'écran suit ce paiement par son identifiant.
-        return fail('PAYMENT_TIMEOUT', { paymentId: id });
       }),
     history: ({ limit = 50, before } = {}) =>
       attempt(async () => {

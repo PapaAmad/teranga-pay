@@ -15,6 +15,31 @@ Règles appliquées :
 - Les factures créées mais pas réglées n'apparaissent pas dans l'historique.
 - Les événements de réussite et d'échec publient le paiement, puis le solde.
 - Un envoi attend la confirmation du nœud pendant 60 s au plus, puis renvoie `PAYMENT_TIMEOUT`.
-- Les adresses Lightning (`nom@domaine`) viendront avec T19 ; d'ici là, elles sont refusées avec `DESTINATION_INVALID`.
+- Un envoi est refusé avant de partir si montant + frais maximum dépassent la capacité d'envoi des canaux (`INSUFFICIENT_FUNDS`).
+- **Jamais deux fois le même envoi** (T21) : tant qu'un envoi vers la même destination et du même montant est en cours, ou d'issue inconnue après un délai dépassé, un nouvel essai renvoie `PAYMENT_PENDING`. Il redevient possible dès que le premier a échoué ; après un succès, un second envoi identique est un nouveau paiement voulu.
+- La raison d'échec de LDK devient un code : `PAYMENT_EXPIRED` → `INVOICE_EXPIRED`, erreur inattendue → `UNKNOWN`, tous les autres cas → `NO_ROUTE` (« le paiement n'est pas passé, votre argent n'a pas bougé »).
 
-Tests : `tests/ldkWallet.test.ts` et `tests/useSecureScreen.test.tsx` utilisent un faux module natif. Responsable : Salam.
+## Payer une adresse Lightning (T21)
+
+`lightningAddress.ts` suit LUD-16 et LUD-06 :
+
+```mermaid
+sequenceDiagram
+    participant A as 📱 Téléphone d'Ousmane
+    participant S as Domaine de l'adresse<br/>(API T19 pour teranga.example)
+    participant M as 📱 Téléphone de Mame
+    A->>S: GET /.well-known/lnurlp/mame
+    S-->>A: bornes, métadonnées, callback (même origine exigée)
+    A->>S: GET callback?amount=… (millisats)
+    S->>M: demande de facture (T19)
+    M-->>S: facture
+    S-->>A: facture
+    Note over A: Vérifie : regtest, non expirée,<br/>montant exact, hachage = SHA-256(métadonnées)
+    A->>M: paiement Lightning direct
+```
+
+- Le domaine de démo (`EXPO_PUBLIC_LNADDRESS_DOMAIN`, par défaut `teranga.example`) est joint par l'API locale (`EXPO_PUBLIC_API_URL`, HTTP autorisé pour lui seul). Tout autre domaine est joint en HTTPS.
+- Le `callback` doit avoir la même origine que le serveur interrogé : côté API, `PUBLIC_BASE_URL` doit donc être l'adresse que voit le téléphone (`http://10.0.2.2:3000` pour l'émulateur).
+- Erreurs : nom inconnu ou réponse invalide → `DESTINATION_INVALID` ; réponse LNURL `ERROR` (téléphone du destinataire hors ligne…) → `NO_ROUTE` ; coupure ou délai de 20 s → `NETWORK_OFFLINE`. Dans tous ces cas, rien n'est payé.
+
+Tests : `tests/ldkWallet.test.ts`, `tests/lightningAddress.test.ts` et `tests/useSecureScreen.test.tsx` utilisent un faux module natif et un faux serveur LNURL. Responsable : Salam.
