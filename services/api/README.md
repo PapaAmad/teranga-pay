@@ -1,7 +1,63 @@
-# API Teranga | emplacement réservé
+# 🖥️ API Teranga
 
-Salam introduira le squelette serveur en **T13** : santé, validation des entrées, limitation de débit et journaux sans données personnelles. T17 ajoutera le taux BTC/FCFA et T19 la Lightning Address.
+Squelette serveur introduit en **T13** par Salam ; PAN relit. Node.js 24 et TypeScript exécuté directement par Node (suppression des types), sans étape de compilation. Le framework est Fastify ; la [décision 0007](../../docs/decisions/0007-squelette-api.md) explique ce choix.
 
-Ce dossier ne contient aucun serveur, endpoint, dépendance ou commande de lancement. Le framework, le stockage et les schémas d'API restent à définir après le contrat commun T11. Le serveur ne doit pas détenir les secrets du wallet utilisateur dans l'architecture cible.
+## Le trajet d'une requête
 
-À l'implémentation, documenter ici les commandes, variables d'environnement, routes et tests réellement disponibles. PAN relit cette partie.
+```mermaid
+flowchart LR
+    R(["📱 Requête"]) --> L{"⏱️ Limite de débit<br/>60/min par adresse"}
+    L -- dépassée --> E429["429 RATE_LIMITED"]
+    L -- ok --> P{"📦 Corps lisible ?<br/>JSON ≤ 16 Ko"}
+    P -- non --> E4xx["400 / 413 / 415"]
+    P -- oui --> V{"✅ Schéma respecté ?<br/>champs inconnus refusés"}
+    V -- non --> E400["400 VALIDATION_ERROR<br/>+ noms des champs"]
+    V -- oui --> H["⚙️ Route"]
+    H --> OK["200 + x-request-id"]
+    H -. erreur imprévue .-> E500["500 INTERNAL_ERROR<br/>sans détail"]
+    L & H -.-> J[("📝 Journal<br/>méthode, route, statut<br/>sans IP ni contenu")]
+```
+
+## Commandes
+
+Depuis la racine du dépôt :
+
+- `npm run api` démarre le serveur sur `http://127.0.0.1:3000`.
+- `npm test --workspace @teranga-pay/api` lance les tests (`node:test`, sans réseau).
+- `npm run typecheck --workspace @teranga-pay/api` vérifie les types.
+
+`npm test` à la racine lance aussi ces tests, avant ceux de l'application mobile.
+
+## Route disponible
+
+| Méthode | Chemin    | Réponse                                       |
+| ------- | --------- | --------------------------------------------- |
+| GET     | `/health` | `200 {"status":"ok","service":"teranga-api"}` |
+
+T17 ajoutera le taux BTC/FCFA et T19 la Lightning Address. Aucune route ne touche aux clés ou aux fonds du wallet.
+
+## Règles communes à toutes les routes
+
+- **Validation** : chaque route déclare un schéma JSON. Les champs inconnus sont refusés, pas ignorés. Les valeurs d'un corps JSON ne sont jamais converties (`true` ou `"500"` ne valent pas un nombre) ; seuls les paramètres d'URL, reçus en texte, sont convertis vers le type attendu. Corps limité à 16 Ko, JSON uniquement.
+- **Erreurs** : réponse `{"error":{"code","requestId","fields?"}}` avec un code stable (`VALIDATION_ERROR`, `NOT_FOUND`, `RATE_LIMITED`, `PAYLOAD_TOO_LARGE`, `UNSUPPORTED_MEDIA_TYPE`, `BAD_REQUEST`, `INTERNAL_ERROR`). `fields` donne le nom des champs refusés, jamais leur valeur. L'application traduit ces codes ; le serveur ne renvoie aucun texte d'interface ni détail interne.
+- **Limite de débit** : 60 requêtes par minute et par adresse réseau, routes inconnues comprises, comptées avant la lecture du corps. L'en-tête `X-Forwarded-For` est ignoré pour ne pas permettre de contourner la limite. Le compteur reste en mémoire : il repart à zéro au redémarrage et n'est pas partagé entre plusieurs instances.
+- **Journaux** : seuls la méthode, le modèle de route (`/essai/:numero`, jamais la valeur), le code de réponse, la durée et un identifiant de requête aléatoire sont écrits. Ni adresse IP, ni en-têtes, ni paramètres d'URL, ni corps, ni nom de machine. Les tests vérifient ces absences.
+- **En-têtes** : `X-Content-Type-Options: nosniff`, `Cache-Control: no-store` et `X-Request-Id` pour relier une erreur signalée à son journal.
+
+## Variables d'environnement
+
+Voir [.env.example](.env.example). `npm run api` lit `services/api/.env` s'il existe (fichier ignoré par Git) ; les variables déjà définies dans l'environnement restent prioritaires. Toute valeur invalide arrête le démarrage avec un message clair.
+
+| Variable                   | Défaut      | Rôle                                         |
+| -------------------------- | ----------- | -------------------------------------------- |
+| `API_HOST`                 | `127.0.0.1` | Interface d'écoute (`0.0.0.0` dans Docker)   |
+| `API_PORT`                 | `3000`      | Port                                         |
+| `API_LOG_LEVEL`            | `info`      | `fatal` à `trace`, ou `silent`               |
+| `API_RATE_LIMIT_MAX`       | `60`        | Requêtes autorisées par fenêtre et adresse   |
+| `API_RATE_LIMIT_WINDOW_MS` | `60000`     | Durée de la fenêtre en millisecondes (≥ 1 s) |
+
+## Limites connues
+
+- Pas encore de proxy inverse : le jour où l'API passe derrière un proxy, il faudra configurer `trustProxy` avec l'adresse exacte du proxy, sinon toutes les requêtes partageront la même limite.
+- Pas d'authentification ni de stockage : ils seront ajoutés avec les routes qui en ont besoin (T17, T19, T26).
+- Pas d'image Docker : elle arrivera avec la commande unique de démonstration (T12 et suivantes).

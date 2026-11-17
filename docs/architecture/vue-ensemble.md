@@ -97,6 +97,6 @@ Ces règles sont des exigences pour les futures implémentations ; ce document n
 
 ## Décisions encore ouvertes
 
-Le choix du SDK Lightning et de ses contraintes natives appartient à T10. Les signatures du wallet et les erreurs échangées avec les écrans appartiennent à T11. Le framework serveur, le stockage et l'organisation effective du service d'alertes seront décidés lors des tâches backend, avec une note lorsqu'un choix est structurant. Aucun squelette serveur n'est ajouté avant T13.
+Le choix du SDK Lightning et de ses contraintes natives appartient à T10. Les signatures du wallet et les erreurs échangées avec les écrans appartiennent à T11. Le framework serveur, le stockage et l'organisation effective du service d'alertes seront décidés lors des tâches backend, avec une note lorsqu'un choix est structurant. Le squelette serveur T13 utilise Fastify ; voir la [décision 0007](../decisions/0007-squelette-api.md).
 
 Les notifications, Nostr et un modèle de langue restent optionnels. La disponibilité du serveur ne doit pas conditionner un paiement Lightning direct dans l'architecture cible. La consultation hors connexion et les messages de réseau seront réalisés dans l'application en T28.
