@@ -16,6 +16,7 @@ import { rateRoutes } from './routes/rates.ts';
 import { healthRoutes } from './routes/health.ts';
 import { createLightningAddressDirectory } from './lightning-address.ts';
 import { lightningAddressRoutes } from './routes/lightning-address.ts';
+import { alertRoutes } from './routes/alerts.ts';
 
 export type BuildOptions = {
   config?: ApiConfig;
@@ -150,5 +151,6 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
     config: config.lightningAddress,
     longPollMs: options.longPollMs ?? 25_000,
   });
+  await app.register(alertRoutes);
   return app;
 }

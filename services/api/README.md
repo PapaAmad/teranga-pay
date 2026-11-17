@@ -30,12 +30,13 @@ Depuis la racine du dépôt :
 
 ## Route disponible
 
-| Méthode | Chemin           | Réponse                                                                                                                            |
-| ------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| GET     | `/health`        | `200 {"status":"ok","service":"teranga-api"}`                                                                                      |
-| GET     | `/v1/rate`       | `200 {"xofPerBtc","source","fetchedAt"}` : taux BTC/FCFA et sa source (T17)                                                        |
-| POST    | `/v1/quotes`     | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
-| GET     | `/v1/quotes/:id` | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
+| Méthode | Chemin                     | Réponse                                                                                                                            |
+| ------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| GET     | `/health`                  | `200 {"status":"ok","service":"teranga-api"}`                                                                                      |
+| GET     | `/v1/rate`                 | `200 {"xofPerBtc","source","fetchedAt"}` : taux BTC/FCFA et sa source (T17)                                                        |
+| POST    | `/v1/quotes`               | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
+| GET     | `/v1/quotes/:id`           | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
+| POST    | `/v1/alerts/payment-check` | Score d'alerte fraude d'un envoi, sans donnée personnelle (T26)                                                                    |
 
 | GET | `/.well-known/lnurlp/:username` | Découverte LNURL-pay de `nom@domaine` (T19) |
 | GET | `/v1/lnurlp/:username/callback?amount=` | Facture fournie par le téléphone du destinataire (T19) |
@@ -109,6 +110,27 @@ sequenceDiagram
   - tout est gardé en mémoire et perdu au redémarrage ;
   - le hachage des métadonnées inscrit dans la facture n'est pas vérifié par le serveur : c'est le wallet du payeur qui le vérifie, comme l'impose LUD-06 ;
   - HTTP en démonstration locale ; HTTPS est requis hors démonstration.
+
+## Alerte fraude (T26)
+
+`POST /v1/alerts/payment-check` évalue un envoi **avant** la confirmation. Le corps ne contient que des nombres : montant, nouveau destinataire ou non, derniers envois (montant et âge), montants habituels, heure locale et solde. Aucun nom, numéro, adresse ni facture : un champ inconnu est refusé. L'alerte **avertit sans jamais bloquer** ; l'affichage et la confirmation par PIN sont faits par l'application (T27).
+
+```mermaid
+flowchart LR
+    In(["📱 Envoi prévu<br/>(nombres seulement)"]) --> R1["👤 Nouveau destinataire<br/>+30"]
+    In --> R2["📈 Montant ≥ 3× l'habitude<br/>+30 (≥ 10× : +45)"]
+    In --> R3["💰 Gros montant ≥ 200 000 sats<br/>+20"]
+    In --> R4["⏩ 4 envois en 10 min<br/>+25"]
+    In --> R5["🪫 ≥ 90 % du solde<br/>+20"]
+    In --> R6["🌙 Entre 0 h et 5 h<br/>+10"]
+    R1 & R2 & R3 & R4 & R5 & R6 --> S{"Score<br/>(plafonné à 100)"}
+    S -- "< 30" --> F["faible"]
+    S -- "30 à 59" --> M["moyen"]
+    S -- "≥ 60" --> E["élevé"]
+    S -- "≥ 50" --> C["⚠️ confirmationRequired<br/>alerte + PIN (T27)"]
+```
+
+Réponse : `{ score, level, confirmationRequired, reasons: [{ code, points }] }`, raisons triées par poids. L'application traduit chaque code (`NOUVEAU_DESTINATAIRE`, `MONTANT_INHABITUEL`, `MONTANT_TRES_INHABITUEL`, `GROS_MONTANT`, `RYTHME_ANORMAL`, `PRESQUE_TOUT_LE_SOLDE`, `HEURE_INHABITUELLE`). Le montant inhabituel n'est évalué qu'à partir de 3 envois connus, pour ne pas alerter un nouvel utilisateur à chaque envoi. Poids et seuils sont des hypothèses de départ, à ajuster après les premiers essais.
 
 ## Règles communes à toutes les routes
 

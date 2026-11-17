@@ -6,6 +6,7 @@
 - `errors.ts` liste les codes d'erreur renvoyés à l'application et fournit `sendError`.
 - `rates.ts` fournit le taux BTC/FCFA (`fixe` ou `kraken`, parité 655,957 FCFA/€) ; `quotes.ts` convertit en sats et garde les devis figés (T17).
 - `lightning-address.ts` : annuaire des adresses Lightning, relais des demandes de facture vers le téléphone et lecture du montant d'une facture regtest (T19).
+- `fraud.ts` : règles d'alerte fraude explicables et score (T26).
 - `routes/` contient une fonction d'enregistrement par groupe de routes.
 
 Les tests sont à côté du code (`*.test.ts`) et se lancent avec `npm test --workspace @teranga-pay/api`. Responsable : Salam (T13).
