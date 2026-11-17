@@ -4,20 +4,25 @@ import Fastify, {
   type FastifySchema,
   type FastifySchemaCompiler,
   type FastifyInstance,
-  type FastifyReply,
-  type FastifyRequest,
 } from 'fastify';
 import { AjvCompiler } from '@fastify/ajv-compiler';
 import rateLimit from '@fastify/rate-limit';
 import type { DestinationStream } from 'pino';
 import { defaultConfig, type ApiConfig } from './config.ts';
-import { errorCodes, type ErrorBody, type ErrorCode } from './errors.ts';
+import { errorCodes, sendError } from './errors.ts';
+import { createRateProvider, type RateProvider } from './rates.ts';
+import { createQuoteStore } from './quotes.ts';
+import { rateRoutes } from './routes/rates.ts';
 import { healthRoutes } from './routes/health.ts';
 
 export type BuildOptions = {
   config?: ApiConfig;
   /** Flux de journal injectable pour les tests. */
   logStream?: DestinationStream;
+  /** Source de taux injectable (tests, démo). Par défaut : selon la configuration. */
+  rates?: RateProvider;
+  /** Horloge injectable en millisecondes, pour tester l'expiration des devis. */
+  now?: () => number;
 };
 
 /**
@@ -32,18 +37,6 @@ export function serializeRequest(request: {
     method: request.method,
     route: request.routeOptions?.url ?? 'non-route',
   };
-}
-
-function sendError(
-  reply: FastifyReply,
-  request: FastifyRequest,
-  statusCode: number,
-  code: ErrorCode,
-  fields?: string[],
-): FastifyReply {
-  const body: ErrorBody = { error: { code, requestId: request.id } };
-  if (fields && fields.length > 0) body.error.fields = fields;
-  return reply.code(statusCode).send(body);
 }
 
 function validationFields(error: FastifyError): string[] {
@@ -140,6 +133,11 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
     return sendError(reply, request, 500, errorCodes.internal);
   });
 
+  const now = options.now ?? Date.now;
   await app.register(healthRoutes);
+  await app.register(rateRoutes, {
+    rates: options.rates ?? createRateProvider(config.rate, { now }),
+    quotes: createQuoteStore({ ttlMs: config.quoteTtlSeconds * 1000, now }),
+  });
   return app;
 }

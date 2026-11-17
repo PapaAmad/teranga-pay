@@ -30,11 +30,45 @@ Depuis la racine du dépôt :
 
 ## Route disponible
 
-| Méthode | Chemin    | Réponse                                       |
-| ------- | --------- | --------------------------------------------- |
-| GET     | `/health` | `200 {"status":"ok","service":"teranga-api"}` |
+| Méthode | Chemin           | Réponse                                                                                                                            |
+| ------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| GET     | `/health`        | `200 {"status":"ok","service":"teranga-api"}`                                                                                      |
+| GET     | `/v1/rate`       | `200 {"xofPerBtc","source","fetchedAt"}` : taux BTC/FCFA et sa source (T17)                                                        |
+| POST    | `/v1/quotes`     | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
+| GET     | `/v1/quotes/:id` | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
 
-T17 ajoutera le taux BTC/FCFA et T19 la Lightning Address. Aucune route ne touche aux clés ou aux fonds du wallet.
+T19 ajoutera la Lightning Address.
+
+## Taux et devis (T17)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as 🧺 Téléphone d'Awa
+    participant API as 🖥️ API Teranga
+    participant K as 📈 Kraken (ou taux fixe)
+    A->>API: POST /v1/quotes { amountXof: 2500 }
+    API->>K: Prix BTC/EUR (cache 1 min, appels groupés)
+    K-->>API: 68 161 €
+    API->>API: × 655,957 → 44 710 685 FCFA/BTC<br/>2 500 FCFA → 5 592 sats (arrondi au-dessus)
+    API-->>A: 201 devis { id, amountSats, expiresAt = +5 min }
+    Note over A,API: Le client a 5 minutes pour payer au prix figé
+    A->>API: GET /v1/quotes/{id}
+    alt Avant 5 minutes
+        API-->>A: 200 même prix, même sats
+    else Après 5 minutes
+        API-->>A: 410 QUOTE_EXPIRED
+    end
+```
+
+- **Source configurable** (`RATE_SOURCE`) :
+  - `fixe` (par défaut) : taux de démonstration reproductible, `RATE_FIXED_XOF_PER_BTC` = 45 000 000 FCFA ;
+  - `kraken` : dernier prix BTC/EUR public de Kraken, sans clé, converti par la parité fixe 1 € = 655,957 FCFA.
+- **Cache et panne (Kraken)** : une mesure reste en cache une minute. Si Kraken ne répond plus, la dernière mesure sert encore dix minutes, puis l'API répond `503 RATE_UNAVAILABLE`. Les requêtes simultanées partagent une seule demande à Kraken. Un prix converti hors de 1 000 000 à 10 000 000 000 FCFA par BTC (bornes du taux fixe) est traité comme une panne.
+- **La source est toujours renvoyée**, pour que l'application l'affiche à l'utilisateur, comme le demande le document de conception.
+- **Conversion en sats** : calcul entier, arrondi au sat supérieur, pour que le commerçant ne reçoive jamais moins que le montant affiché.
+- **Devis figé** : il garde son taux pendant `QUOTE_TTL_SECONDS` (300 s, soit 5 minutes) même si le marché bouge, puis il est déclaré expiré.
+- **Stockage des devis** : en mémoire, au plus 10 000 ; au-delà, le plus ancien est oublié. Les devis expirés restent consultables une heure, ce qui permet de répondre « expiré » plutôt que « inconnu ». Tout est perdu au redémarrage, ce qui est acceptable pour la démo. Aucune route ne touche aux clés ou aux fonds du wallet.
 
 ## Règles communes à toutes les routes
 
@@ -55,9 +89,12 @@ Voir [.env.example](.env.example). `npm run api` lit `services/api/.env` s'il ex
 | `API_LOG_LEVEL`            | `info`      | `fatal` à `trace`, ou `silent`               |
 | `API_RATE_LIMIT_MAX`       | `60`        | Requêtes autorisées par fenêtre et adresse   |
 | `API_RATE_LIMIT_WINDOW_MS` | `60000`     | Durée de la fenêtre en millisecondes (≥ 1 s) |
+| `RATE_SOURCE`              | `fixe`      | `fixe` ou `kraken`                           |
+| `RATE_FIXED_XOF_PER_BTC`   | `45000000`  | Taux du mode `fixe`, en FCFA pour 1 BTC      |
+| `QUOTE_TTL_SECONDS`        | `300`       | Durée de validité d'un devis (30 à 3 600 s)  |
 
 ## Limites connues
 
 - Pas encore de proxy inverse : le jour où l'API passe derrière un proxy, il faudra configurer `trustProxy` avec l'adresse exacte du proxy, sinon toutes les requêtes partageront la même limite.
-- Pas d'authentification ni de stockage : ils seront ajoutés avec les routes qui en ont besoin (T17, T19, T26).
+- Pas d'authentification ni de base de données : les devis vivent en mémoire. Le stockage durable viendra avec les routes qui en ont besoin (T19, T26).
 - Pas d'image Docker : elle arrivera avec la commande unique de démonstration (T12 et suivantes).
