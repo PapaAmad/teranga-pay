@@ -1,35 +1,49 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import type { RootStackParamList } from '../navigation/types';
 import { fr } from '../translations/fr';
+import { Button, tokens, useBrandFonts } from '../ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
+  const fonts = useBrandFonts();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.status}>{fr.home.status}</Text>
-      <Text accessibilityRole="header" style={styles.title}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <Text style={[styles.status, { fontFamily: fonts.label }]}>{fr.home.status}</Text>
+      <Text
+        accessibilityRole="header"
+        style={[
+          styles.title,
+          { fontFamily: fonts.title, fontWeight: fonts.title ? undefined : '700' },
+        ]}
+      >
         {fr.home.title}
       </Text>
-      <Text style={styles.description}>{fr.home.description}</Text>
-      <Text style={styles.notice}>{fr.home.notice}</Text>
-      <Button title={fr.home.aboutAction} onPress={() => navigation.navigate('About')} />
-    </View>
+      <Text style={[styles.description, { fontFamily: fonts.body }]}>{fr.home.description}</Text>
+      <Text style={[styles.notice, { fontFamily: fonts.body }]}>{fr.home.notice}</Text>
+      <Button label={fr.home.aboutAction} onPress={() => navigation.navigate('About')} />
+      <Button
+        variant="secondary"
+        label={fr.home.designAction}
+        onPress={() => navigation.navigate('DesignSystem')}
+      />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  screen: { flex: 1, backgroundColor: tokens.colors.canvas },
+  content: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    gap: 20,
-    backgroundColor: '#ffffff',
+    padding: tokens.spacing.xl,
+    gap: tokens.spacing.lg,
   },
-  status: { fontSize: 14, color: '#555555' },
-  title: { fontSize: 28, fontWeight: '700', color: '#161616' },
-  description: { fontSize: 18, lineHeight: 28, color: '#262626' },
-  notice: { fontSize: 16, lineHeight: 24, color: '#555555' },
+  status: { ...tokens.typography.label, color: tokens.colors.muted },
+  title: { ...tokens.typography.title, color: tokens.colors.ink },
+  description: { ...tokens.typography.body, color: tokens.colors.ink },
+  notice: { ...tokens.typography.body, color: tokens.colors.muted },
 });

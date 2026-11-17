@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Le courant commun | Motion</title>
+    <style>
+      @font-face {
+        font-family: Manrope;
+        src: url('../fonts/Manrope-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-display: block;
+      }
+      @font-face {
+        font-family: Noto Sans;
+        src: url('../fonts/NotoSans-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      :root {
+        color-scheme: light;
+        --marine: #172a36;
+        --citron: #e5ee73;
+        --white: #fafaf5;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--white);
+        color: var(--marine);
+        font-family: 'Noto Sans', sans-serif;
+      }
+      main {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font:
+          700 28px/1.3 Manrope,
+          sans-serif;
+      }
+      .intro {
+        margin: 0 0 24px;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: var(--marine);
+        border-radius: 20px;
+      }
+      .scene {
+        width: 1920px;
+        height: 1080px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(var(--scale, 1));
+        transform-origin: center;
+      }
+      .stage:not([data-ready]) .scene {
+        visibility: hidden;
+      }
+      .symbol {
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        left: 800px;
+        top: 168px;
+        overflow: visible;
+      }
+      .name {
+        position: absolute;
+        top: 523px;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        text-align: center;
+        color: var(--white);
+        font:
+          700 128px/1.18 Manrope,
+          sans-serif;
+        letter-spacing: 0;
+      }
+      .signature {
+        position: absolute;
+        top: 724px;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        text-align: center;
+        color: var(--white);
+        font:
+          400 36px/1.4 'Noto Sans',
+          sans-serif;
+        letter-spacing: 0.4px;
+      }
+      body.portrait .stage {
+        width: min(100%, 440px);
+        margin-inline: auto;
+        aspect-ratio: 9 / 16;
+      }
+      body.portrait .scene {
+        width: 1080px;
+        height: 1920px;
+      }
+      body.portrait .symbol {
+        width: 400px;
+        height: 400px;
+        left: 340px;
+        top: 540px;
+      }
+      body.portrait .name {
+        top: 1020px;
+        font-size: 112px;
+      }
+      body.portrait .signature {
+        top: 1230px;
+        font-size: 34px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        padding-top: 20px;
+      }
+      button {
+        min-height: 48px;
+        padding: 12px 20px;
+        border: 2px solid var(--marine);
+        border-radius: 12px;
+        background: var(--marine);
+        color: var(--white);
+        font:
+          700 16px/1.4 Manrope,
+          sans-serif;
+        cursor: pointer;
+      }
+      button.secondary {
+        color: var(--marine);
+        background: transparent;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      .timeline {
+        display: flex;
+        flex: 1;
+        min-width: 200px;
+        align-items: center;
+        gap: 12px;
+      }
+      input {
+        accent-color: var(--marine);
+        min-height: 48px;
+        flex: 1;
+        min-width: 80px;
+      }
+      output {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        font-size: 16px;
+      }
+      .status,
+      .meta {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .status {
+        min-height: 23px;
+        margin: 12px 0 0;
+      }
+      .meta {
+        margin: 4px 0 0;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+      body.render main {
+        max-width: none;
+        padding: 0;
+      }
+      body.render .stage {
+        width: 100vw;
+        height: 100vh;
+        aspect-ratio: auto;
+        border-radius: 0;
+      }
+      body.render main > :not(.stage) {
+        display: none;
+      }
+      @media (max-width: 640px) {
+        main {
+          padding: 20px 16px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .stage {
+          border-radius: 12px;
+        }
+        .timeline {
+          flex-basis: 100%;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Le courant commun.</h1>
+      <p class="intro">
+        Teranga Pay | Première étude de mouvement de l’identité B retenue par PAN et Salam.
+      </p>
+      <div
+        class="stage"
+        id="stage"
+        role="img"
+        aria-label="Le monogramme Teranga Pay se trace progressivement sur place, puis le nom et la signature apparaissent."
+      >
+        <div class="scene">
+          <svg class="symbol" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <mask id="reveal-a" maskUnits="userSpaceOnUse" x="-2" y="-2" width="68" height="68">
+                <path
+                  id="trace-a"
+                  d="M14 32V20a6 6 0 0 1 6-6H32"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="14"
+                  stroke-linecap="butt"
+                  stroke-linejoin="round"
+                />
+              </mask>
+              <mask id="reveal-b" maskUnits="userSpaceOnUse" x="-2" y="-2" width="68" height="68">
+                <path
+                  id="trace-b"
+                  d="M18 56V44a6 6 0 0 1 6-6H44a6 6 0 0 0 6-6V20"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="14"
+                  stroke-linecap="butt"
+                  stroke-linejoin="round"
+                />
+              </mask>
+            </defs>
+            <!-- Géométrie de logos/mark.json : le départ relatif du second
+                 sous-tracé devient M24 32 lorsqu’il est dessiné séparément. -->
+            <g id="module-a" mask="url(#reveal-a)">
+              <path fill="#E5EE73" d="M8 20a12 12 0 0 1 12-12h12v12H20v12H8Z" />
+            </g>
+            <g id="module-b" mask="url(#reveal-b)">
+              <path
+                fill="#E5EE73"
+                d="M24 32h20V20h12v12a12 12 0 0 1-12 12H24v12H12V44a12 12 0 0 1 12-12Z"
+              />
+            </g>
+          </svg>
+          <p class="name" id="name">teranga pay</p>
+          <p class="signature" id="signature">Le courant commun.</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="play-pause" type="button">Mettre en pause</button>
+        <button id="replay" class="secondary" type="button">Rejouer</button>
+        <label class="timeline">
+          <span class="sr-only">Position dans l’animation</span>
+          <input id="timeline" type="range" min="0" max="6.5" step="0.01" value="0" />
+          <output id="time" for="timeline" aria-live="off">0,0 / 6,5 s</output>
+        </label>
+      </div>
+      <p class="status" id="status" aria-live="polite"></p>
+      <p class="meta" id="meta">1920 × 1080 | 30 images par seconde | 6,5 secondes | sans son</p>
+      <noscript
+        ><style>
+          .stage .scene {
+            visibility: visible !important;
+          }
+        </style>
+        <p>JavaScript est désactivé : la composition finale reste affichée.</p></noscript
+      >
+    </main>
+    <script>
+      (() => {
+        const duration = 6.5;
+        const stage = document.getElementById('stage');
+        const traceA = document.getElementById('trace-a');
+        const traceB = document.getElementById('trace-b');
+        const lengthA = traceA.getTotalLength();
+        const lengthB = traceB.getTotalLength();
+        traceA.setAttribute('stroke-dasharray', String(lengthA));
+        traceB.setAttribute('stroke-dasharray', String(lengthB));
+        const name = document.getElementById('name');
+        const signature = document.getElementById('signature');
+        const playPause = document.getElementById('play-pause');
+        const replay = document.getElementById('replay');
+        const timeline = document.getElementById('timeline');
+        const timeOutput = document.getElementById('time');
+        const status = document.getElementById('status');
+        const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const parameters = new URLSearchParams(location.search);
+        const renderMode = parameters.has('render');
+        const format = parameters.get('format') === 'portrait' ? 'portrait' : 'landscape';
+        const width = format === 'portrait' ? 1080 : 1920;
+        const height = format === 'portrait' ? 1920 : 1080;
+        let current = 0;
+        let running = false;
+        let frameId;
+        let start;
+
+        if (renderMode) document.body.classList.add('render');
+        if (format === 'portrait') document.body.classList.add('portrait');
+        document.getElementById('meta').textContent =
+          `${width} × ${height} | 30 images par seconde | 6,5 secondes | sans son`;
+        const resize = () => stage.style.setProperty('--scale', String(stage.clientWidth / width));
+        new ResizeObserver(resize).observe(stage);
+        resize();
+
+        const clamp = (value) => Math.max(0, Math.min(1, value));
+        const progress = (time, from, to) => clamp((time - from) / (to - from));
+        const ease = (value) => 1 - Math.pow(1 - value, 4);
+        const traceEase = (value) => value * value * (3 - 2 * value);
+
+        function draw(time) {
+          current = Math.max(0, Math.min(duration, time));
+          const a = traceEase(progress(current, 0.25, 1.5));
+          const b = traceEase(progress(current, 0.95, 2.25));
+          traceA.setAttribute('stroke-dashoffset', String(lengthA * (1 - a)));
+          traceB.setAttribute('stroke-dashoffset', String(lengthB * (1 - b)));
+          const word = ease(progress(current, 2.35, 3.05));
+          const line = ease(progress(current, 2.85, 3.5));
+          name.style.opacity = String(word);
+          signature.style.opacity = String(line);
+          timeline.value = String(current);
+          timeline.setAttribute(
+            'aria-valuetext',
+            `${current.toFixed(1).replace('.', ',')} secondes sur 6,5`,
+          );
+          timeOutput.value = `${current.toFixed(1).replace('.', ',')} / 6,5 s`;
+          timeOutput.textContent = timeOutput.value;
+        }
+
+        function pause() {
+          running = false;
+          cancelAnimationFrame(frameId);
+          playPause.textContent = 'Lire';
+        }
+
+        function tick(now) {
+          if (!running) return;
+          draw((now - start) / 1000);
+          if (current >= duration) {
+            pause();
+            status.textContent = 'Composition finale. Vous pouvez rejouer l’animation.';
+          } else {
+            frameId = requestAnimationFrame(tick);
+          }
+        }
+
+        function play() {
+          if (preference.matches && !renderMode) {
+            draw(duration);
+            return;
+          }
+          if (current >= duration) draw(0);
+          running = true;
+          start = performance.now() - current * 1000;
+          playPause.textContent = 'Mettre en pause';
+          status.textContent = '';
+          cancelAnimationFrame(frameId);
+          frameId = requestAnimationFrame(tick);
+        }
+
+        function seek(time) {
+          pause();
+          draw(time);
+        }
+
+        function applyPreference() {
+          pause();
+          const reduced = preference.matches && !renderMode;
+          playPause.disabled = reduced;
+          replay.disabled = reduced;
+          if (reduced) {
+            draw(duration);
+            status.textContent =
+              'Version fixe affichée selon votre préférence de mouvement réduit.';
+          } else {
+            status.textContent = '';
+          }
+        }
+
+        playPause.addEventListener('click', () => (running ? pause() : play()));
+        replay.addEventListener('click', () => {
+          seek(0);
+          play();
+        });
+        timeline.addEventListener('input', () => seek(Number(timeline.value)));
+        preference.addEventListener('change', applyPreference);
+        window.brandMotion = { duration, format, width, height, draw, pause, play, seek };
+        document.fonts.ready.then(() => {
+          draw(preference.matches && !renderMode ? duration : 0);
+          stage.dataset.ready = 'true';
+          applyPreference();
+          if (!renderMode && !preference.matches) play();
+        });
+      })();
+    </script>
+  </body>
+</html>

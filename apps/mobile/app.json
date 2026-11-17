@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "terangapay",
-    "platforms": ["android", "ios"]
+    "platforms": ["android", "ios"],
+    "plugins": ["expo-font"]
   }
 }

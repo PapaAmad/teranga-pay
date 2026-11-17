@@ -3,6 +3,8 @@ node_modules/
 .tmp/
 .npm-cache/
 .cache/
+# Références visuelles locales pour les écrans
+/references/
 # Variables privées (les exemples restent versionnés)
 .env
 .env.*
