@@ -4,6 +4,7 @@ Salam porte le planning général ; PAN prépare le suivi du socle et les outils
 
 - [Suivi T01 à T07](suivi-t01-t07.md) : ce qui est préparé localement et ce qui attend une action ou une preuve distante.
 - [Suivi T08](suivi-t08.md) : identité retenue, composants de base, limites du prototype et vérification restante.
+- [Suivi T09](suivi-t09.md) : moteur de traduction, catalogue français, préparation du wolof et vérification restante.
 - [Feuille de route T01 à T40](roadmap.md) : phases, responsables, dates et jalons du plan d'équipe.
 - [Publication GitHub](publication-github.md) : état vérifié du dépôt privé, de l'accès, des PR et de la configuration distante.
 

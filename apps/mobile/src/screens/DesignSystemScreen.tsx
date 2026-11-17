@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { RootStackParamList } from '../navigation/types';
-import { fr } from '../translations/fr';
+import { useTranslation } from '../translations';
 import {
   BrandIcon,
   BrandMark,
@@ -20,6 +20,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'DesignSystem'>;
 const palette = ['primary', 'canvas', 'accent', 'ink'] as const;
 
 export function DesignSystemScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [buttonTested, setButtonTested] = useState(false);
   const [fieldValue, setFieldValue] = useState('');
   const [requiredValue, setRequiredValue] = useState('');
@@ -35,78 +36,82 @@ export function DesignSystemScreen({ navigation }: Props) {
       automaticallyAdjustKeyboardInsets
     >
       <View style={styles.section}>
-        <BrandMark label={fr.appName} />
-        <Text style={styles.eyebrow}>{fr.design.proposal}</Text>
+        <BrandMark label={t('appName')} />
+        <Text style={styles.eyebrow}>{t('design.proposal')}</Text>
         <Text accessibilityRole="header" style={styles.title}>
-          {fr.design.title}
+          {t('design.title')}
         </Text>
-        <Text style={styles.body}>{fr.design.introduction}</Text>
-        <Text style={styles.notice}>{fr.design.notice}</Text>
+        <Text style={styles.body}>{t('design.introduction')}</Text>
+        <Text style={styles.notice}>{t('design.notice')}</Text>
       </View>
 
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
-          {fr.design.paletteTitle}
+          {t('design.paletteTitle')}
         </Text>
         <View style={styles.palette}>
           {palette.map((name) => (
             <View key={name} style={styles.swatchCard}>
               <View style={[styles.swatch, { backgroundColor: tokens.colors[name] }]} />
-              <Text style={styles.label}>{fr.design.palette[name]}</Text>
+              <Text style={styles.label}>{t(`design.palette.${name}`)}</Text>
               <Text style={styles.body}>{tokens.colors[name]}</Text>
             </View>
           ))}
         </View>
       </View>
 
-      <Card title={fr.design.typographyTitle}>
-        <Text style={styles.amount}>{fr.design.amount}</Text>
-        <Text style={styles.body}>{fr.design.amountCaption}</Text>
-        <Text style={styles.body}>{fr.design.typographyBody}</Text>
+      <Card title={t('design.typographyTitle')}>
+        <Text style={styles.amount}>{t('design.amount')}</Text>
+        <Text style={styles.body}>{t('design.amountCaption')}</Text>
+        <Text style={styles.body}>{t('design.typographyBody')}</Text>
       </Card>
 
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
-          {fr.design.buttonsTitle}
+          {t('design.buttonsTitle')}
         </Text>
-        <Text style={styles.body}>{fr.design.buttons.pressedHint}</Text>
+        <Text style={styles.body}>{t('design.buttons.pressedHint')}</Text>
         <Button
-          label={fr.design.buttons.normal}
+          label={t('design.buttons.normal')}
           icon="check"
           onPress={() => setButtonTested(true)}
         />
         <Text accessibilityLiveRegion="polite" style={styles.body}>
-          {buttonTested ? fr.design.buttons.activeFeedback : fr.design.buttons.idleFeedback}
+          {buttonTested ? t('design.buttons.activeFeedback') : t('design.buttons.idleFeedback')}
         </Text>
         <Button
           variant="secondary"
-          label={fr.design.buttons.secondary}
+          label={t('design.buttons.secondary')}
           onPress={() => setButtonTested(false)}
         />
-        <Button label={fr.design.buttons.disabled} disabled onPress={() => setButtonTested(true)} />
-        <Button label={fr.design.buttons.loading} loading onPress={() => setButtonTested(true)} />
+        <Button
+          label={t('design.buttons.disabled')}
+          disabled
+          onPress={() => setButtonTested(true)}
+        />
+        <Button label={t('design.buttons.loading')} loading onPress={() => setButtonTested(true)} />
       </View>
 
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
-          {fr.design.fieldsTitle}
+          {t('design.fieldsTitle')}
         </Text>
         <Field
-          label={fr.design.fields.label}
+          label={t('design.fields.label')}
           value={fieldValue}
           onChangeText={setFieldValue}
-          placeholder={fr.design.fields.placeholder}
-          helperText={fr.design.fields.helper}
+          placeholder={t('design.fields.placeholder')}
+          helperText={t('design.fields.helper')}
         />
         <Field
-          label={fr.design.fields.errorLabel}
+          label={t('design.fields.errorLabel')}
           value={requiredValue}
           onChangeText={setRequiredValue}
-          error={requiredValue.trim() ? undefined : fr.design.fields.error}
+          error={requiredValue.trim() ? undefined : t('design.fields.error')}
         />
         <Field
-          label={fr.design.fields.disabledLabel}
-          value={fr.design.fields.disabledValue}
+          label={t('design.fields.disabledLabel')}
+          value={t('design.fields.disabledValue')}
           disabled
           onChangeText={() => {}}
         />
@@ -114,43 +119,43 @@ export function DesignSystemScreen({ navigation }: Props) {
 
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
-          {fr.design.cardsTitle}
+          {t('design.cardsTitle')}
         </Text>
-        <Card title={fr.design.cards.neutralTitle}>
-          <Text style={styles.body}>{fr.design.cards.neutralDescription}</Text>
+        <Card title={t('design.cards.neutralTitle')}>
+          <Text style={styles.body}>{t('design.cards.neutralDescription')}</Text>
         </Card>
         <Card
-          title={fr.design.cards.pendingTitle}
+          title={t('design.cards.pendingTitle')}
           tone="pending"
-          statusLabel={fr.design.cards.pendingLabel}
+          statusLabel={t('design.cards.pendingLabel')}
         >
-          <Text style={styles.body}>{fr.design.cards.pendingDescription}</Text>
+          <Text style={styles.body}>{t('design.cards.pendingDescription')}</Text>
         </Card>
         <Card
-          title={fr.design.cards.successTitle}
+          title={t('design.cards.successTitle')}
           tone="success"
-          statusLabel={fr.design.cards.successLabel}
+          statusLabel={t('design.cards.successLabel')}
         >
-          <Text style={styles.body}>{fr.design.cards.successDescription}</Text>
+          <Text style={styles.body}>{t('design.cards.successDescription')}</Text>
         </Card>
         <Card
-          title={fr.design.cards.errorTitle}
+          title={t('design.cards.errorTitle')}
           tone="error"
-          statusLabel={fr.design.cards.errorLabel}
+          statusLabel={t('design.cards.errorLabel')}
         >
-          <Text style={styles.body}>{fr.design.cards.errorDescription}</Text>
+          <Text style={styles.body}>{t('design.cards.errorDescription')}</Text>
         </Card>
       </View>
 
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.sectionTitle}>
-          {fr.design.iconsTitle}
+          {t('design.iconsTitle')}
         </Text>
         <View style={styles.iconGrid}>
           {brandIconNames.map((name) => (
             <View key={name} style={styles.iconTile}>
               <BrandIcon name={name} />
-              <Text style={styles.iconLabel}>{fr.design.icons[name]}</Text>
+              <Text style={styles.iconLabel}>{t(`design.icons.${name}`)}</Text>
             </View>
           ))}
         </View>
@@ -158,7 +163,7 @@ export function DesignSystemScreen({ navigation }: Props) {
 
       <Button
         variant="secondary"
-        label={fr.design.backAction}
+        label={t('design.backAction')}
         icon="back"
         onPress={() => navigation.goBack()}
       />

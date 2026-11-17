@@ -1,7 +1,7 @@
 export const fr = {
   appName: 'Teranga Pay',
   fonts: {
-    loading: 'Préparation de Teranga Pay…',
+    loading: 'Préparation de {{appName}}…',
     continueAction: 'Continuer sans attendre',
     fallback: 'L’affichage simplifié est activé en attendant.',
     error: 'L’affichage simplifié est activé. Vous pouvez continuer à utiliser l’application.',
@@ -12,7 +12,7 @@ export const fr = {
     designSystem: 'Atelier visuel',
   },
   home: {
-    title: 'Bienvenue sur Teranga Pay',
+    title: 'Bienvenue sur {{appName}}',
     description: 'Recevoir, payer et encaisser simplement : nous préparons votre application.',
     status: 'Version de développement',
     notice:
@@ -23,7 +23,7 @@ export const fr = {
   about: {
     title: 'Des paiements accessibles au quotidien',
     description:
-      'Teranga Pay est un projet open source porté par PAN et Salam pour faciliter les paiements Bitcoin et Lightning au Sénégal.',
+      '{{appName}} est un projet open source porté par Salam et PAN pour faciliter les paiements Bitcoin et Lightning au Sénégal.',
     development:
       'Le prototype utilisera un réseau de test. Les retraits Wave et Orange Money seront simulés.',
     backAction: 'Revenir à l’accueil',

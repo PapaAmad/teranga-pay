@@ -32,7 +32,7 @@
 
 ## Interface
 
-- Tous les textes visibles viennent des ressources de traduction. Le petit catalogue français du socle prépare T09 ; il ne constitue pas encore le système français/wolof complet.
+- Tous les textes visibles viennent des ressources de traduction via le contexte T09, y compris les titres de navigation et les états de chargement. Le français est initial et sert de repli ; le catalogue wolof préparé reste vide jusqu’à T33 et sa relecture native. Le choix de langue dans l’onboarding et sa persistance relèvent de T14.
 - Afficher les montants en FCFA d'abord, employer des mots simples et prévoir les états de réseau faible dans les tâches concernées.
 - Conserver des libellés accessibles et des cibles tactiles utilisables sur Android modeste.
 

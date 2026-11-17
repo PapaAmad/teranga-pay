@@ -4,7 +4,7 @@ Application mobile Bitcoin/Lightning pour recevoir, payer et encaisser avec des 
 
 Le dépôt [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay) est **privé**, conformément au choix de PAN du 2 novembre 2026. Le tableau GitHub Projects doit également rester privé. Le fichier de licence MIT est conservé ; l'accès GitHub reste limité aux personnes autorisées. Cette décision remplace la visibilité publique initialement prévue dans les PDF ; voir la [décision 0002](docs/decisions/0002-visibilite-privee.md).
 
-Ce dépôt contient le **socle de travail jusqu'à T07** : application Expo navigable, outils communs, documentation, modèles GitHub, backlog et CI. Les fonctions de portefeuille, de paiement et de retrait seront réalisées dans les tâches suivantes. La démonstration visera regtest ; les retraits Wave et Orange Money seront simulés.
+Le **socle initial T01 à T07** regroupe l’application Expo navigable, les outils communs, la documentation, les modèles GitHub, le backlog et la CI. T08 et T09 ajoutent les fondations graphiques et la traduction décrites plus bas. Les fonctions de portefeuille, de paiement et de retrait viennent dans les tâches suivantes. La démonstration visera regtest ; les retraits Wave et Orange Money seront simulés.
 
 ## Démarrer
 
@@ -75,7 +75,7 @@ La preuve CI citée pour la PR #38 couvre précisément le commit `e0124c184052d
 
 Une tâche = une issue = une branche = une PR. Les commits et titres suivent `type(zone): description`, avec 72 caractères au maximum. La PR contient une explication « En clair », les vérifications et la référence à l'issue. Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](docs/decisions/0003-initialisation-main.md), malgré le refus de démarrage de la CI distante et sans inventer une approbation de Salam. Les règles de relecture restent applicables aux tâches suivantes ; Salam dispose d'un accès en écriture au dépôt et au [Project privé #3](https://github.com/users/PapaAmad/projects/3). Le tableau contient 35 cartes : T06 et T07 en revue, les 33 autres à faire. Le champ natif `Status` porte les quatre états français ; les colonnes du [tableau](https://github.com/users/PapaAmad/projects/3/views/2) sont regroupées par ce champ, ce qui a été vérifié par l’API.
+Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](docs/decisions/0003-initialisation-main.md), malgré le refus de démarrage de la CI distante et sans inventer une approbation de Salam. Les règles de relecture restent applicables aux tâches suivantes ; Salam dispose d'un accès en écriture au dépôt et au [Project privé #3](https://github.com/users/PapaAmad/projects/3). Le tableau suit les 35 tâches T06 à T40 et leurs responsables. Le champ natif `Status` porte les quatre états français ; les colonnes du [tableau](https://github.com/users/PapaAmad/projects/3/views/2) sont regroupées par ce champ, ce qui a été vérifié par l’API. Consulter le tableau pour les statuts courants.
 
 Squash seul, suppression des branches fusionnées, permissions Actions en lecture, Dependabot, 16 labels et 35 issues avec leurs affectations ont été vérifiés. Consulter le [relevé GitHub vérifié](docs/planning/publication-github.md) et le [suivi T01 à T07](docs/planning/suivi-t01-t07.md) pour les preuves et les points ouverts.
 
@@ -85,7 +85,9 @@ Codex et Claude Code partagent [AGENTS.md](AGENTS.md) via [CLAUDE.md](CLAUDE.md)
 
 ## Suite du projet
 
-T08 et T09 apportent la charte et les traductions. T10 valide le SDK Lightning ; T11 fixe le contrat entre les écrans et la logique. Le réseau de démonstration arrive en T12, l'API en T13 et les premiers parcours wallet en T14 à T16. Consulter la [roadmap](docs/planning/roadmap.md) et la [vue d'architecture](docs/architecture/vue-ensemble.md).
+Les fondations graphiques T08 et le moteur de traduction T09 préparent les parcours de l’application. Les textes français sont embarqués ; le catalogue wolof préparé se replie sur le français jusqu’à sa traduction relue en T33. Le choix de langue de l’onboarding et sa persistance restent T14. Voir le [suivi T09](docs/planning/suivi-t09.md).
+
+T10 valide le SDK Lightning ; T11 fixe le contrat entre les écrans et la logique. Le réseau de démonstration arrive en T12, l’API en T13 et les premiers parcours wallet en T14 à T16. Consulter la [roadmap](docs/planning/roadmap.md) et la [vue d’architecture](docs/architecture/vue-ensemble.md).
 
 Les jalons du plan sont le 8 novembre 2026 pour le premier paiement de test, le 15 pour le parcours complet, le 19 à midi pour le gel du code et le 20 au matin pour la soumission. L'heure officielle de clôture reste à vérifier par l'équipe.
 

@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 
 import App from '../App';
+import { createAppI18n } from '../src/translations';
 import { fr } from '../src/translations/fr';
 import { BrandIcon, BrandTypographyProvider, Button, Card, Field, tokens } from '../src/ui';
 
@@ -156,10 +157,10 @@ describe('démarrage des polices', () => {
   });
 
   it('enregistre les familles des tokens et les applique quand les polices sont prêtes', () => {
-    render(<App />);
+    render(<App i18n={createAppI18n()} />);
     const registered = jest.mocked(useFonts).mock.calls[0]?.[0] ?? {};
     expect(Object.keys(registered).sort()).toEqual(Object.values(tokens.fonts).sort());
-    expect(screen.getByRole('header', { name: fr.home.title })).toHaveStyle({
+    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
       fontFamily: tokens.fonts.title,
     });
     expect(screen.getByText(fr.home.aboutAction)).toHaveStyle({ fontFamily: tokens.fonts.label });
@@ -170,7 +171,7 @@ describe('démarrage des polices', () => {
   });
 
   it('place les deux actions de l’accueil dans un contenu défilable qui peut grandir', () => {
-    render(<App />);
+    render(<App i18n={createAppI18n()} />);
     const scroll = screen.UNSAFE_getByType(ScrollView);
     const contentStyle = StyleSheet.flatten(scroll.props.contentContainerStyle);
     expect(contentStyle.flexGrow).toBe(1);
@@ -181,16 +182,36 @@ describe('démarrage des polices', () => {
 
   it('permet de continuer avec la police du téléphone pendant le chargement', () => {
     jest.mocked(useFonts).mockReturnValue([false, null]);
-    render(<App />);
-    expect(screen.getByText(fr.fonts.loading)).toBeOnTheScreen();
+    render(<App i18n={createAppI18n()} />);
+    expect(screen.getByText('Préparation de Teranga Pay…')).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(screen.getByRole('header', { name: fr.home.title })).toHaveStyle({ fontWeight: '700' });
+    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
+      fontWeight: '700',
+    });
     expect(screen.getByText(fr.fonts.fallback)).toBeOnTheScreen();
+  });
+
+  it('réutilise le nom du catalogue dans le chargement, l’accueil et la présentation', () => {
+    jest.mocked(useFonts).mockReturnValue([false, null]);
+    const i18n = createAppI18n();
+    i18n.addResourceBundle('fr', 'translation', { appName: 'Nom témoin' }, true, true);
+    render(<App i18n={i18n} />);
+    expect(screen.getByText('Préparation de Nom témoin…')).toBeOnTheScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
+    expect(screen.getByRole('header', { name: 'Bienvenue sur Nom témoin' })).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: fr.home.aboutAction }));
+    expect(
+      screen.getByText(
+        'Nom témoin est un projet open source porté par Salam et PAN pour faciliter les paiements Bitcoin et Lightning au Sénégal.',
+      ),
+    ).toBeOnTheScreen();
   });
 
   it('revient aux polices de marque après avoir continué sans attendre, sans perdre le parcours', () => {
     jest.mocked(useFonts).mockReturnValue([false, null]);
-    const { rerender } = render(<App />);
+    const i18n = createAppI18n();
+    const { rerender } = render(<App i18n={i18n} />);
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({
@@ -199,10 +220,10 @@ describe('démarrage des polices', () => {
     fireEvent.changeText(screen.getByLabelText(fr.design.fields.label), 'Exemple conservé');
 
     jest.mocked(useFonts).mockReturnValue([true, null]);
-    rerender(<App />);
+    rerender(<App i18n={i18n} />);
 
     expect(screen.queryByText(fr.fonts.fallback)).toBeNull();
-    expect(screen.queryByText(fr.fonts.loading)).toBeNull();
+    expect(screen.queryByText('Préparation de Teranga Pay…')).toBeNull();
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({
       fontFamily: tokens.fonts.title,
     });
@@ -214,9 +235,9 @@ describe('démarrage des polices', () => {
 
   it('une erreur de police affiche une explication et conserve la navigation', () => {
     jest.mocked(useFonts).mockReturnValue([false, new Error('Exemple de police indisponible')]);
-    render(<App />);
+    render(<App i18n={createAppI18n()} />);
     expect(screen.getByRole('alert', { name: fr.fonts.error })).toBeOnTheScreen();
-    expect(screen.getByRole('header', { name: fr.home.title })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({

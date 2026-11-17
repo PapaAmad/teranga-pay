@@ -1,32 +1,38 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import type { RootStackParamList } from '../navigation/types';
-import { fr } from '../translations/fr';
+import { useTranslation } from '../translations';
+import { Button, tokens, useBrandFonts } from '../ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'About'>;
 
 export function AboutScreen({ navigation }: Props) {
+  const { t } = useTranslation();
+  const fonts = useBrandFonts();
+
   return (
-    <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
-        {fr.about.title}
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <Text accessibilityRole="header" style={[styles.title, { fontFamily: fonts.title }]}>
+        {t('about.title')}
       </Text>
-      <Text style={styles.description}>{fr.about.description}</Text>
-      <Text style={styles.description}>{fr.about.development}</Text>
-      <Button title={fr.about.backAction} onPress={() => navigation.goBack()} />
-    </View>
+      <Text style={[styles.description, { fontFamily: fonts.body }]}>
+        {t('about.description', { appName: t('appName') })}
+      </Text>
+      <Text style={[styles.description, { fontFamily: fonts.body }]}>{t('about.development')}</Text>
+      <Button label={t('about.backAction')} onPress={() => navigation.goBack()} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  screen: { flex: 1, backgroundColor: tokens.colors.canvas },
+  content: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    gap: 20,
-    backgroundColor: '#ffffff',
+    padding: tokens.spacing.xl,
+    gap: tokens.spacing.lg,
   },
-  title: { fontSize: 28, fontWeight: '700', color: '#161616' },
-  description: { fontSize: 18, lineHeight: 28, color: '#262626' },
+  title: { ...tokens.typography.title, color: tokens.colors.ink },
+  description: { ...tokens.typography.body, color: tokens.colors.ink },
 });
