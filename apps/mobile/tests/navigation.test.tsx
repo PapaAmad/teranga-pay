@@ -11,7 +11,9 @@ describe('navigation du socle mobile', () => {
     const i18n = createAppI18n();
     render(<App i18n={i18n} />);
 
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' }),
+    ).toBeOnTheScreen();
 
     fireEvent.press(screen.getByRole('button', { name: fr.home.aboutAction }));
 
@@ -32,6 +34,7 @@ describe('navigation du socle mobile', () => {
 
   it('ouvre la galerie, utilise les exemples locaux puis revient à l’accueil', async () => {
     render(<App i18n={createAppI18n()} />);
+    await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
 
     await waitFor(() => {

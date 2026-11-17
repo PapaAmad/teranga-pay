@@ -17,3 +17,13 @@ T09 relie les textes au contexte i18next, y compris les titres de navigation et 
 Les versions proviennent du template officiel `expo-template-blank-typescript@sdk-57`. SDK57 suit la recommandation Expo Go au moment de l’initialisation. Les tests restent sur Jest29 et Testing Library13, compatibles avec `jest-expo`57.
 
 Sources : [création Expo](https://docs.expo.dev/get-started/create-a-project/), [navigation native](https://reactnavigation.org/docs/native-stack-navigator/), [tests Expo](https://docs.expo.dev/develop/unit-testing/).
+
+## Wallet Lightning (T15)
+
+Le wallet tourne dans le téléphone grâce au module natif [teranga-wallet](modules/teranga-wallet/README.md) (LDK Node). Ce module **ne fonctionne pas dans Expo Go** : il faut un build de développement Android.
+
+1. Démarrer le réseau regtest (T12), puis copier `.env.example` en `.env` et y renseigner la clé de `lnd-teranga`.
+2. `npx expo run:android` (JDK 17 et SDK Android requis), sur l'émulateur ou un téléphone.
+3. Ouvrir l'atelier : `adb shell am start -d terangapay://labo-wallet`. Cet écran de test n'existe qu'en développement.
+
+Sans module natif (Expo Go, tests Jest), l'atelier affiche un message d'indisponibilité. Les écrans peuvent alors utiliser le faux wallet de `@teranga-pay/contracts/fake`.

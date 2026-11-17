@@ -156,11 +156,11 @@ describe('démarrage des polices', () => {
     jest.mocked(useFonts).mockReturnValue([true, null]);
   });
 
-  it('enregistre les familles des tokens et les applique quand les polices sont prêtes', () => {
+  it('enregistre les familles des tokens et les applique quand les polices sont prêtes', async () => {
     render(<App i18n={createAppI18n()} />);
     const registered = jest.mocked(useFonts).mock.calls[0]?.[0] ?? {};
     expect(Object.keys(registered).sort()).toEqual(Object.values(tokens.fonts).sort());
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
+    expect(await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
       fontFamily: tokens.fonts.title,
     });
     expect(screen.getByText(fr.home.aboutAction)).toHaveStyle({ fontFamily: tokens.fonts.label });
@@ -170,8 +170,9 @@ describe('démarrage des polices', () => {
     });
   });
 
-  it('place les deux actions de l’accueil dans un contenu défilable qui peut grandir', () => {
+  it('place les deux actions de l’accueil dans un contenu défilable qui peut grandir', async () => {
     render(<App i18n={createAppI18n()} />);
+    await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
     const scroll = screen.UNSAFE_getByType(ScrollView);
     const contentStyle = StyleSheet.flatten(scroll.props.contentContainerStyle);
     expect(contentStyle.flexGrow).toBe(1);
@@ -180,18 +181,18 @@ describe('démarrage des polices', () => {
     expect(within(scroll).getByRole('button', { name: fr.home.designAction })).toBeOnTheScreen();
   });
 
-  it('permet de continuer avec la police du téléphone pendant le chargement', () => {
+  it('permet de continuer avec la police du téléphone pendant le chargement', async () => {
     jest.mocked(useFonts).mockReturnValue([false, null]);
     render(<App i18n={createAppI18n()} />);
     expect(screen.getByText('Préparation de Teranga Pay…')).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
+    expect(await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
       fontWeight: '700',
     });
     expect(screen.getByText(fr.fonts.fallback)).toBeOnTheScreen();
   });
 
-  it('réutilise le nom du catalogue dans le chargement, l’accueil et la présentation', () => {
+  it('réutilise le nom du catalogue dans le chargement, l’accueil et la présentation', async () => {
     jest.mocked(useFonts).mockReturnValue([false, null]);
     const i18n = createAppI18n();
     i18n.addResourceBundle('fr', 'translation', { appName: 'Nom témoin' }, true, true);
@@ -199,7 +200,9 @@ describe('démarrage des polices', () => {
     expect(screen.getByText('Préparation de Nom témoin…')).toBeOnTheScreen();
 
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Nom témoin' })).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('header', { name: 'Bienvenue sur Nom témoin' }),
+    ).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.home.aboutAction }));
     expect(
       screen.getByText(
@@ -208,11 +211,12 @@ describe('démarrage des polices', () => {
     ).toBeOnTheScreen();
   });
 
-  it('revient aux polices de marque après avoir continué sans attendre, sans perdre le parcours', () => {
+  it('revient aux polices de marque après avoir continué sans attendre, sans perdre le parcours', async () => {
     jest.mocked(useFonts).mockReturnValue([false, null]);
     const i18n = createAppI18n();
     const { rerender } = render(<App i18n={i18n} />);
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
+    await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({
       fontFamily: undefined,
@@ -233,11 +237,13 @@ describe('démarrage des polices', () => {
     });
   });
 
-  it('une erreur de police affiche une explication et conserve la navigation', () => {
+  it('une erreur de police affiche une explication et conserve la navigation', async () => {
     jest.mocked(useFonts).mockReturnValue([false, new Error('Exemple de police indisponible')]);
     render(<App i18n={createAppI18n()} />);
     expect(screen.getByRole('alert', { name: fr.fonts.error })).toBeOnTheScreen();
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' }),
+    ).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({

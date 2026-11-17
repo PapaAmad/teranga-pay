@@ -1,7 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import App from '../App';
-import { createAppI18n, resolveLanguage, setAppLanguage } from '../src/translations';
+import { WalletLabScreen } from '../src/screens/WalletLabScreen';
+import {
+  createAppI18n,
+  resolveLanguage,
+  setAppLanguage,
+  TranslationProvider,
+} from '../src/translations';
 import { fr } from '../src/translations/fr';
 
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
@@ -87,6 +93,27 @@ describe('ressources T09', () => {
 });
 
 describe('changement de langue dans le parcours existant', () => {
+  it('actualise aussi l’atelier wallet quand le module natif est absent', async () => {
+    const instance = createAppI18n();
+    instance.addResourceBundle('wo', 'translation', {
+      walletLab: { title: 'Atelier témoin', unavailable: 'Module témoin absent' },
+    });
+    render(
+      <TranslationProvider i18n={instance}>
+        <WalletLabScreen />
+      </TranslationProvider>,
+    );
+    expect(screen.getByRole('header', { name: fr.walletLab.title })).toBeOnTheScreen();
+    expect(screen.getByText(fr.walletLab.unavailable)).toBeOnTheScreen();
+
+    await act(async () => {
+      await setAppLanguage(instance, 'wo');
+    });
+
+    expect(screen.getByRole('header', { name: 'Atelier témoin' })).toBeOnTheScreen();
+    expect(screen.getByText('Module témoin absent')).toBeOnTheScreen();
+  });
+
   it('actualise écran, navigation et accessibilité sans perdre la saisie', async () => {
     const instance = createAppI18n();
     // Textes témoins français uniquement : cette fixture ne constitue pas une
@@ -101,6 +128,7 @@ describe('changement de langue dans le parcours existant', () => {
       },
     });
     render(<App i18n={instance} />);
+    await screen.findByRole('header', { name: homeTitle });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     fireEvent.changeText(screen.getByLabelText(fr.design.fields.label), 'Saisie conservée');
 
