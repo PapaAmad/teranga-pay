@@ -14,6 +14,7 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0008](0008-sdk-lightning.md)             | Choix du SDK Lightning mobile (T10)          | LDK Node retenu par Salam, validation de PAN attendue             |
 | [0009](0009-i18n-francais-wolof.md)       | Traduction française et préparation du wolof | T09 proposée, relecture Salam attendue                            |
 | [0010](0010-adresse-lightning.md)         | Adresse Lightning sans garde (T19)           | Proposée par Salam, relecture de PAN attendue                     |
+| [0011](0011-estimation-economies.md)      | Estimation d'économies (T34)                 | Proposée par Salam, relecture de PAN attendue                     |
 
 Pour la prochaine note, vérifier les décisions présentes et les PR ouvertes, puis utiliser le premier numéro libre. Préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
 

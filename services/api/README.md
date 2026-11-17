@@ -28,21 +28,55 @@ Depuis la racine du dépôt :
 
 `npm test` à la racine lance aussi ces tests, avant ceux de l'application mobile.
 
-## Route disponible
+## Routes disponibles
 
-| Méthode | Chemin                     | Réponse                                                                                                                            |
-| ------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| GET     | `/health`                  | `200 {"status":"ok","service":"teranga-api"}`                                                                                      |
-| GET     | `/v1/rate`                 | `200 {"xofPerBtc","source","fetchedAt"}` : taux BTC/FCFA et sa source (T17)                                                        |
-| POST    | `/v1/quotes`               | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
-| GET     | `/v1/quotes/:id`           | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
-| POST    | `/v1/alerts/payment-check` | Score d'alerte fraude d'un envoi, sans donnée personnelle (T26)                                                                    |
+| Méthode | Chemin                                    | Réponse                                                                                                                            |
+| ------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| GET     | `/health`                                 | `200 {"status":"ok","service":"teranga-api"}`                                                                                      |
+| GET     | `/v1/rate`                                | `200 {"xofPerBtc","source","fetchedAt"}` : taux BTC/FCFA et sa source (T17)                                                        |
+| POST    | `/v1/quotes`                              | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
+| GET     | `/v1/quotes/:id`                          | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
+| POST    | `/v1/alerts/payment-check`                | Score d'alerte fraude d'un envoi, sans donnée personnelle (T26)                                                                    |
+| GET     | `/.well-known/lnurlp/:username`           | Découverte LNURL-pay de `nom@domaine` (T19)                                                                                        |
+| GET     | `/v1/lnurlp/:username/callback?amount=`   | Facture fournie par le téléphone du destinataire (T19)                                                                             |
+| POST    | `/v1/lightning-addresses`                 | Réserve un nom ; renvoie l'adresse et un jeton, montré une seule fois (T19)                                                        |
+| GET     | `/v1/lightning-addresses/me/requests`     | Attente longue du téléphone : demandes de facture à traiter (jeton requis)                                                         |
+| POST    | `/v1/lightning-addresses/me/requests/:id` | Le téléphone répond avec sa facture `{ paymentRequest }` (jeton requis)                                                            |
+| GET     | `/v1/savings/assumptions`                 | Hypothèses de l'estimation d'économies, formule et sources                                                                         |
+| POST    | `/v1/savings/estimate`                    | Estimation d'économies pour 1 à 100 envois, avec leur total                                                                        |
 
-| GET | `/.well-known/lnurlp/:username` | Découverte LNURL-pay de `nom@domaine` (T19) |
-| GET | `/v1/lnurlp/:username/callback?amount=` | Facture fournie par le téléphone du destinataire (T19) |
-| POST | `/v1/lightning-addresses` | Réserve un nom ; renvoie l'adresse et un jeton, montré une seule fois (T19) |
-| GET | `/v1/lightning-addresses/me/requests` | Attente longue du téléphone : demandes de facture à traiter (jeton requis) |
-| POST | `/v1/lightning-addresses/me/requests/:id` | Le téléphone répond avec sa facture `{ paymentRequest }` (jeton requis) |
+## Estimation d'économies (T34)
+
+La [décision 0011](../../docs/decisions/0011-estimation-economies.md) détaille les choix. Une seule formule, renvoyée avec chaque réponse :
+
+> **économie = frais estimés d'un envoi classique − frais réellement payés**
+
+```mermaid
+flowchart LR
+    A["📱 Envoi<br/>montant FCFA, corridor,<br/>frais payés"] --> C["Frais classiques<br/>taux bas → taux haut<br/>+ TTA 0,5 % (max 2 000)<br/>si mobile money local"]
+    H[("📄 Hypothèses<br/>défaut : conception §2.2<br/>ou SAVINGS_ASSUMPTIONS_FILE")] --> C
+    C --> S["Économie = classique − payé<br/>fourchette min / max"]
+    S --> O{"Résultat"}
+    O -- "min > 0" --> E["economie"]
+    O -- "max < 0" --> X["surcout"]
+    O -- "sinon" --> M["comparable"]
+```
+
+| Corridor (`id`)      | Frais classiques | TTA | Source                                    |
+| -------------------- | ---------------- | --- | ----------------------------------------- |
+| `france_senegal`     | 2,5 à 3,8 %      | non | Conception §2.2, coût moyen en 2021       |
+| `hors_zone_cfa`      | 10 à 15 %        | non | Conception §2.2, envois hors zone CFA     |
+| `wave_local`         | 1 %              | oui | Conception §2.2, envoi local Wave         |
+| `orange_money_local` | 0,8 %            | oui | Conception §2.2, envoi local Orange Money |
+
+Exemple : 100 000 FCFA envoyés de France avec 150 FCFA de frais réels donnent une économie estimée de 2 350 à 3 650 FCFA. Le même calcul sur un envoi Wave local de 20 000 FCFA, avec 450 FCFA de frais réels, donne `surcout` (−150 FCFA) : le résultat négatif est renvoyé tel quel.
+
+```bash
+curl -s -X POST http://127.0.0.1:3000/v1/savings/estimate -H 'content-type: application/json' \
+  -d '{"transfers":[{"amountXof":100000,"corridor":"france_senegal","actualFeesXof":150}]}'
+```
+
+Ce sont des **ordres de grandeur indicatifs** : les tarifs des opérateurs changent souvent. Les hypothèses sont à relire avant la démo, puis à remplacer par les mesures du pilote. La requête ne contient ni nom, ni numéro, ni identifiant de paiement.
 
 ## Taux et devis (T17)
 
@@ -157,6 +191,7 @@ Voir [.env.example](.env.example). `npm run api` lit `services/api/.env` s'il ex
 | `LNADDRESS_DOMAIN`          | `teranga.example`       | Domaine des adresses Lightning                                                    |
 | `PUBLIC_BASE_URL`           | `http://127.0.0.1:3000` | URL publique de l'API pour le callback LNURL (émulateur : `http://10.0.2.2:3000`) |
 | `LNURL_CALLBACK_TIMEOUT_MS` | `15000`                 | Attente maximale de la facture du téléphone                                       |
+| `SAVINGS_ASSUMPTIONS_FILE`  | _(vide)_                | Fichier JSON qui remplace les hypothèses T34                                      |
 
 ## Limites connues
 

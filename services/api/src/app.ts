@@ -17,6 +17,8 @@ import { healthRoutes } from './routes/health.ts';
 import { createLightningAddressDirectory } from './lightning-address.ts';
 import { lightningAddressRoutes } from './routes/lightning-address.ts';
 import { alertRoutes } from './routes/alerts.ts';
+import { savingsRoutes } from './routes/savings.ts';
+import type { SavingsAssumptions } from './savings.ts';
 
 export type BuildOptions = {
   config?: ApiConfig;
@@ -28,6 +30,8 @@ export type BuildOptions = {
   now?: () => number;
   /** Durée d'attente longue du téléphone (raccourcie dans les tests). */
   longPollMs?: number;
+  /** Hypothèses de l'estimation d'économies (T34) ; défaut : document de conception. */
+  savingsAssumptions?: SavingsAssumptions;
 };
 
 /**
@@ -152,5 +156,6 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
     longPollMs: options.longPollMs ?? 25_000,
   });
   await app.register(alertRoutes);
+  await app.register(savingsRoutes, { assumptions: options.savingsAssumptions });
   return app;
 }
