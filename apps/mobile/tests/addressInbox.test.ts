@@ -146,4 +146,82 @@ describe('adresse Lightning du téléphone (réception)', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(waits).toEqual([1_000, 2_000, 4_000]);
   });
+
+  it('coupe l’attente en cours à l’arrêt et ne répond plus ensuite', async () => {
+    let aborted = false;
+    let release: (() => void) | null = null;
+    const fetch = jest.fn(
+      (_url: string, init: { signal?: AbortSignal }) =>
+        new Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>(
+          (resolve, reject) => {
+            init.signal?.addEventListener('abort', () => {
+              aborted = true;
+              reject(new Error('annulé'));
+            });
+            // Si l'arrêt ne coupait pas l'attente, le serveur répondrait avec une demande.
+            release = () =>
+              resolve({ ok: true, status: 200, json: async () => ({ requests: [request()] }) });
+          },
+        ),
+    );
+    const opts = options(fetch);
+    const inbox = startAddressInbox(opts);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    inbox.stop();
+    (release as (() => void) | null)?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(aborted).toBe(true);
+    expect(opts.native.receiveForDescriptionHash).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+  it('ne renvoie rien si l’arrêt survient pendant la création de la facture', async () => {
+    const events: unknown[] = [];
+    const { fetch, calls } = fakeApi([{ status: 200, body: { requests: [request()] } }]);
+    const stopper = new AbortController();
+    const opts: InboxOptions = {
+      ...options(fetch, events),
+      signal: stopper.signal,
+      native: {
+        receiveForDescriptionHash: jest.fn(async () => {
+          stopper.abort();
+          return 'lnbcrtfacture';
+        }),
+      },
+    };
+    expect(await pollOnce(opts, new Set())).toBe('arrete');
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(0);
+    expect(events).toEqual([]);
+  });
+
+  it('n’annonce rien si l’arrêt survient pendant la réponse au serveur', async () => {
+    const events: unknown[] = [];
+    const stopper = new AbortController();
+    let postSignal: AbortSignal | undefined;
+    const fetch = jest.fn(async (_url: string, init: { method?: string; signal?: AbortSignal }) => {
+      if (init.method === 'POST') {
+        postSignal = init.signal;
+        stopper.abort();
+        throw new Error('annulé');
+      }
+      return { ok: true, status: 200, json: async () => ({ requests: [request()] }) };
+    });
+    const opts: InboxOptions = { ...options(fetch, events), signal: stopper.signal };
+    expect(await pollOnce(opts, new Set())).toBe('arrete');
+    expect(postSignal).toBe(stopper.signal);
+    expect(events).toEqual([]);
+  });
+  it('n’annonce rien si l’arrêt survient alors que le serveur accepte la facture', async () => {
+    const events: unknown[] = [];
+    const stopper = new AbortController();
+    const fetch = jest.fn(async (_url: string, init: { method?: string }) => {
+      if (init.method === 'POST') {
+        stopper.abort();
+        return { ok: true, status: 204, json: async () => null };
+      }
+      return { ok: true, status: 200, json: async () => ({ requests: [request()] }) };
+    });
+    const opts: InboxOptions = { ...options(fetch, events), signal: stopper.signal };
+    expect(await pollOnce(opts, new Set())).toBe('arrete');
+    expect(events).toEqual([]);
+  });
 });

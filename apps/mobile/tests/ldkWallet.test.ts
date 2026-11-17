@@ -6,7 +6,13 @@ import type {
   PinResult,
 } from '../modules/teranga-wallet/src';
 import type { WalletEvent } from '@teranga-pay/contracts';
-import { createJournal, journalFor, parseJournal } from '../src/wallet/journal';
+import {
+  createJournal,
+  invoiceRetentionMs,
+  journalFor,
+  parseJournal,
+  pruneJournal,
+} from '../src/wallet/journal';
 import { createLdkWallet, failureCode, maxFeeFor, toErrorCode } from '../src/wallet/ldkWallet';
 
 const settings = {
@@ -171,12 +177,13 @@ function fakeNative({ invoices = new Map<string, Partial<NativeInvoiceInfo>>() }
       sendStatus = status;
     },
     /** Change l'état d'un paiement natif et émet l'événement LDK correspondant. */
-    settle(id: string, status: 'reussi' | 'echoue') {
+    settle(id: string, status: 'reussi' | 'echoue', reason: string | null = null) {
       const payment = payments.find((entry) => entry.id === id);
       if (!payment) throw new Error(`paiement ${id} inconnu`);
       payment.status = status;
       payment.updatedAt += 10;
-      if (status === 'echoue') listener?.({ type: 'paiement_echoue', id, reason: null });
+      // Comme LDK : la raison passe par l'événement, pas par listPayments().
+      if (status === 'echoue') listener?.({ type: 'paiement_echoue', id, reason });
       else if (payment.direction === 'recu') {
         listener?.({ type: 'paiement_recu', id, amountSats: payment.amountSats });
       } else listener?.({ type: 'paiement_envoye', id });
@@ -372,6 +379,63 @@ describe('remarques de relecture T16/T22', () => {
     });
   });
 
+  it('publie l’échec même si le journal ne peut pas s’écrire (disque plein)', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, { ...options, paymentTimeoutMs: 0 });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(50_000);
+    fake.setSendStatus('en_attente');
+    await wallet.send({ destination: 'lnbcrtawa', pin });
+    const events: WalletEvent[] = [];
+    wallet.subscribe((event) => events.push(event));
+    (fake.native.journalWrite as jest.Mock).mockRejectedValue(codedError('STORAGE_FULL'));
+    fake.settle('envoi-1', 'echoue', 'PAYMENT_EXPIRED');
+    await flush();
+    expect(events[0]).toMatchObject({
+      type: 'paiement',
+      payment: { id: 'envoi-1', status: 'echoue', failure: 'INVOICE_EXPIRED' },
+    });
+  });
+
+  it('publie la raison la plus récente quand le journal garde une ancienne raison', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, { ...options, paymentTimeoutMs: 0 });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(50_000);
+    fake.setSendStatus('en_attente');
+    await wallet.send({ destination: 'lnbcrtawa', pin });
+    const events: WalletEvent[] = [];
+    wallet.subscribe((event) => events.push(event));
+    fake.settle('envoi-1', 'echoue', 'ROUTE_NOT_FOUND');
+    await flush();
+    (fake.native.journalWrite as jest.Mock).mockRejectedValue(codedError('STORAGE_FULL'));
+    events.length = 0;
+    fake.settle('envoi-1', 'echoue', 'PAYMENT_EXPIRED');
+    await flush();
+    expect(events[0]).toMatchObject({
+      type: 'paiement',
+      payment: { id: 'envoi-1', failure: 'INVOICE_EXPIRED' },
+    });
+  });
+
+  it('garde le mémo d’une facture réglée quand le journal ne s’écrit plus', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, options);
+    await wallet.create(pin);
+    // Sans prix de devis : la réception tente d'écrire sa valeur FCFA, et l'écriture échoue.
+    const sale = await wallet.receive({ amountSats: 2_000, memo: 'Thiéboudienne' });
+    if (!sale.ok) throw new Error('facture non créée');
+    const events: WalletEvent[] = [];
+    wallet.subscribe((event) => events.push(event));
+    (fake.native.journalWrite as jest.Mock).mockRejectedValue(codedError('STORAGE_FULL'));
+    fake.settle(sale.value.paymentId, 'reussi');
+    await flush();
+    expect(events[0]).toMatchObject({
+      type: 'paiement',
+      payment: { id: sale.value.paymentId, memo: 'Thiéboudienne' },
+    });
+  });
+
   it('relie la facture à son règlement exact et garde le prix du devis', async () => {
     const fake = fakeNative();
     const wallet = createLdkWallet(fake.native, settings, options);
@@ -424,7 +488,13 @@ describe('remarques de relecture T16/T22', () => {
 
 describe('journal', () => {
   it('repart vide sur un fichier illisible et ignore les valeurs invalides', () => {
-    expect(parseJournal('pas du json')).toEqual({ version: 1, xof: {}, invoices: {}, sends: {} });
+    expect(parseJournal('pas du json')).toEqual({
+      version: 1,
+      xof: {},
+      invoices: {},
+      sends: {},
+      failures: {},
+    });
     expect(
       parseJournal(JSON.stringify({ version: 1, sends: { 'a|1': 'id-1', 'b|2': '', 'c|3': 7 } }))
         .sends,
@@ -544,6 +614,181 @@ describe('relecture du 11 novembre', () => {
     await wallet.create(pin);
     fake.receiveFromDiaspora(1_000);
     expect(await wallet.history({ before: 'inconnu' })).toEqual({ ok: true, value: [] });
+  });
+});
+
+describe('suites de relecture du 11 novembre', () => {
+  it('garde la raison d’un échec après redémarrage du module natif', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, options);
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(50_000);
+    const sent = await wallet.send({ destination: 'lnbcrtawaechecexpire', pin });
+    expect(sent).toEqual({ ok: false, error: { code: 'INVOICE_EXPIRED' } });
+    // Le module natif ne garde la raison qu'en mémoire : au redémarrage, elle disparaît.
+    for (const payment of fake.payments) payment.failureReason = null;
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      journal: createJournal(fake.native),
+    });
+    const history = await restarted.history();
+    const failed = history.ok ? history.value.find((p) => p.status === 'echoue') : undefined;
+    expect(failed?.failure).toBe('INVOICE_EXPIRED');
+  });
+
+  it('note la raison d’un échec découvert en lisant l’historique', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, { ...options, paymentTimeoutMs: 0 });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(50_000);
+    fake.setSendStatus('en_attente');
+    await wallet.send({ destination: 'lnbcrtawa', pin });
+    // Échec survenu application fermée : aucun événement, seulement l'état natif.
+    const payment = fake.payments.find((p) => p.id === 'envoi-1');
+    if (payment) Object.assign(payment, { status: 'echoue', failureReason: 'PAYMENT_EXPIRED' });
+    await wallet.history();
+    if (payment) payment.failureReason = null; // redémarrage : la raison native est perdue
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      journal: createJournal(fake.native),
+    });
+    const history = await restarted.history();
+    const failed = history.ok ? history.value.find((p) => p.id === 'envoi-1') : undefined;
+    expect(failed?.failure).toBe('INVOICE_EXPIRED');
+  });
+
+  it('note la raison transmise par l’événement d’échec', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, { ...options, paymentTimeoutMs: 0 });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(50_000);
+    fake.setSendStatus('en_attente');
+    await wallet.send({ destination: 'lnbcrtawa', pin });
+    const events: WalletEvent[] = [];
+    wallet.subscribe((event) => events.push(event));
+    fake.settle('envoi-1', 'echoue', 'PAYMENT_EXPIRED');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const restarted = createLdkWallet(fake.native, settings, {
+      ...options,
+      journal: createJournal(fake.native),
+    });
+    const history = await restarted.history();
+    const failed = history.ok ? history.value.find((p) => p.id === 'envoi-1') : undefined;
+    expect(failed?.failure).toBe('INVOICE_EXPIRED');
+  });
+
+  it('oublie les factures expirées depuis plus de 7 jours, jamais réglées', () => {
+    const invoice = (id: string, expiresAt: string) => ({
+      paymentRequest: `lnbcrt${id}`,
+      paymentId: id,
+      amountSats: 100,
+      amountXof: 45,
+      memo: null,
+      createdAt: expiresAt,
+      expiresAt,
+    });
+    const now = Date.parse('2026-11-30T00:00:00.000Z');
+    const old = new Date(now - invoiceRetentionMs - 1).toISOString();
+    const data = parseJournal(null);
+    data.invoices = {
+      ancienne: invoice('ancienne', old),
+      reglee: invoice('reglee', old),
+      recente: invoice('recente', new Date(now - 1_000).toISOString()),
+    };
+    data.xof.reglee = 45;
+    pruneJournal(data, now, new Set());
+    expect(Object.keys(data.invoices).sort()).toEqual(['recente', 'reglee']);
+  });
+
+  it('garde le reçu d’une vente réglée au prix de devis, même 7 jours après', async () => {
+    const fake = fakeNative();
+    let clock = Date.parse('2026-11-01T12:00:00.000Z');
+    const wallet = createLdkWallet(fake.native, settings, { ...options, now: () => clock });
+    await wallet.create(pin);
+    const sale = await wallet.receive({
+      amountSats: 2_000,
+      amountXof: 900,
+      memo: 'Thiéboudienne',
+      expiresInSecs: 600,
+    });
+    if (!sale.ok) throw new Error('facture non créée');
+    fake.settle(sale.value.paymentId, 'reussi');
+    clock += 600_000 + invoiceRetentionMs + 60_000;
+    expect((await wallet.receive({ amountSats: 100 })).ok).toBe(true);
+    const history = await wallet.history();
+    const receipt = history.ok
+      ? history.value.find((p) => p.id === sale.value.paymentId)
+      : undefined;
+    expect(receipt).toMatchObject({ amountXof: 900, memo: 'Thiéboudienne' });
+  });
+
+  it('n’interroge pas le nœud à la création d’une facture sans vieille facture', async () => {
+    const fake = fakeNative();
+    const wallet = createLdkWallet(fake.native, settings, options);
+    await wallet.create(pin);
+    (fake.native.payments as jest.Mock).mockClear();
+    expect((await wallet.receive({ amountSats: 100 })).ok).toBe(true);
+    expect(fake.native.payments).not.toHaveBeenCalled();
+  });
+
+  it('n’interroge le nœud qu’une fois pour une vieille vente réglée au prix de devis', async () => {
+    const fake = fakeNative();
+    let clock = Date.parse('2026-11-01T12:00:00.000Z');
+    const wallet = createLdkWallet(fake.native, settings, { ...options, now: () => clock });
+    await wallet.create(pin);
+    const sale = await wallet.receive({ amountSats: 2_000, amountXof: 900, expiresInSecs: 600 });
+    if (!sale.ok) throw new Error('facture non créée');
+    fake.settle(sale.value.paymentId, 'reussi');
+    clock += 600_000 + invoiceRetentionMs + 60_000;
+    (fake.native.payments as jest.Mock).mockClear();
+    for (let i = 0; i < 3; i += 1)
+      expect((await wallet.receive({ amountSats: 100 })).ok).toBe(true);
+    expect(fake.native.payments).toHaveBeenCalledTimes(1);
+    const found = await wallet.lookupInvoice(sale.value.paymentId);
+    expect(found.ok && found.value?.invoice.amountXof).toBe(900);
+  });
+
+  it('ne purge rien si le nœud ne dit pas quelles factures sont réglées', async () => {
+    const fake = fakeNative();
+    let clock = Date.parse('2026-11-01T12:00:00.000Z');
+    const wallet = createLdkWallet(fake.native, settings, { ...options, now: () => clock });
+    await wallet.create(pin);
+    const old = await wallet.receive({ amountSats: 2_000, amountXof: 900, expiresInSecs: 600 });
+    if (!old.ok) throw new Error('facture non créée');
+    clock += 600_000 + invoiceRetentionMs + 60_000;
+    (fake.native.payments as jest.Mock).mockRejectedValueOnce(new Error('nœud occupé'));
+    expect((await wallet.receive({ amountSats: 100 })).ok).toBe(true);
+    const found = await wallet.lookupInvoice(old.value.paymentId);
+    expect(found.ok && found.value).not.toBeNull();
+  });
+
+  it('ne lit qu’une fois la réponse LNURL pour un envoi à une adresse', async () => {
+    const fake = fakeNative({
+      invoices: new Map([['lnbcrtadresse5000000', { amountSats: 5_000 }]]),
+    });
+    const lnurl = fakeLnurl();
+    const wallet = createLdkWallet(fake.native, settings, {
+      ...options,
+      lightningAddress: {
+        fetch: lnurl.fetch,
+        demo: { domain: 'teranga.example', apiUrl: 'http://api.test' },
+      },
+    });
+    await wallet.create(pin);
+    fake.receiveFromDiaspora(100_000);
+    // Le faux natif doit renvoyer le hachage attendu des métadonnées.
+    fake.native.decode = jest.fn(async () => ({
+      amountSats: 5_000,
+      expiresAt: 1_800_000_000,
+      expired: false,
+      regtest: true,
+      payee: 'mame',
+      paymentHash: 'empreinte-adresse',
+      descriptionHash: lnurl.metadataHash,
+    }));
+    const sent = await wallet.send({ destination: 'mame@teranga.example', amountSats: 5_000, pin });
+    expect(sent.ok).toBe(true);
+    expect(lnurl.urls.filter((url) => url.includes('/.well-known/'))).toHaveLength(1);
   });
 });
 

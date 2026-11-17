@@ -29,9 +29,20 @@ import {
   normalizeAddress,
   requestInvoice,
   type LightningAddressDeps,
+  type PayParams,
 } from './lightningAddress';
 import { demoLightningAddressSettings } from './settings';
-import { journalFor, type Journal, type JournalData } from './journal';
+import {
+  emptyJournal,
+  journalFor,
+  pruneJournal,
+  staleInvoiceIds,
+  type Journal,
+  type JournalData,
+} from './journal';
+
+/** Aperçu interne : destinataire et, pour une adresse Lightning, réponse LNURL déjà lue. */
+type SendPreview = PaymentPreview & { payee: string; lnurl?: PayParams };
 
 /** Frais maximum acceptés : 1 % du montant, avec un minimum de 10 sats. */
 export function maxFeeFor(amountSats: number): number {
@@ -145,7 +156,10 @@ export function createLdkWallet(
       amountXof: invoice?.amountXof ?? data.xof[payment.id] ?? null,
       memo: invoice?.memo ?? null,
       createdAt: iso(payment.updatedAt * 1000),
-      failure: payment.status === 'echoue' ? failureCode(payment.failureReason) : null,
+      failure:
+        payment.status === 'echoue'
+          ? failureCode(payment.failureReason ?? data.failures[payment.id])
+          : null,
     };
   }
 
@@ -179,6 +193,21 @@ export function createLdkWallet(
     });
   }
 
+  /** Recopie dans le journal les raisons d'échec que le natif connaît encore. */
+  async function rememberFailures(payments: NativePayment[]): Promise<JournalData> {
+    const data = await journal.read();
+    const fresh = payments.filter(
+      (payment) =>
+        payment.status === 'echoue' &&
+        typeof payment.failureReason === 'string' &&
+        data.failures[payment.id] !== payment.failureReason,
+    );
+    if (fresh.length === 0) return data;
+    return journal.update((next) => {
+      for (const payment of fresh) next.failures[payment.id] = payment.failureReason as string;
+    });
+  }
+
   async function findPayment(id: string): Promise<NativePayment | undefined> {
     return (await native.payments()).find((payment) => payment.id === id);
   }
@@ -190,7 +219,7 @@ export function createLdkWallet(
    */
   async function sendReserved(
     key: string,
-    preview: PaymentPreview & { payee: string },
+    preview: SendPreview,
     amount: number,
     maxFee: number,
     requestedAmount: number | undefined,
@@ -214,9 +243,15 @@ export function createLdkWallet(
 
     let invoice = preview.destination;
     if (preview.kind === 'adresse_lightning') {
-      const params = await fetchPayParams(invoice, addressDeps);
-      if (!params.ok) return params;
-      const fresh = await requestInvoice(params.value, amount, addressDeps);
+      let params: PayParams;
+      if (preview.lnurl) {
+        params = preview.lnurl;
+      } else {
+        const fetched = await fetchPayParams(invoice, addressDeps);
+        if (!fetched.ok) return fetched;
+        params = fetched.value;
+      }
+      const fresh = await requestInvoice(params, amount, addressDeps);
       if (!fresh.ok) return fresh;
       invoice = fresh.value.paymentRequest;
     }
@@ -271,7 +306,8 @@ export function createLdkWallet(
           continue;
         }
         await forgetSend(key, id);
-        return fail(failureCode(found.failureReason));
+        const data = await rememberFailures([found]);
+        return fail(failureCode(found.failureReason ?? data.failures[id]));
       }
       await sleep(500);
     }
@@ -299,10 +335,7 @@ export function createLdkWallet(
     };
   }
 
-  async function addressPreview(
-    input: string,
-    amountSats?: number,
-  ): Promise<Result<PaymentPreview & { payee: string }>> {
+  async function addressPreview(input: string, amountSats?: number): Promise<Result<SendPreview>> {
     const address = normalizeAddress(input);
     if (!address) return fail('DESTINATION_INVALID');
     if (amountSats === undefined || !Number.isSafeInteger(amountSats) || amountSats <= 0) {
@@ -325,13 +358,15 @@ export function createLdkWallet(
       expiresAt: null,
       newRecipient: !paidPayees.has(address),
       payee: address,
+      // Gardés pour l'envoi : une seule lecture LNURL par paiement, même en réseau lent.
+      lnurl: params.value,
     });
   }
 
   async function decodePreview(
     destination: string,
     amountSats?: number,
-  ): Promise<Result<PaymentPreview & { payee: string }>> {
+  ): Promise<Result<SendPreview>> {
     const value = destination.trim().replace(/^lightning:/i, '');
     const kind = detectDestination(value);
     if (kind === 'adresse_lightning') return addressPreview(value, amountSats);
@@ -422,7 +457,23 @@ export function createLdkWallet(
           expiresAt: iso(createdAt + expirySecs * 1000),
         };
         // Enregistrée avant d'être montrée : un règlement tardif reste rattaché à la vente.
+        // Preuve de règlement venue du nœud, indépendante du cache FCFA. Le nœud
+        // n'est interrogé que s'il y a une vieille facture à examiner ; s'il ne
+        // répond pas, rien n'est purgé plutôt que de risquer un reçu.
+        let settled: Set<string> | null = null;
+        try {
+          if (staleInvoiceIds(await journal.read(), createdAt).length > 0) {
+            settled = new Set(
+              (await native.payments())
+                .filter((payment) => payment.direction === 'recu' && payment.status === 'reussi')
+                .map((payment) => payment.id),
+            );
+          }
+        } catch {
+          settled = null;
+        }
         await journal.update((data) => {
+          if (settled) pruneJournal(data, createdAt, settled);
           data.invoices[paymentId] = invoice;
         });
         return ok(invoice);
@@ -441,8 +492,9 @@ export function createLdkWallet(
       attempt(async () => {
         const preview = await decodePreview(destination, amountSats);
         if (!preview.ok) return preview;
-        const rest: PaymentPreview & { payee?: string } = { ...preview.value };
+        const rest: Partial<SendPreview> & PaymentPreview = { ...preview.value };
         delete rest.payee;
+        delete rest.lnurl;
         return ok(rest);
       }),
     send: (request) =>
@@ -482,6 +534,7 @@ export function createLdkWallet(
         const visible = (await native.payments())
           .filter((payment) => payment.direction === 'envoye' || payment.status === 'reussi')
           .sort((a, b) => b.updatedAt - a.updatedAt || (a.id < b.id ? 1 : -1));
+        await rememberFailures(visible);
         const data = await noteMissingXof(visible);
         const all = visible.map((payment) => toPayment(payment, data));
         if (!before) return ok(all.slice(0, limit));
@@ -497,13 +550,39 @@ export function createLdkWallet(
             event.type === 'paiement_recu' ||
             event.type === 'paiement_envoye' ||
             event.type === 'paiement_echoue';
+          // Le journal n'est qu'un complément : s'il ne s'écrit pas (disque plein),
+          // l'événement est quand même publié, sinon l'écran resterait « en cours ».
+          if (event.type === 'paiement_echoue' && event.id && event.reason) {
+            const { id, reason } = event;
+            try {
+              const known = await journal.read();
+              if (known.failures[id] !== reason) {
+                await journal.update((data) => {
+                  data.failures[id] = reason;
+                });
+              }
+            } catch {
+              // Raison non gardée : `failureCode` retombera sur NO_ROUTE après redémarrage.
+            }
+          }
           if (isPayment && event.id) {
             const found = await findPayment(event.id);
             if (found) {
-              const data =
-                found.direction === 'recu'
-                  ? await noteXof(found.id, found.amountSats)
-                  : await journal.read();
+              let data: JournalData;
+              try {
+                data =
+                  found.direction === 'recu'
+                    ? await noteXof(found.id, found.amountSats)
+                    : await journal.read();
+              } catch {
+                // Écriture impossible (disque plein) : la facture, son prix et son mémo
+                // restent lisibles. Journal vide seulement si la lecture échoue aussi.
+                data = await journal.read().catch(emptyJournal);
+              }
+              // La raison portée par l'événement est la plus récente : elle prime.
+              if (event.type === 'paiement_echoue' && event.reason) {
+                data = { ...data, failures: { ...data.failures, [found.id]: event.reason } };
+              }
               listener({ type: 'paiement', payment: toPayment(found, data) } as WalletEvent);
             }
           }

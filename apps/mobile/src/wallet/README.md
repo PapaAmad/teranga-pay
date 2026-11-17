@@ -52,3 +52,14 @@ sequenceDiagram
 - Erreurs : nom inconnu ou réponse invalide → `DESTINATION_INVALID` ; réponse LNURL `ERROR` (téléphone du destinataire hors ligne…) → `NO_ROUTE` ; coupure ou délai de 20 s → `NETWORK_OFFLINE`. Dans tous ces cas, rien n'est payé.
 
 Tests : `tests/ldkWallet.test.ts`, `tests/lightningAddress.test.ts`, `tests/addressInbox.test.ts` et `tests/useSecureScreen.test.tsx` utilisent un faux module natif et un faux serveur LNURL. Responsable : Salam.
+
+## Journal du téléphone
+
+`journal.ts` garde ce que LDK Node ne conserve pas, dans `noBackupFilesDir`, écrit de façon atomique, sans clé ni phrase :
+
+- la valeur FCFA de chaque paiement au moment où il a lieu ;
+- les factures créées (prix du devis, lien facture ↔ règlement) ;
+- les envois en cours (protection contre le double paiement après un redémarrage) ;
+- la raison de chaque échec : le module natif ne la garde qu'en mémoire.
+
+Un seul journal est partagé par module natif. Les factures expirées depuis plus de 7 jours et jamais réglées en sont retirées à la création d'une nouvelle facture.
