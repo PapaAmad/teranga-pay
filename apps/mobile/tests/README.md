@@ -9,3 +9,12 @@ Les parcours T09 utilisent de vraies instances de traduction isolées, sans remp
 `translation-types.ts` est une vérification de compilation, sans exécution Jest. Ses cas négatifs échouent si une clé inconnue, un texte de repli masquant cette clé ou une feuille de catalogue non textuelle deviennent acceptés. Lancer `npm run typecheck` ; aucun de ces cas n'est ajouté au nombre de tests Jest.
 
 Jest utilise `jest-expo` et les remplacements natifs fournis pour les zones de sécurité. Lancer depuis la racine `npm test --workspace @teranga-pay/mobile -- --ci`. Les tests de paiement et les parcours Maestro seront ajoutés aux tâches correspondantes.
+
+T14 ajoute `onboarding-controller.test.ts` pour les transitions, interruptions et
+courses asynchrones, `onboarding-platform.test.ts` pour la persistance validée et
+la protection attendue, et `onboarding-screen.test.tsx` pour le parcours fictif
+complet, les erreurs, Retour et l’agrandissement du texte. Les anciens tests
+de l’accueil technique demandent désormais `initialRoute="Home"` explicitement.
+Les jetons de test ne forment pas une phrase Bitcoin et les codes sont fictifs.
+Les [captures Web](../../../docs/design/validation-t14/README.md) complètent ces tests
+sans prouver le rendu ou les protections sur un Android physique.

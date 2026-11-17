@@ -15,7 +15,7 @@ import { useBrandFonts } from './typography';
 type Props = {
   label: string;
   onPress: (event: GestureResponderEvent) => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'accent';
   disabled?: boolean;
   loading?: boolean;
   icon?: BrandIconName;
@@ -37,9 +37,11 @@ export function Button({
   const blocked = disabled || loading;
   const foreground = disabled
     ? tokens.colors.disabledInk
-    : variant === 'primary'
-      ? tokens.colors.onPrimary
-      : tokens.colors.primary;
+    : variant === 'accent'
+      ? tokens.colors.onAccent
+      : variant === 'primary'
+        ? tokens.colors.onPrimary
+        : tokens.colors.primary;
 
   return (
     <Pressable
@@ -54,7 +56,11 @@ export function Button({
       }}
       style={({ pressed }) => [
         styles.base,
-        variant === 'primary' ? styles.primary : styles.secondary,
+        variant === 'accent'
+          ? styles.accent
+          : variant === 'primary'
+            ? styles.primary
+            : styles.secondary,
         pressed && !blocked && styles.pressed,
         pressed && !blocked && variant === 'primary' && styles.primaryPressed,
         disabled && styles.disabled,
@@ -87,6 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.colors.primary,
     borderColor: tokens.colors.primary,
   },
+  accent: { backgroundColor: tokens.colors.accent, borderColor: tokens.colors.accent },
   secondary: {
     backgroundColor: tokens.colors.surface,
     borderColor: tokens.colors.primary,

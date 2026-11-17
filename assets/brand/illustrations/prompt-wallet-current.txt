@@ -1,0 +1,9 @@
+Use case: stylized-concept.
+Asset type: original mobile onboarding hero illustration for Teranga Pay, a Senegalese Bitcoin/Lightning wallet. Generate the illustration only, no app screen.
+Primary request: a beautifully crafted small personal wallet as an inviting tactile object, suggesting "keep your money in your own hands". Premium contemporary editorial 3D product render with the care and material realism of a luxury design studio.
+Subject: one deep ink-navy soft leather fold wallet, partially open so its construction is understandable, with fine stitching and gently rounded edges. An elegant wide pale citron ribbon loops through and around its fold, like a single flowing current; one short unprinted warm-ivory folded paper peeks out. The wallet, not the ribbon, is the main subject. Physically plausible leather thickness, subtle grain, beautiful seams, restrained details.
+Composition: wide landscape 3:2 image. Wallet occupies the central 75 percent of width and 75 percent of height, three-quarter view, gently tilted, all objects fully inside frame. A single coherent sculptural arrangement, no scattered floating decorative pieces. Soft contact shadow beneath it. Plenty of clean transparent space around the silhouette so it can fit a mobile hero.
+Palette: wallet #172A36, citron ribbon #E5EE73, warm ivory paper #FAFAF5. No purple, blue gradients or gold.
+Lighting: large softbox top left, soft studio highlights, careful ambient occlusion, crisp material detail but calm, friendly and sophisticated.
+Background: fully transparent alpha, including around contact shadow.
+Constraints: no typography, text, numbers, logos, brand marks, payment card, card chips, bank symbols, crypto symbols, QR codes, screen, phone mockup, padlocks, human hands, watermarks or confetti. This is a conceptual illustration, not an advertised physical card.

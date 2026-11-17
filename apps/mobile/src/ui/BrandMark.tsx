@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import mark from '../../../../assets/brand/logos/mark.json';
@@ -11,11 +12,15 @@ export function BrandMark({ size = 64, color = tokens.colors.primary, label }: P
       width={size}
       height={size}
       viewBox={mark.viewBox}
-      accessible={Boolean(label)}
-      accessibilityLabel={label}
-      accessibilityRole={label ? 'image' : undefined}
-      accessibilityElementsHidden={!label}
-      importantForAccessibility={label ? 'auto' : 'no-hide-descendants'}
+      {...(Platform.OS === 'web'
+        ? { 'aria-hidden': !label, 'aria-label': label, role: label ? 'img' : undefined }
+        : {
+            accessible: Boolean(label),
+            accessibilityLabel: label,
+            accessibilityRole: label ? 'image' : undefined,
+            accessibilityElementsHidden: !label,
+            importantForAccessibility: label ? 'auto' : 'no-hide-descendants',
+          })}
     >
       <Path d={mark.path} fill={color} />
     </Svg>

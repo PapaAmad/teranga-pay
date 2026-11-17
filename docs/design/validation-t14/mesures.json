@@ -1,0 +1,187 @@
+{
+  "date": "2026-11-09",
+  "renderer": "React Native Web | Edge headless",
+  "errors": [],
+  "shots": [
+    {
+      "name": "01-accueil",
+      "title": "Accueil",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "02-langue",
+      "title": "Langue",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "03-preparation",
+      "title": "Préparation",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "04-wallet-indisponible",
+      "title": "Entrée normale | wallet indisponible",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "05-code",
+      "title": "Code | aperçu",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "06-confirmation",
+      "title": "Confirmation | aperçu",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "07-copie",
+      "title": "Copie | jetons fictifs",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": [
+          {
+            "height": 693,
+            "content": 938,
+            "top": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "07-copie-bas",
+      "title": "Copie | jetons fictifs | suite",
+      "layout": {
+        "position": "bas du défilement"
+      }
+    },
+    {
+      "name": "08-verification",
+      "title": "Vérification | aperçu",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": [
+          {
+            "height": 687,
+            "content": 812,
+            "top": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "08-verification-bas",
+      "title": "Vérification | aperçu | suite",
+      "layout": {
+        "position": "bas du défilement"
+      }
+    },
+    {
+      "name": "09-fin",
+      "title": "Fin | aperçu",
+      "layout": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "bodyWidth": 390,
+        "scrollAreas": []
+      }
+    },
+    {
+      "name": "10-accueil-360",
+      "title": "Accueil 360 × 800",
+      "layout": {
+        "width": 360,
+        "documentWidth": 360
+      }
+    },
+    {
+      "name": "11-actions-360",
+      "title": "Actions après défilement 360",
+      "layout": {
+        "width": 360,
+        "documentWidth": 360
+      }
+    },
+    {
+      "name": "10-accueil-320",
+      "title": "Accueil 320 × 568",
+      "layout": {
+        "width": 320,
+        "documentWidth": 320
+      }
+    },
+    {
+      "name": "11-actions-320",
+      "title": "Actions après défilement 320",
+      "layout": {
+        "width": 320,
+        "documentWidth": 320
+      }
+    }
+  ],
+  "limits": [
+    "Captures Web des composants natifs, pas un essai Android.",
+    "Aperçu en mémoire, sans clés ni paiement.",
+    "Écrans confirmés par PAN le 9 novembre 2026 ; essais TalkBack/clavier/capture natifs attendus."
+  ]
+}

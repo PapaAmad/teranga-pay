@@ -6,7 +6,11 @@
 
 Le français est la langue par défaut. `resolveLanguage` et `setAppLanguage` ramènent les variantes `fr-SN` et `wo-SN` à leur langue de base ; une préférence inconnue revient au français. Un appel direct au moteur avec une variante est aussi résolu par `load: 'languageOnly'` et le repli français, mais `setAppLanguage` est l’entrée recommandée pour une préférence externe. Chaque instance possède ses propres ressources : les fixtures de tests ne modifient pas les catalogues de production.
 
-La sélection visible, la détection de la langue du téléphone et la conservation d’une préférence ne sont pas ajoutées ici. Le parcours de choix de langue appartient à T14 ; sa traduction wolof reste soumise à T33. Aucun texte wolof non relu n’est publié et aucun service de traduction distant n’est appelé.
+La sélection visible et sa persistance sont maintenant préparées dans le
+[parcours T14](../onboarding/README.md). Seul le français est sélectionnable ;
+le wolof reste annoncé comme à venir jusqu’à T33. La détection automatique de la
+langue du téléphone n’est pas ajoutée. Aucun texte wolof non relu n’est publié et
+aucun service de traduction distant n’est appelé.
 
 Ajouter un texte dans le français, employer sa clé avec `useTranslation`, puis renseigner le même chemin dans `wo.ts` après validation linguistique. Éviter les phrases assemblées par concaténation ; utiliser les paramètres du moteur. Les montants FCFA gardent leurs espaces insécables U+00A0.
 

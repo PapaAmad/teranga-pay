@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import iconPaths from '../../../../assets/brand/icons/paths.json';
@@ -24,11 +25,15 @@ export function BrandIcon({ name, size = 24, color = tokens.colors.ink, label }:
       strokeWidth={iconPaths.strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      accessible={Boolean(label)}
-      accessibilityLabel={label}
-      accessibilityRole={label ? 'image' : undefined}
-      accessibilityElementsHidden={!label}
-      importantForAccessibility={label ? 'auto' : 'no-hide-descendants'}
+      {...(Platform.OS === 'web'
+        ? { 'aria-hidden': !label, 'aria-label': label, role: label ? 'img' : undefined }
+        : {
+            accessible: Boolean(label),
+            accessibilityLabel: label,
+            accessibilityRole: label ? 'image' : undefined,
+            accessibilityElementsHidden: !label,
+            importantForAccessibility: label ? 'auto' : 'no-hide-descendants',
+          })}
     >
       {iconPaths.icons[name].map((d, index) => (
         <Path key={index} d={d} />
