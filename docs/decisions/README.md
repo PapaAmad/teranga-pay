@@ -11,7 +11,8 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0005](0005-parseur-markdown.md)          | Parseur Markdown pour les contrôles du dépôt | Dépendance de développement proposée dans la seconde revue T07    |
 | [0006](0006-identite-visuelle.md)         | Identité et signes propres à Teranga Pay     | Direction B choisie, réalisation à relire                         |
 | [0007](0007-squelette-api.md)             | Socle d'exécution de l'API (T13)             | Proposée par Salam, relecture de PAN attendue                     |
+| [0008](0008-sdk-lightning.md)             | Choix du SDK Lightning mobile (T10)          | LDK Node retenu par Salam, validation de PAN attendue             |
 
-Pour la prochaine note, utiliser `0008-sujet-court.md` et préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
+Pour la prochaine note, utiliser le premier numéro libre après ceux des PR ouvertes (plusieurs PR en préparent : vérifier avec `gh pr list` avant de choisir) et préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
 
-Notes attendues ensuite : sélection du SDK en T10, contrat écrans/logique en T11 et choix structurants d'exécution du backend en T13.
+Notes attendues ensuite : contrat écrans/logique en T11 et choix structurants d'exécution du backend en T13.
