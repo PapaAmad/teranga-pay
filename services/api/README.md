@@ -37,7 +37,11 @@ Depuis la racine du dépôt :
 | POST    | `/v1/quotes`     | `{"amountXof"}` (entier de 1 à 5 000 000) → `201` devis figé : `id`, `amountSats`, `xofPerBtc`, `source`, `createdAt`, `expiresAt` |
 | GET     | `/v1/quotes/:id` | `200` devis actif, `410 QUOTE_EXPIRED` après expiration, `404 QUOTE_NOT_FOUND`                                                     |
 
-T19 ajoutera la Lightning Address.
+| GET | `/.well-known/lnurlp/:username` | Découverte LNURL-pay de `nom@domaine` (T19) |
+| GET | `/v1/lnurlp/:username/callback?amount=` | Facture fournie par le téléphone du destinataire (T19) |
+| POST | `/v1/lightning-addresses` | Réserve un nom ; renvoie l'adresse et un jeton, montré une seule fois (T19) |
+| GET | `/v1/lightning-addresses/me/requests` | Attente longue du téléphone : demandes de facture à traiter (jeton requis) |
+| POST | `/v1/lightning-addresses/me/requests/:id` | Le téléphone répond avec sa facture `{ paymentRequest }` (jeton requis) |
 
 ## Taux et devis (T17)
 
@@ -70,6 +74,42 @@ sequenceDiagram
 - **Devis figé** : il garde son taux pendant `QUOTE_TTL_SECONDS` (300 s, soit 5 minutes) même si le marché bouge, puis il est déclaré expiré.
 - **Stockage des devis** : en mémoire, au plus 10 000 ; au-delà, le plus ancien est oublié. Les devis expirés restent consultables une heure, ce qui permet de répondre « expiré » plutôt que « inconnu ». Tout est perdu au redémarrage, ce qui est acceptable pour la démo. Aucune route ne touche aux clés ou aux fonds du wallet.
 
+## Adresse Lightning (T19)
+
+Le serveur **ne crée jamais de facture et ne touche jamais aux fonds** : il relaie la demande du payeur au téléphone du destinataire, qui fabrique la facture avec son propre wallet. Choix expliqué dans la [décision 0010](../../docs/decisions/0010-adresse-lightning.md).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant M as 📱 Téléphone de Mame
+    participant API as 🖥️ API Teranga
+    participant O as ⚡ Wallet d'Ousmane
+    M->>API: POST /v1/lightning-addresses { username: "mame" }
+    API-->>M: mame@teranga.example + jeton secret
+    M->>API: GET /me/requests (attente longue, jeton)
+    O->>API: GET /.well-known/lnurlp/mame
+    API-->>O: payRequest (callback, limites, métadonnées)
+    O->>API: GET /v1/lnurlp/mame/callback?amount=10000000
+    API-->>M: demande : 10 000 sats + hachage des métadonnées
+    M->>M: Crée la facture avec ce hachage (wallet LDK Node)
+    M->>API: POST /me/requests/{id} { paymentRequest }
+    API->>API: Vérifie regtest et montant exact
+    API-->>O: { pr: facture de Mame }
+    O->>M: ⚡ Paiement direct, sans passer par le serveur
+```
+
+- **Jeton :** 32 octets aléatoires, montré une seule fois. Le serveur n'en garde que l'empreinte SHA-256 ; il n'apparaît jamais dans les journaux.
+- **Délais :** le payeur attend au plus `LNURL_CALLBACK_TIMEOUT_MS` (15 s). Si le téléphone est hors ligne, il reçoit `{"status":"ERROR"}` au format LNURL. Le téléphone reste en écoute 25 s par requête.
+- **Contrôles :**
+  - la facture doit être une facture regtest qui porte exactement le montant demandé ;
+  - un téléphone ne peut répondre qu'aux demandes de sa propre adresse ;
+  - 10 demandes au plus en attente par adresse.
+- **Limites :**
+  - noms réservés au premier arrivé, sans preuve d'identité ;
+  - tout est gardé en mémoire et perdu au redémarrage ;
+  - le hachage des métadonnées inscrit dans la facture n'est pas vérifié par le serveur : c'est le wallet du payeur qui le vérifie, comme l'impose LUD-06 ;
+  - HTTP en démonstration locale ; HTTPS est requis hors démonstration.
+
 ## Règles communes à toutes les routes
 
 - **Validation** : chaque route déclare un schéma JSON. Les champs inconnus sont refusés, pas ignorés. Les valeurs d'un corps JSON ne sont jamais converties (`true` ou `"500"` ne valent pas un nombre) ; seuls les paramètres d'URL, reçus en texte, sont convertis vers le type attendu. Corps limité à 16 Ko, JSON uniquement.
@@ -82,16 +122,19 @@ sequenceDiagram
 
 Voir [.env.example](.env.example). `npm run api` lit `services/api/.env` s'il existe (fichier ignoré par Git) ; les variables déjà définies dans l'environnement restent prioritaires. Toute valeur invalide arrête le démarrage avec un message clair.
 
-| Variable                   | Défaut      | Rôle                                         |
-| -------------------------- | ----------- | -------------------------------------------- |
-| `API_HOST`                 | `127.0.0.1` | Interface d'écoute (`0.0.0.0` dans Docker)   |
-| `API_PORT`                 | `3000`      | Port                                         |
-| `API_LOG_LEVEL`            | `info`      | `fatal` à `trace`, ou `silent`               |
-| `API_RATE_LIMIT_MAX`       | `60`        | Requêtes autorisées par fenêtre et adresse   |
-| `API_RATE_LIMIT_WINDOW_MS` | `60000`     | Durée de la fenêtre en millisecondes (≥ 1 s) |
-| `RATE_SOURCE`              | `fixe`      | `fixe` ou `kraken`                           |
-| `RATE_FIXED_XOF_PER_BTC`   | `45000000`  | Taux du mode `fixe`, en FCFA pour 1 BTC      |
-| `QUOTE_TTL_SECONDS`        | `300`       | Durée de validité d'un devis (30 à 3 600 s)  |
+| Variable                    | Défaut                  | Rôle                                                                              |
+| --------------------------- | ----------------------- | --------------------------------------------------------------------------------- |
+| `API_HOST`                  | `127.0.0.1`             | Interface d'écoute (`0.0.0.0` dans Docker)                                        |
+| `API_PORT`                  | `3000`                  | Port                                                                              |
+| `API_LOG_LEVEL`             | `info`                  | `fatal` à `trace`, ou `silent`                                                    |
+| `API_RATE_LIMIT_MAX`        | `60`                    | Requêtes autorisées par fenêtre et adresse                                        |
+| `API_RATE_LIMIT_WINDOW_MS`  | `60000`                 | Durée de la fenêtre en millisecondes (≥ 1 s)                                      |
+| `RATE_SOURCE`               | `fixe`                  | `fixe` ou `kraken`                                                                |
+| `RATE_FIXED_XOF_PER_BTC`    | `45000000`              | Taux du mode `fixe`, en FCFA pour 1 BTC                                           |
+| `QUOTE_TTL_SECONDS`         | `300`                   | Durée de validité d'un devis (30 à 3 600 s)                                       |
+| `LNADDRESS_DOMAIN`          | `teranga.example`       | Domaine des adresses Lightning                                                    |
+| `PUBLIC_BASE_URL`           | `http://127.0.0.1:3000` | URL publique de l'API pour le callback LNURL (émulateur : `http://10.0.2.2:3000`) |
+| `LNURL_CALLBACK_TIMEOUT_MS` | `15000`                 | Attente maximale de la facture du téléphone                                       |
 
 ## Limites connues
 
