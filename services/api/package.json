@@ -1,0 +1,21 @@
+{
+  "name": "@teranga-pay/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "@fastify/ajv-compiler": "4.0.7",
+    "@fastify/rate-limit": "11.2.2",
+    "fastify": "5.12.8"
+  }
+}
