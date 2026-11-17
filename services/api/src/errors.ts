@@ -15,6 +15,12 @@ export const errorCodes = {
   rateUnavailable: 'RATE_UNAVAILABLE',
   quoteNotFound: 'QUOTE_NOT_FOUND',
   quoteExpired: 'QUOTE_EXPIRED',
+  unauthorized: 'UNAUTHORIZED',
+  usernameTaken: 'USERNAME_TAKEN',
+  usernameInvalid: 'USERNAME_INVALID',
+  capacityReached: 'CAPACITY_REACHED',
+  requestNotFound: 'REQUEST_NOT_FOUND',
+  invoiceInvalid: 'INVOICE_INVALID',
 } as const;
 
 export type ErrorCode = (typeof errorCodes)[keyof typeof errorCodes];

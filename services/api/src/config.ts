@@ -10,6 +10,18 @@ export type ApiConfig = {
   bodyLimitBytes: number;
   rate: RateConfig;
   quoteTtlSeconds: number;
+  lightningAddress: LightningAddressConfig;
+};
+
+export type LightningAddressConfig = {
+  /** Domaine des adresses, par exemple `teranga.example` dans `mame@teranga.example`. */
+  domain: string;
+  /** URL publique de l'API, utilisée dans le `callback` LNURL. */
+  publicBaseUrl: string;
+  /** Temps laissé au téléphone pour fournir sa facture. */
+  callbackTimeoutMs: number;
+  minSendableMsat: number;
+  maxSendableMsat: number;
 };
 
 export type RateSource = 'fixe' | 'kraken';
@@ -34,6 +46,14 @@ export const defaultConfig: ApiConfig = {
   // Taux de démonstration reproductible, proche du marché de novembre 2026.
   rate: { source: 'fixe', fixedXofPerBtc: 45_000_000 },
   quoteTtlSeconds: 300,
+  lightningAddress: {
+    domain: 'teranga.example',
+    publicBaseUrl: 'http://127.0.0.1:3000',
+    callbackTimeoutMs: 15_000,
+    minSendableMsat: 1_000,
+    // 5 000 000 sats, cohérent avec le plafond des devis.
+    maxSendableMsat: 5_000_000_000,
+  },
 };
 
 function readInteger(
@@ -51,6 +71,25 @@ function readInteger(
     throw new Error(`${name} doit être compris entre ${min} et ${max}.`);
   }
   return value;
+}
+
+function readUrl(env: NodeJS.ProcessEnv, name: string, fallback: string): string {
+  const raw = env[name];
+  if (raw === undefined || raw === '') return fallback;
+  if (!/^https?:\/\/[A-Za-z0-9.-]+(:\d{1,5})?$/.test(raw)) {
+    throw new Error(
+      `${name} doit être une URL http(s) sans chemin, par exemple http://10.0.2.2:3000.`,
+    );
+  }
+  return raw;
+}
+
+function readDomain(env: NodeJS.ProcessEnv, name: string, fallback: string): string {
+  const raw = env[name];
+  if (raw === undefined || raw === '') return fallback;
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(raw))
+    throw new Error(`${name} doit être un nom de domaine.`);
+  return raw;
 }
 
 function readRateSource(env: NodeJS.ProcessEnv): RateSource {
@@ -91,6 +130,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
         defaultConfig.rate.fixedXofPerBtc,
         MIN_XOF_PER_BTC,
         MAX_XOF_PER_BTC,
+      ),
+    },
+    lightningAddress: {
+      ...defaultConfig.lightningAddress,
+      domain: readDomain(env, 'LNADDRESS_DOMAIN', defaultConfig.lightningAddress.domain),
+      publicBaseUrl: readUrl(env, 'PUBLIC_BASE_URL', defaultConfig.lightningAddress.publicBaseUrl),
+      callbackTimeoutMs: readInteger(
+        env,
+        'LNURL_CALLBACK_TIMEOUT_MS',
+        defaultConfig.lightningAddress.callbackTimeoutMs,
+        1_000,
+        60_000,
       ),
     },
     quoteTtlSeconds: readInteger(

@@ -6,4 +6,4 @@ Un fichier par groupe de routes, enregistré dans `app.ts`. Chaque route déclar
 
 - `rates.ts` : `GET /v1/rate`, `POST /v1/quotes`, `GET /v1/quotes/:id` (T17).
 
-La Lightning Address (T19) viendra ici. Responsable : Salam.
+- `lightning-address.ts` : LNURL-pay (`/.well-known/lnurlp/:username`, callback) et routes du téléphone (`/v1/lightning-addresses…`) (T19). Responsable : Salam.

@@ -14,6 +14,8 @@ import { createRateProvider, type RateProvider } from './rates.ts';
 import { createQuoteStore } from './quotes.ts';
 import { rateRoutes } from './routes/rates.ts';
 import { healthRoutes } from './routes/health.ts';
+import { createLightningAddressDirectory } from './lightning-address.ts';
+import { lightningAddressRoutes } from './routes/lightning-address.ts';
 
 export type BuildOptions = {
   config?: ApiConfig;
@@ -23,6 +25,8 @@ export type BuildOptions = {
   rates?: RateProvider;
   /** Horloge injectable en millisecondes, pour tester l'expiration des devis. */
   now?: () => number;
+  /** Durée d'attente longue du téléphone (raccourcie dans les tests). */
+  longPollMs?: number;
 };
 
 /**
@@ -138,6 +142,13 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
   await app.register(rateRoutes, {
     rates: options.rates ?? createRateProvider(config.rate, { now }),
     quotes: createQuoteStore({ ttlMs: config.quoteTtlSeconds * 1000, now }),
+  });
+  const directory = createLightningAddressDirectory({ now });
+  app.addHook('onClose', async () => directory.close());
+  await app.register(lightningAddressRoutes, {
+    directory,
+    config: config.lightningAddress,
+    longPollMs: options.longPollMs ?? 25_000,
   });
   return app;
 }
