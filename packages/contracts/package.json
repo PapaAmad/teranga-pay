@@ -1,0 +1,14 @@
+{
+  "name": "@teranga-pay/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fake": "./src/fake-wallet.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.ts\""
+  }
+}
