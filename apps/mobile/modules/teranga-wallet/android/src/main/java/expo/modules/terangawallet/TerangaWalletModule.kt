@@ -165,6 +165,25 @@ class TerangaWalletModule : Module() {
       }
     }
 
+    // Adresse Lightning (T19) : facture au montant exact demandé, qui porte le hachage
+    // des métadonnées LNURL au lieu d'un texte (LUD-06). Le payeur le vérifie.
+    AsyncFunction("receiveForDescriptionHash") { amountMsat: Double, descriptionHash: String, expirySecs: Int ->
+      if (!Regex("^[0-9a-f]{64}$").matches(descriptionHash)) {
+        throw WalletException("DESTINATION_INVALID", "hachage de description invalide")
+      }
+      if (amountMsat < 1000.0 || amountMsat % 1.0 != 0.0) {
+        throw WalletException("AMOUNT_INVALID", "montant invalide")
+      }
+      val invoice = guard {
+        running().bolt11Payment().receive(
+          amountMsat.toLong().toULong(),
+          Bolt11InvoiceDescription.Hash(descriptionHash),
+          expirySecs.coerceIn(60, 3_600).toUInt(),
+        )
+      }
+      invoice.toString()
+    }
+
     AsyncFunction("decode") { text: String ->
       val invoice = try {
         Bolt11Invoice.fromStr(text.trim().removePrefix("lightning:").removePrefix("LIGHTNING:"))

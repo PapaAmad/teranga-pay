@@ -5,8 +5,13 @@ import type { Payment, Result, WalletErrorCode, WalletState } from '@teranga-pay
 
 import { nativeWallet } from '../../modules/teranga-wallet/src';
 import { useTranslation } from '../translations';
+import {
+  registerAddress,
+  startAddressInbox,
+  type AddressRegistration,
+} from '../wallet/addressInbox';
 import { createLdkWallet } from '../wallet/ldkWallet';
-import { demoNodeSettings } from '../wallet/settings';
+import { demoLightningAddressSettings, demoNodeSettings } from '../wallet/settings';
 import { useSecureScreen } from '../wallet/useSecureScreen';
 
 function LabButton({
@@ -45,6 +50,15 @@ export function WalletLabScreen() {
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const [error, setError] = useState<WalletErrorCode | null>(null);
   const [busy, setBusy] = useState(false);
+  const [amountToPay, setAmountToPay] = useState('');
+  const [username, setUsername] = useState('');
+  // Jeton gardé en mémoire seulement dans cet écran de test ; l'onboarding (T14)
+  // devra le ranger dans le stockage sécurisé du téléphone.
+  const [addressToken, setAddressToken] = useState<string | null>(null);
+  const [address, setAddress] = useState('');
+  const [addressError, setAddressError] = useState<
+    Exclude<AddressRegistration, { ok: true }>['code'] | 'UNAUTHORIZED' | null
+  >(null);
   useSecureScreen(nativeWallet, words.length > 0);
 
   const wallet = useMemo(
@@ -71,6 +85,40 @@ export function WalletLabScreen() {
       if (event.type === 'solde') setBalanceSats(event.balance.spendableSats);
     });
   }, [wallet, refresh]);
+
+  useEffect(() => {
+    if (!addressToken || !nativeWallet || state !== 'pret') return undefined;
+    const inbox = startAddressInbox({
+      apiUrl: demoLightningAddressSettings.apiUrl,
+      token: addressToken,
+      fetch: (url, init) => fetch(url, init),
+      native: nativeWallet,
+      onEvent: (event) => {
+        if (event.type === 'erreur' && event.code === 'UNAUTHORIZED') {
+          setAddressError('UNAUTHORIZED');
+          setAddressToken(null);
+        }
+      },
+    });
+    return inbox.stop;
+  }, [addressToken, state]);
+
+  async function activateAddress() {
+    setBusy(true);
+    setAddressError(null);
+    const result = await registerAddress(
+      demoLightningAddressSettings.apiUrl,
+      username,
+      (url, init) => fetch(url, init),
+    );
+    if (result.ok) {
+      setAddress(result.address);
+      setAddressToken(result.token);
+    } else {
+      setAddressError(result.code);
+    }
+    setBusy(false);
+  }
 
   async function run<T>(action: () => Promise<Result<T>>, onSuccess?: (value: T) => void) {
     setBusy(true);
@@ -163,6 +211,29 @@ export function WalletLabScreen() {
               )
             }
           />
+          <Text style={styles.label}>{t('walletLab.usernameLabel')}</Text>
+          <TextInput
+            accessibilityLabel={t('walletLab.usernameLabel')}
+            autoCapitalize="none"
+            onChangeText={setUsername}
+            style={styles.input}
+            value={username}
+          />
+          <LabButton
+            disabled={busy}
+            label={t('walletLab.activateAddress')}
+            onPress={() => void activateAddress()}
+          />
+          {address ? (
+            <Text selectable style={styles.mono} testID="adresse">
+              {t('walletLab.address', { address })}
+            </Text>
+          ) : null}
+          {addressError ? (
+            <Text accessibilityLiveRegion="polite" style={styles.error}>
+              {t(`walletLab.addressErrors.${addressError}`)}
+            </Text>
+          ) : null}
           <Text style={styles.label}>{t('walletLab.invoiceLabel')}</Text>
           <TextInput
             accessibilityLabel={t('walletLab.invoiceLabel')}
@@ -171,12 +242,25 @@ export function WalletLabScreen() {
             style={styles.input}
             value={invoiceToPay}
           />
+          <Text style={styles.label}>{t('walletLab.amountLabel')}</Text>
+          <TextInput
+            accessibilityLabel={t('walletLab.amountLabel')}
+            keyboardType="number-pad"
+            onChangeText={setAmountToPay}
+            style={styles.input}
+            value={amountToPay}
+          />
           <LabButton
             disabled={busy}
             label={t('walletLab.pay')}
             onPress={() =>
               run(
-                () => wallet.send({ destination: invoiceToPay, pin }),
+                () =>
+                  wallet.send({
+                    destination: invoiceToPay,
+                    pin,
+                    ...(amountToPay ? { amountSats: Number(amountToPay) } : {}),
+                  }),
                 (payment) => setLastPayment(payment),
               )
             }

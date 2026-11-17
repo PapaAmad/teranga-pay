@@ -19,6 +19,15 @@ Règles appliquées :
 - **Jamais deux fois le même envoi** (T21) : tant qu'un envoi vers la même destination et du même montant est en cours, ou d'issue inconnue après un délai dépassé, un nouvel essai renvoie `PAYMENT_PENDING`. Il redevient possible dès que le premier a échoué ; après un succès, un second envoi identique est un nouveau paiement voulu.
 - La raison d'échec de LDK devient un code : `PAYMENT_EXPIRED` → `INVOICE_EXPIRED`, erreur inattendue → `UNKNOWN`, tous les autres cas → `NO_ROUTE` (« le paiement n'est pas passé, votre argent n'a pas bougé »).
 
+## Recevoir sur son adresse Lightning (T15 + T19)
+
+`addressInbox.ts` : le téléphone réserve `nom@teranga.example` (`registerAddress`), puis écoute les demandes (`startAddressInbox`). Pour chaque demande, il crée avec son propre nœud une facture au montant exact et portant le hachage des métadonnées (`receiveForDescriptionHash`), puis la renvoie au serveur. L'argent arrive directement dans le téléphone : le serveur ne le touche jamais.
+
+- Demande ignorée si elle est expirée, mal formée, au-dessus de 5 000 000 sats ou déjà traitée.
+- Après une coupure, nouvel essai après 1 s, 2 s, 4 s… jusqu'à 30 s. Un jeton refusé (401) arrête l'écoute.
+- Le jeton est un secret : l'écran d'essai le garde en mémoire seulement ; l'onboarding (T14) devra le ranger dans le stockage sécurisé.
+- L'écoute ne tourne que pendant que l'application est ouverte et le wallet déverrouillé : sinon, le payeur reçoit « destinataire hors ligne ».
+
 ## Payer une adresse Lightning (T21)
 
 `lightningAddress.ts` suit LUD-16 et LUD-06 :
@@ -42,4 +51,4 @@ sequenceDiagram
 - Le `callback` doit avoir la même origine que le serveur interrogé : côté API, `PUBLIC_BASE_URL` doit donc être l'adresse que voit le téléphone (`http://10.0.2.2:3000` pour l'émulateur).
 - Erreurs : nom inconnu ou réponse invalide → `DESTINATION_INVALID` ; réponse LNURL `ERROR` (téléphone du destinataire hors ligne…) → `NO_ROUTE` ; coupure ou délai de 20 s → `NETWORK_OFFLINE`. Dans tous ces cas, rien n'est payé.
 
-Tests : `tests/ldkWallet.test.ts`, `tests/lightningAddress.test.ts` et `tests/useSecureScreen.test.tsx` utilisent un faux module natif et un faux serveur LNURL. Responsable : Salam.
+Tests : `tests/ldkWallet.test.ts`, `tests/lightningAddress.test.ts`, `tests/addressInbox.test.ts` et `tests/useSecureScreen.test.tsx` utilisent un faux module natif et un faux serveur LNURL. Responsable : Salam.
