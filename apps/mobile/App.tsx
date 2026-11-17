@@ -9,6 +9,7 @@ import NotoSansRegular from '../../assets/brand/fonts/NotoSans-Regular.ttf';
 import NotoSansSemiBold from '../../assets/brand/fonts/NotoSans-SemiBold.ttf';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import type { RootStackParamList } from './src/navigation/types';
+import type { HomeServices } from './src/home/ports';
 import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
@@ -23,17 +24,27 @@ type AppProps = {
   i18n?: AppI18n;
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
+  homeServices?: HomeServices;
 };
 
-export default function App({ i18n = appI18n, initialRoute, onboardingServices }: AppProps = {}) {
+export default function App({
+  i18n = appI18n,
+  initialRoute,
+  onboardingServices,
+  homeServices,
+}: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
-      <AppContent initialRoute={initialRoute} onboardingServices={onboardingServices} />
+      <AppContent
+        initialRoute={initialRoute}
+        onboardingServices={onboardingServices}
+        homeServices={homeServices}
+      />
     </TranslationProvider>
   );
 }
 
-function AppContent({ initialRoute, onboardingServices }: Omit<AppProps, 'i18n'>) {
+function AppContent({ initialRoute, onboardingServices, homeServices }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
   const [continueWithoutFonts, setContinueWithoutFonts] = useState(false);
@@ -68,7 +79,11 @@ function AppContent({ initialRoute, onboardingServices }: Omit<AppProps, 'i18n'>
                 </Text>
               </SafeAreaView>
             )}
-            <RootNavigator initialRoute={initialRoute} onboardingServices={onboardingServices} />
+            <RootNavigator
+              initialRoute={initialRoute}
+              onboardingServices={onboardingServices}
+              homeServices={homeServices}
+            />
           </View>
         </BrandTypographyProvider>
       )}

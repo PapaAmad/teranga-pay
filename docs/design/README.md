@@ -18,4 +18,8 @@ la [direction artistique et le parcours](onboarding-direction.md) et les
 9 novembre 2026 avant commit et PR ; cette validation visuelle ne remplace pas la
 relecture du code par Salam ni les essais sur appareil.
 
+T16 prépare l’accueil du wallet : [recherche](accueil-recherche.md),
+[direction et états](accueil-direction.md), [captures à valider](validation-t16/README.md)
+et [suivi](../planning/suivi-t16.md). Son rendu attend un nouvel accord de PAN avant publication.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

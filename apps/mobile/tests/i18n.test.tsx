@@ -128,7 +128,7 @@ describe('changement de langue dans le parcours existant', () => {
       },
     });
     render(<App initialRoute="Home" i18n={instance} />);
-    await screen.findByRole('header', { name: homeTitle });
+    await screen.findByRole('header', { name: fr.appName });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     fireEvent.changeText(screen.getByLabelText(fr.design.fields.label), 'Saisie conservée');
 
@@ -142,6 +142,6 @@ describe('changement de langue dans le parcours existant', () => {
     expect(screen.getByLabelText('Champ témoin')).toHaveProp('value', 'Saisie conservée');
     expect(screen.getByText(fr.design.fields.helper)).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: 'Retour témoin' }));
-    expect(screen.getByRole('header', { name: 'Bienvenue sur Nom témoin' })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Nom témoin' })).toBeOnTheScreen();
   });
 });

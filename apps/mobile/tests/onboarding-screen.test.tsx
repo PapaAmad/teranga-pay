@@ -148,13 +148,13 @@ describe('onboarding | écrans et parcours', () => {
     expect(await screen.findByRole('header', { name: fr.about.title })).toBeOnTheScreen();
   });
 
-  it('l’entrée Home explicite conserve la présentation non financière du socle', async () => {
+  it('l’entrée Home sans wallet expose son absence et ne fabrique aucun solde', async () => {
     render(<App initialRoute="Home" i18n={createAppI18n()} />);
     await act(async () => {});
-    expect(
-      await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' }),
-    ).toBeOnTheScreen();
-    expect(screen.getByText(fr.home.notice)).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: fr.appName })).toBeOnTheScreen();
+    expect(await screen.findByText(fr.dashboard.unavailableDescription)).toBeOnTheScreen();
+    expect(screen.queryByLabelText('0 FCFA')).toBeNull();
+    expect(screen.getByRole('button', { name: fr.dashboard.actions.send })).toBeDisabled();
     expect(screen.queryByLabelText(fr.onboarding.pin.label)).toBeNull();
   });
 

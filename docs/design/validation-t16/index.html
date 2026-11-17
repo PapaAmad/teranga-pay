@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Revue locale de l’accueil T16</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.55;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 8px;
+      }
+      h1 {
+        font-size: clamp(28px, 4vw, 46px);
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 800px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 28px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 10px 4px;
+        font-weight: 600;
+      }
+      figcaption small {
+        display: block;
+        font-weight: 400;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="tag">T16 | Écrans confirmés par PAN</span>
+      <h1>Teranga Pay | L’accueil à regarder ensemble.</h1>
+      <p>
+        Projet de Salam et PAN. Captures des composants React Native réels, rendus dans Edge le 9
+        novembre 2026. Cliquer sur une image ouvre sa taille originale.
+      </p>
+      <p>
+        Le montant FCFA passe au premier plan. Les sats restent lisibles, les trois actions sont
+        nommées et les opérations distinguent réussite, attente et échec. L’aperçu utilise des
+        données fictives : il ne crée ni portefeuille ni paiement. L’entrée normale explique
+        l’absence de wallet branché.
+      </p>
+      <p>
+        <strong>PAN a confirmé les écrans le 9 novembre 2026 avant commit et PR.</strong> Pour
+        essayer les écrans, lancer <code>npm run mobile:web -- --offline --port 8092</code>, puis
+        ouvrir <a href="http://localhost:8092">l’aperçu local</a>. Choisir « Découvrir le projet »,
+        puis « Essayer l’accueil fictif ».
+      </p>
+      <p>
+        <a href="README.md">Détails des vérifications et limites</a> |
+        <a href="mesures.json">Mesures du parcours</a>
+      </p>
+    </header>
+    <main aria-label="Captures de l’accueil T16">
+      <figure>
+        <a href="02-accueil.png"
+          ><img
+            src="02-accueil.png"
+            width="390"
+            height="844"
+            alt="Aperçu de l’accueil, estimation fictive de 45 000 FCFA, sats et trois actions."
+        /></a>
+        <figcaption>Accueil proposé<small>390 × 844 | données fictives</small></figcaption>
+      </figure>
+      <figure>
+        <a href="03-operations.png"
+          ><img
+            src="03-operations.png"
+            width="390"
+            height="844"
+            alt="Trois opérations fictives avec montant, date et statuts distincts."
+            loading="lazy"
+        /></a>
+        <figcaption>Les trois opérations<small>Après défilement</small></figcaption>
+      </figure>
+      <figure>
+        <a href="04-masquage.png"
+          ><img
+            src="04-masquage.png"
+            width="390"
+            height="844"
+            alt="Accueil avec les montants du solde et des opérations masqués."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Confidentialité<small>Le masquage concerne aussi les libellés accessibles</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-explication-taux.png"
+          ><img
+            src="05-explication-taux.png"
+            width="390"
+            height="844"
+            alt="Explication de la source fixe du taux de démonstration et des limites de l’estimation."
+            loading="lazy"
+        /></a>
+        <figcaption>Comprendre l’estimation<small>Source et date du taux</small></figcaption>
+      </figure>
+      <figure>
+        <a href="06-action.png"
+          ><img
+            src="06-action.png"
+            width="390"
+            height="844"
+            alt="Modale expliquant que l’aperçu ne crée pas de demande et n’envoie aucun paiement."
+            loading="lazy"
+        /></a>
+        <figcaption>Actions à venir<small>Les trois modales ont été vérifiées</small></figcaption>
+      </figure>
+      <figure>
+        <a href="01-sans-wallet.png"
+          ><img
+            src="01-sans-wallet.png"
+            width="390"
+            height="844"
+            alt="Entrée normale expliquant que le portefeuille n’est pas disponible, sans faux solde nul."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Entrée sans wallet<small>Aucune donnée inventée dans le parcours normal</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-vide.png"
+          ><img
+            src="07-vide.png"
+            width="390"
+            height="844"
+            alt="Scénario explicitement fictif avec un solde réellement nul."
+            loading="lazy"
+        /></a>
+        <figcaption>Un vrai zéro<small>Distinct d’une lecture impossible</small></figcaption>
+      </figure>
+      <figure>
+        <a href="08-vide-suite.png"
+          ><img
+            src="08-vide-suite.png"
+            width="390"
+            height="844"
+            alt="Message d’historique vide après une lecture réussie."
+            loading="lazy"
+        /></a>
+        <figcaption>Aucune opération<small>État vide après défilement</small></figcaption>
+      </figure>
+      <figure>
+        <a href="09-sans-taux.png"
+          ><img
+            src="09-sans-taux.png"
+            width="390"
+            height="844"
+            alt="Sats connus et contre-valeur FCFA indisponible en l’absence de taux."
+            loading="lazy"
+        /></a>
+        <figcaption>Sans taux FCFA<small>Les sats connus restent lisibles</small></figcaption>
+      </figure>
+      <figure>
+        <a href="10-hors-connexion.png"
+          ><img
+            src="10-hors-connexion.png"
+            width="390"
+            height="844"
+            alt="Données précédentes signalées en mode hors connexion et actions indisponibles."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Hors connexion<small>L’ancienne lecture garde une limite explicite</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-erreur-cache.png"
+          ><img
+            src="11-erreur-cache.png"
+            width="390"
+            height="844"
+            alt="Erreur de lecture avec les dernières données connues et une commande de réessai."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Erreur de lecture<small>Les données précédentes sont identifiées</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-erreur-suite.png"
+          ><img
+            src="12-erreur-suite.png"
+            width="390"
+            height="844"
+            alt="Suite de l’état d’erreur avec réessai des opérations."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Réessayer les opérations<small>Erreur d’une ressource traitée séparément</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-lecture.png"
+          ><img
+            src="13-lecture.png"
+            width="390"
+            height="844"
+            alt="Actualisation en cours indiquée par un texte et un indicateur, sans animation du montant."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Actualisation<small>Les chiffres restent stables pendant la lecture</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-accueil-360.png"
+          ><img
+            src="14-accueil-360.png"
+            width="360"
+            height="800"
+            alt="Accueil fictif sur une largeur de 360 pixels."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Largeur 360 pixels<small>360 × 800 | aucun débordement horizontal relevé</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-accueil-320.png"
+          ><img
+            src="14-accueil-320.png"
+            width="320"
+            height="568"
+            alt="Accueil fictif sur une largeur de 320 pixels."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Largeur 320 pixels<small>320 × 568 | contenu accessible en défilant</small>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-grand-montant-320.png"
+          ><img
+            src="15-grand-montant-320.png"
+            width="320"
+            height="568"
+            alt="Valeur extrême de test de format affichée intégralement sur deux lignes à 320 pixels."
+            loading="lazy"
+        /></a>
+        <figcaption>
+          Montant extrême complet<small
+            >Test de format uniquement | tous les chiffres sont conservés</small
+          >
+        </figcaption>
+      </figure>
+    </main>
+    <footer>
+      <p>
+        Ces captures Web permettent de discuter la composition. Elles ne valident ni le rendu
+        Android, ni TalkBack, ni un coffre natif ou une transaction Lightning. L’intégration T14/T15
+        attend les corrections et essais avec Salam. Les parcours financiers Recevoir, Envoyer et
+        Encaisser appartiennent aux tâches T18, T20 et T22.
+      </p>
+    </footer>
+  </body>
+</html>

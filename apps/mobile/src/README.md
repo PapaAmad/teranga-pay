@@ -8,3 +8,7 @@ Ajouter les futurs dossiers de composants, de services et de fonctions lorsqu’
 préférences/protection. L’entrée normale n’a pas encore de wallet natif branché ;
 l’aperçu complet de développement utilise un état fictif isolé en mémoire.
 Consulter son [README](onboarding/README.md) pour la frontière portée avec Salam.
+
+`home/` contient l’accueil T16, son port de lecture, ses formats et ses scénarios
+fictifs. Le branchement réel attend la composition validée avec Salam ; les données
+absentes ne deviennent pas un faux solde. Voir le [README](home/README.md).
