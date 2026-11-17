@@ -12,6 +12,11 @@ export type JournalData = {
   invoices: Record<string, Invoice>;
   /** Envois sans issue établie : « destination|montant » → identifiant du paiement (T21). */
   sends: Record<string, string>;
+  /**
+   * Raison LDK de chaque échec (`ROUTE_NOT_FOUND`…). Le module natif ne la garde
+   * qu'en mémoire : sans ce journal, elle serait perdue au redémarrage.
+   */
+  failures: Record<string, string>;
 };
 
 export type JournalStorage = {
@@ -25,7 +30,13 @@ export type Journal = {
   update(change: (data: JournalData) => void): Promise<JournalData>;
 };
 
-const empty = (): JournalData => ({ version: 1, xof: {}, invoices: {}, sends: {} });
+export const emptyJournal = (): JournalData => ({
+  version: 1,
+  xof: {},
+  invoices: {},
+  sends: {},
+  failures: {},
+});
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -33,11 +44,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 /** Relit le journal ; un fichier illisible ou d'un autre format repart vide plutôt que de bloquer le wallet. */
 export function parseJournal(text: string | null): JournalData {
-  if (text === null) return empty();
+  if (text === null) return emptyJournal();
   try {
     const parsed: unknown = JSON.parse(text);
-    if (!isRecord(parsed) || parsed.version !== 1) return empty();
-    const data = empty();
+    if (!isRecord(parsed) || parsed.version !== 1) return emptyJournal();
+    const data = emptyJournal();
     if (isRecord(parsed.xof)) {
       for (const [id, value] of Object.entries(parsed.xof)) {
         if (value === null || (Number.isSafeInteger(value) && (value as number) >= 0)) {
@@ -52,6 +63,11 @@ export function parseJournal(text: string | null): JournalData {
         }
       }
     }
+    if (isRecord(parsed.failures)) {
+      for (const [id, value] of Object.entries(parsed.failures)) {
+        if (typeof value === 'string' && /^[A-Z_]{1,40}$/.test(value)) data.failures[id] = value;
+      }
+    }
     if (isRecord(parsed.sends)) {
       for (const [key, value] of Object.entries(parsed.sends)) {
         if (typeof value === 'string' && value.length > 0) data.sends[key] = value;
@@ -59,7 +75,42 @@ export function parseJournal(text: string | null): JournalData {
     }
     return data;
   } catch {
-    return empty();
+    return emptyJournal();
+  }
+}
+
+/** Factures non payées gardées encore 7 jours après leur expiration, puis oubliées. */
+export const invoiceRetentionMs = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Factures qui pourraient être purgées : expirées depuis plus de 7 jours et sans
+ * trace de règlement dans le journal (`xof`). Liste vide : inutile d'interroger le nœud.
+ */
+export function staleInvoiceIds(data: JournalData, nowMs: number): string[] {
+  return Object.entries(data.invoices)
+    .filter(([id, invoice]) => {
+      const expires = Date.parse(invoice.expiresAt);
+      return !(id in data.xof) && Number.isFinite(expires) && nowMs - expires > invoiceRetentionMs;
+    })
+    .map(([id]) => id);
+}
+
+/**
+ * Retire du journal ce qui ne sert plus, pour qu'il ne grossisse pas sans limite :
+ * factures expirées depuis plus de 7 jours **et jamais réglées**. Une facture
+ * réglée garde son prix de devis et son lien avec le paiement (reçus, T22).
+ * `settledIds` vient du nœud (paiements reçus réussis) : le journal seul ne sait
+ * pas toujours qu'une facture a été payée. Une facture que le nœud dit réglée est
+ * notée dans `xof` (au prix du devis s'il existe) : elle n'est plus réexaminée.
+ */
+export function pruneJournal(
+  data: JournalData,
+  nowMs: number,
+  settledIds: ReadonlySet<string>,
+): void {
+  for (const id of staleInvoiceIds(data, nowMs)) {
+    if (settledIds.has(id)) data.xof[id] = data.invoices[id]?.amountXof ?? null;
+    else delete data.invoices[id];
   }
 }
 

@@ -87,6 +87,8 @@ export type InboxOptions = {
   sleep?: (ms: number) => Promise<void>;
   /** Attente maximale d'une réponse « longue » du serveur (il répond en 25 s au plus). */
   pollTimeoutMs?: number;
+  /** Arrêt demandé : coupe l'attente en cours et empêche toute réponse ensuite. */
+  signal?: AbortSignal;
   /** Prévenu à chaque facture renvoyée ou erreur, pour l'écran (aucune donnée personnelle). */
   onEvent?: (
     event: { type: 'facture_envoyee'; amountMsat: number } | { type: 'erreur'; code: string },
@@ -100,13 +102,17 @@ export type InboxOptions = {
 export async function pollOnce(
   options: InboxOptions,
   answered: Set<string>,
-): Promise<'ok' | 'jeton_refuse' | 'reseau'> {
+): Promise<'ok' | 'jeton_refuse' | 'reseau' | 'arrete'> {
   const { apiUrl, token, fetch, native, onEvent } = options;
   const now = options.now ?? Date.now;
   const base = apiUrl.replace(/\/+$/, '');
   const auth = { authorization: `Bearer ${token}` };
+  const stopSignal = options.signal;
+  if (stopSignal?.aborted) return 'arrete';
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.pollTimeoutMs ?? 35_000);
+  const onStop = () => controller.abort();
+  stopSignal?.addEventListener('abort', onStop);
   let items: unknown[];
   try {
     const response = await fetch(`${base}/v1/lightning-addresses/me/requests`, {
@@ -118,12 +124,15 @@ export async function pollOnce(
     const body = (await response.json()) as { requests?: unknown };
     items = Array.isArray(body.requests) ? body.requests : [];
   } catch {
-    return 'reseau';
+    return stopSignal?.aborted ? 'arrete' : 'reseau';
   } finally {
     clearTimeout(timer);
+    stopSignal?.removeEventListener('abort', onStop);
   }
 
   for (const item of items) {
+    // Une écoute arrêtée ne répond plus : une nouvelle écoute s'en chargera.
+    if (stopSignal?.aborted) return 'arrete';
     if (!isAcceptableRequest(item, now()) || answered.has(item.id)) continue;
     answered.add(item.id);
     try {
@@ -132,17 +141,22 @@ export async function pollOnce(
         item.descriptionHash,
         600,
       );
+      // Arrêt pendant la création : la facture n'est ni envoyée ni annoncée.
+      if (stopSignal?.aborted) return 'arrete';
       const response = await fetch(`${base}/v1/lightning-addresses/me/requests/${item.id}`, {
         method: 'POST',
         headers: { ...auth, 'content-type': 'application/json' },
         body: JSON.stringify({ paymentRequest }),
+        ...(stopSignal ? { signal: stopSignal } : {}),
       });
+      if (stopSignal?.aborted) return 'arrete';
       onEvent?.(
         response.status === 204
           ? { type: 'facture_envoyee', amountMsat: item.amountMsat }
           : { type: 'erreur', code: `HTTP_${response.status}` },
       );
     } catch (error) {
+      if (stopSignal?.aborted) return 'arrete';
       const code = (error as { code?: unknown } | null)?.code;
       onEvent?.({ type: 'erreur', code: typeof code === 'string' ? code : 'UNKNOWN' });
     }
@@ -154,12 +168,13 @@ export async function pollOnce(
 export function startAddressInbox(options: InboxOptions): { stop: () => void } {
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const answered = new Set<string>();
-  let running = true;
+  const stopper = new AbortController();
+  const looped = { ...options, signal: stopper.signal };
   void (async () => {
     let backoff = 1_000;
-    while (running) {
-      const result = await pollOnce(options, answered);
-      if (!running) break;
+    while (!stopper.signal.aborted) {
+      const result = await pollOnce(looped, answered);
+      if (result === 'arrete' || stopper.signal.aborted) break;
       if (result === 'jeton_refuse') {
         options.onEvent?.({ type: 'erreur', code: 'UNAUTHORIZED' });
         break;
@@ -175,8 +190,7 @@ export function startAddressInbox(options: InboxOptions): { stop: () => void } {
     }
   })();
   return {
-    stop: () => {
-      running = false;
-    },
+    // Coupe aussi l'attente longue en cours : aucune réponse n'est envoyée après l'arrêt.
+    stop: () => stopper.abort(),
   };
 }
