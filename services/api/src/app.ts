@@ -19,6 +19,8 @@ import { lightningAddressRoutes } from './routes/lightning-address.ts';
 import { alertRoutes } from './routes/alerts.ts';
 import { savingsRoutes } from './routes/savings.ts';
 import type { SavingsAssumptions } from './savings.ts';
+import { createBridgeRuntime, type BridgeRuntime } from './bridge.ts';
+import { withdrawalRoutes } from './routes/withdrawals.ts';
 
 export type BuildOptions = {
   config?: ApiConfig;
@@ -32,6 +34,8 @@ export type BuildOptions = {
   longPollMs?: number;
   /** Hypothèses de l'estimation d'économies (T34) ; défaut : document de conception. */
   savingsAssumptions?: SavingsAssumptions;
+  /** Fournisseur fictif injectable ; jamais un fournisseur de fonds réels. */
+  bridge?: BridgeRuntime;
 };
 
 /**
@@ -143,9 +147,10 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
   });
 
   const now = options.now ?? Date.now;
+  const rates = options.rates ?? createRateProvider(config.rate, { now });
   await app.register(healthRoutes);
   await app.register(rateRoutes, {
-    rates: options.rates ?? createRateProvider(config.rate, { now }),
+    rates,
     quotes: createQuoteStore({ ttlMs: config.quoteTtlSeconds * 1000, now }),
   });
   const directory = createLightningAddressDirectory({ now });
@@ -157,5 +162,16 @@ export async function buildApp(options: BuildOptions = {}): Promise<FastifyInsta
   });
   await app.register(alertRoutes);
   await app.register(savingsRoutes, { assumptions: options.savingsAssumptions });
+  const bridge =
+    options.bridge ?? (config.bridge ? createBridgeRuntime({ ...config.bridge, now }) : undefined);
+  if (bridge) {
+    app.addHook('onClose', async () => bridge.close());
+    await app.register(withdrawalRoutes, {
+      bridge,
+      rates,
+      now,
+      quoteTtlMs: Math.min(config.quoteTtlSeconds, 300) * 1000,
+    });
+  }
   return app;
 }

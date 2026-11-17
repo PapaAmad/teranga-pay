@@ -178,23 +178,67 @@ Réponse : `{ score, level, confirmationRequired, reasons: [{ code, points }] }`
 
 Voir [.env.example](.env.example). `npm run api` lit `services/api/.env` s'il existe (fichier ignoré par Git) ; les variables déjà définies dans l'environnement restent prioritaires. Toute valeur invalide arrête le démarrage avec un message clair.
 
-| Variable                    | Défaut                  | Rôle                                                                              |
-| --------------------------- | ----------------------- | --------------------------------------------------------------------------------- |
-| `API_HOST`                  | `127.0.0.1`             | Interface d'écoute (`0.0.0.0` dans Docker)                                        |
-| `API_PORT`                  | `3000`                  | Port                                                                              |
-| `API_LOG_LEVEL`             | `info`                  | `fatal` à `trace`, ou `silent`                                                    |
-| `API_RATE_LIMIT_MAX`        | `60`                    | Requêtes autorisées par fenêtre et adresse                                        |
-| `API_RATE_LIMIT_WINDOW_MS`  | `60000`                 | Durée de la fenêtre en millisecondes (≥ 1 s)                                      |
-| `RATE_SOURCE`               | `fixe`                  | `fixe` ou `kraken`                                                                |
-| `RATE_FIXED_XOF_PER_BTC`    | `45000000`              | Taux du mode `fixe`, en FCFA pour 1 BTC                                           |
-| `QUOTE_TTL_SECONDS`         | `300`                   | Durée de validité d'un devis (30 à 3 600 s)                                       |
-| `LNADDRESS_DOMAIN`          | `teranga.example`       | Domaine des adresses Lightning                                                    |
-| `PUBLIC_BASE_URL`           | `http://127.0.0.1:3000` | URL publique de l'API pour le callback LNURL (émulateur : `http://10.0.2.2:3000`) |
-| `LNURL_CALLBACK_TIMEOUT_MS` | `15000`                 | Attente maximale de la facture du téléphone                                       |
-| `SAVINGS_ASSUMPTIONS_FILE`  | _(vide)_                | Fichier JSON qui remplace les hypothèses T34                                      |
+| Variable                    | Défaut                    | Rôle                                                                              |
+| --------------------------- | ------------------------- | --------------------------------------------------------------------------------- |
+| `API_HOST`                  | `127.0.0.1`               | Interface d'écoute (`0.0.0.0` dans Docker)                                        |
+| `API_PORT`                  | `3000`                    | Port                                                                              |
+| `API_LOG_LEVEL`             | `info`                    | `fatal` à `trace`, ou `silent`                                                    |
+| `API_RATE_LIMIT_MAX`        | `60`                      | Requêtes autorisées par fenêtre et adresse                                        |
+| `API_RATE_LIMIT_WINDOW_MS`  | `60000`                   | Durée de la fenêtre en millisecondes (≥ 1 s)                                      |
+| `RATE_SOURCE`               | `fixe`                    | `fixe` ou `kraken`                                                                |
+| `RATE_FIXED_XOF_PER_BTC`    | `45000000`                | Taux du mode `fixe`, en FCFA pour 1 BTC                                           |
+| `QUOTE_TTL_SECONDS`         | `300`                     | Durée de validité d'un devis (30 à 3 600 s)                                       |
+| `LNADDRESS_DOMAIN`          | `teranga.example`         | Domaine des adresses Lightning                                                    |
+| `PUBLIC_BASE_URL`           | `http://127.0.0.1:3000`   | URL publique de l'API pour le callback LNURL (émulateur : `http://10.0.2.2:3000`) |
+| `LNURL_CALLBACK_TIMEOUT_MS` | `15000`                   | Attente maximale de la facture du téléphone                                       |
+| `SAVINGS_ASSUMPTIONS_FILE`  | _(vide)_                  | Fichier JSON qui remplace les hypothèses T34                                      |
+| `BRIDGE_SIM_ENABLED`        | `false`                   | Active les seules routes de retrait fictif ; écoute loopback obligatoire.         |
+| `BRIDGE_SIM_TOKEN`          | absent                    | Jeton aléatoire de 32 à 128 caractères, conservé dans le fichier ignoré.          |
+| `BRIDGE_SIM_DB_PATH`        | `.data/bridge-sim.sqlite` | Registre durable fictif ; préserver ce fichier pour la reprise.                   |
+| `BRIDGE_SIM_SCENARIO`       | `success`                 | `success`, `declined`, `timeout_after_success` ou `unavailable`.                  |
 
 ## Limites connues
 
 - Pas encore de proxy inverse : le jour où l'API passe derrière un proxy, il faudra configurer `trustProxy` avec l'adresse exacte du proxy, sinon toutes les requêtes partageront la même limite.
-- Pas d'authentification ni de base de données : les devis vivent en mémoire. Le stockage durable viendra avec les routes qui en ont besoin (T19, T26).
+- Les routes publiques T13/T17 n'authentifient pas un wallet et leurs devis restent en mémoire. Les routes de retrait T23 ajoutent leur propre contrôle d'accès et leur registre durable ; les identités de démonstration ne sont pas des comptes wallet.
 - Pas d'image Docker : elle arrivera avec la commande unique de démonstration (T12 et suivantes).
+
+## T23 | Retraits simulés
+
+PAN porte le [module de passerelle](../bridge-sim/README.md) ; Salam relit. L’API existante monte ses routes lorsque la simulation est explicitement activée. Elles demandent un jeton Bearer de démonstration fourni hors du dépôt, sur une écoute locale. L’identité vient de cette authentification, jamais du corps d’une requête. La configuration et les commandes ci-dessus décrivent le lancement ; le module ne crée pas un second serveur HTTP.
+
+Toutes les réponses métier réussies de ce parcours portent `simulation: true` ; les erreurs gardent le format commun de l’API. Les opérateurs sont `wave` et `orange_money`, avec pour seuls destinataires `wave-demo-001` et `orange-demo-001`. Aucun numéro personnel, PIN, solde natif ou clé n’est demandé. Les frais fixes de **100 FCFA sont fictifs** et apparaissent dans le devis avant la confirmation.
+
+| Méthode | Chemin                          | Rôle                                                                                                  |
+| ------- | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| GET     | `/v1/withdrawal-options`        | Opérateurs, destinations de démonstration et frais fictifs.                                           |
+| GET     | `/v1/withdrawal-balance`        | Solde fictif disponible et réservé de l’identité authentifiée.                                        |
+| POST    | `/v1/withdrawal-quotes`         | Prépare le prix, les frais et le total à partir du taux T17 ; conserve le devis au plus cinq minutes. |
+| GET     | `/v1/withdrawal-quotes/:id`     | Relit le devis durable de cette même identité.                                                        |
+| POST    | `/v1/withdrawals`               | Confirme un `quoteId` avec un en-tête `Idempotency-Key` au format UUID opaque.                        |
+| GET     | `/v1/withdrawals`               | Lit le journal paginé de l’identité authentifiée, sans nouvelle opération.                            |
+| GET     | `/v1/withdrawals/:id`           | Consulte le retrait connu sans créer d’opération.                                                     |
+| POST    | `/v1/withdrawals/:id/reconcile` | Relit le journal opérateur simulé de cette opération précise.                                         |
+| POST    | `/v1/withdrawals/:id/retry`     | Reprend explicitement cette même opération après lecture de son journal, sans nouvelle réservation.   |
+
+Pour réessayer une confirmation dont la réponse a été perdue, conserver **le même devis et le même UUID de clé**. Une chaîne opaque arbitraire qui n’est pas un UUID est refusée. Le même couple retrouve le retrait après expiration ou redémarrage. La réutilisation de la clé pour un autre devis, ou du devis avec une autre clé, produit un conflit. Le serveur recherche d’abord le retrait déjà engagé : même si le devis a expiré, il répond `409 QUOTE_ALREADY_USED`, pas `410 QUOTE_EXPIRED`. Les erreurs `QUOTE_ALREADY_USED` et `IDEMPOTENCY_CONFLICT` peuvent fournir `error.withdrawalId`, uniquement après vérification de l’identité propriétaire ; le client peut alors consulter ou reprendre cette référence. Les lectures restent limitées à l’identité authentifiée ; connaître une référence ne donne aucun accès aux données d’un autre compte.
+
+La confirmation initiale répond `201` si son résultat est terminal. Un état `en_attente` ou `incertain` répond toujours `202`, y compris au rejeu. Un rejeu terminal répond `200` et conserve `Idempotent-Replay: true`. Ces codes HTTP ne remplacent pas le statut métier du corps. Une lecture, réconciliation ou reprise d’une référence inconnue ou étrangère répond `404 WITHDRAWAL_NOT_FOUND` ; un registre fermé répond `503 STORAGE_CLOSED` sans détail de base.
+
+### Reprise volontaire après une panne
+
+`POST /v1/withdrawals/:id/retry` avec le corps `{}` est authentifié et limité au propriétaire, comme la réconciliation. Il lit d’abord le journal de l’opérateur simulé : un résultat connu est rapproché ; une lecture échouée garde l’incertitude sans soumettre. Si la lecture réussit sans résultat, la reprise soumet **le même identifiant et la même charge utile figée** au simulateur. Son contrat impose l’idempotence durable par identifiant de retrait : plusieurs reprises concurrentes ne produisent qu’un seul effet fictif. Aucun nouveau devis, retrait ou débit de réservation n’est créé, même si le devis réservé a expiré. Un résultat terminal est conservé sans appel opérateur.
+
+La reprise répond `200` si un résultat terminal est retrouvé, sinon `202`. Elle ne libère jamais les fonds sur le seul écoulement du temps. Cette composition est exclusivement simulée ; un futur opérateur réel nécessitera une garantie d’idempotence et une décision d’intégration distinctes.
+
+### Journal de simulation pour T24
+
+`GET /v1/withdrawals?limit=20&before=<id>` renvoie `{"simulation":true,"items":[...],"nextCursor":null}`. La limite vaut 20 par défaut et accepte les entiers de 1 à 100. Omettre `before` pour commencer ; pour continuer, reprendre exactement `nextCursor`. Ce curseur est l’identifiant du dernier retrait rendu ; `null` termine la liste connue par cette lecture. Un curseur inconnu ou appartenant à une autre identité répond `404 NOT_FOUND`, sans révéler ses données. Les paramètres inconnus et les curseurs malformés sont refusés.
+
+Le tri utilise la **date de création immuable** du retrait, puis son identifiant, tous deux décroissants. Les dates égales ne provoquent ni doublon ni omission entre pages. Le statut et `updatedAt` sont relus dans le journal durable : une confirmation tardive actualise le détail sans déplacer le retrait vers une autre page. La pagination ne gèle pas le journal entre plusieurs requêtes ; actualiser depuis la première page pour retrouver les nouvelles créations. Cette date de classement ne prétend pas être la date effective d’un règlement.
+
+La liste ne soumet ni ne réconcilie de retrait et ne modifie aucun solde. Elle reste un historique de **simulation** séparé des paiements du wallet ; T24 ne doit pas additionner ces retraits fictifs comme s’ils étaient des débits natifs.
+
+`en_attente` et `incertain` conservent la réservation fictive. Seule une preuve terminale du simulateur permet de consommer ou de libérer cette réservation, une fois. La réconciliation ne soumet pas un nouveau transfert ; la reprise volontaire peut resoumettre la même opération idempotente après une lecture sans résultat. Le scénario `timeout_after_success` permet de vérifier un succès dont la réponse a été perdue ; `unavailable` garde l’incertitude tant que le simulateur reste indisponible. Les autres scénarios sont `success` et `declined`.
+
+SQLite conserve les comptes, devis, retraits et résultats du simulateur. Préserver le même fichier conserve les garanties de rejeu ; le supprimer ou restaurer une ancienne copie les réinitialise. Aucune purge automatique n’est introduite : la rétention bornée des devis non engagés reste à définir sans effacer les références nécessaires aux reprises. Les devis de retrait utilisent directement la conversion entière T17 puis leur copie durable ; aucun second magasin mémoire n’est créé pour eux. Ce stockage local synchrone sert une démonstration à faible volume. L’[ADR 0017](../../docs/decisions/0017-passerelle-simulee-et-idempotence.md) décrit les choix et leurs limites ; le [suivi T23](../../docs/planning/suivi-t23.md) distingue les tests observés de ceux encore attendus. L’écran de retrait reste T25 et les reçus mobiles T24.
