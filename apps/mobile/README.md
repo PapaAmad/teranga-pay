@@ -33,10 +33,22 @@ Pour revoir les vrais composants dans un navigateur :
 `npm run mobile:web -- --offline --port 8092`, puis ouvrir
 `http://localhost:8092`. Le Web est une cible de prévisualisation ; il ne valide
 pas les protections Android. La galerie T08 et la présentation du projet restent
-accessibles via « Découvrir le projet ». L’accueil financier, les paiements,
-la réception et les retraits restent leurs tâches du
+accessibles via « Découvrir le projet ». T16 ajoute l’accueil de lecture du wallet :
+depuis cette présentation, choisir « Voir l’accueil du portefeuille » pour l’entrée
+normale ou « Essayer l’accueil fictif » pour l’atelier de développement.
+L’entrée normale ne dispose pas encore du port natif et n’invente aucun solde.
+L’aperçu permet de vérifier le solde, le masquage, les opérations et les états de
+lecture avec des données fictives. Les trois actions expliquent leur limite ;
+les paiements, la réception et les retraits restent leurs tâches du
 [plan](../../docs/planning/roadmap.md). Démonstration en regtest uniquement,
 cash-out Wave/Orange Money simulé.
+
+Lire la [recherche T16](../../docs/design/accueil-recherche.md), la
+[direction](../../docs/design/accueil-direction.md), les
+[captures](../../docs/design/validation-t16/README.md) et la
+[décision 0013](../../docs/decisions/0013-accueil-lecture-wallet.md).
+PAN a confirmé les écrans T16 le 9 novembre 2026 avant commit et PR. La relecture
+de Salam et les vérifications d’intégration restent nécessaires.
 
 T08 fournit l’identité B « Le courant commun », les icônes originales, les polices
 locales et les composants. T09 fournit le contexte i18next et les ressources FR.

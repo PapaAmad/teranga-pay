@@ -1,0 +1,205 @@
+{
+  "date": "2026-11-09",
+  "renderer": "React Native Web | Edge headless",
+  "errors": [],
+  "actions": [
+    {
+      "name": "Recevoir",
+      "explainsNoPayment": true
+    },
+    {
+      "name": "Envoyer",
+      "explainsNoPayment": true
+    },
+    {
+      "name": "Encaisser",
+      "explainsNoPayment": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "01-sans-wallet",
+      "title": "Entrée normale | aucun wallet branché",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-accueil",
+      "title": "Accueil | aperçu fictif",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-operations",
+      "title": "Les trois opérations | aperçu",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-masquage",
+      "title": "Montants masqués",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-explication-taux",
+      "title": "Source du taux et limite de l’estimation",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-action",
+      "title": "Limite d’une action dans l’aperçu",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-vide",
+      "title": "Vrai zéro | aucune opération",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-vide-suite",
+      "title": "État vide | suite",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-sans-taux",
+      "title": "Sats connus | taux FCFA absent",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-hors-connexion",
+      "title": "Données précédentes | hors connexion",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-erreur-cache",
+      "title": "Échec de lecture | données précédentes",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-erreur-suite",
+      "title": "Réessai des opérations",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-lecture",
+      "title": "Actualisation | données précédentes",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-accueil-360",
+      "title": "Accueil 360 × 800",
+      "layout": {
+        "width": 360,
+        "height": 800,
+        "documentWidth": 360,
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-accueil-320",
+      "title": "Accueil 320 × 568",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-grand-montant-320",
+      "title": "Valeur longue complète | 320 pixels",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": []
+      }
+    }
+  ],
+  "largeAmount": {
+    "accessibleLabel": "4 053 239 664 633 445 FCFA",
+    "text": "4 ​053 ​239 ​664 ​633 ​445",
+    "rectangles": [
+      {
+        "left": 30.328125,
+        "right": 289.65625,
+        "width": 259.328125,
+        "height": 44
+      },
+      {
+        "left": 132.78125,
+        "right": 187.203125,
+        "width": 54.421875,
+        "height": 44
+      }
+    ]
+  },
+  "limits": [
+    "Captures Web des vrais composants, pas un essai Android.",
+    "Données fictives, aucun portefeuille ni paiement.",
+    "Écrans confirmés par PAN le 9 novembre 2026 avant commit et PR T16.",
+    "Grand texte couvert par Jest, rendu Android et TalkBack à vérifier."
+  ]
+}

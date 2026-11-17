@@ -196,7 +196,7 @@ describe('démarrage des polices', () => {
     render(<App initialRoute="Home" i18n={createAppI18n()} />);
     const registered = jest.mocked(useFonts).mock.calls[0]?.[0] ?? {};
     expect(Object.keys(registered).sort()).toEqual(Object.values(tokens.fonts).sort());
-    expect(await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
+    expect(await screen.findByRole('header', { name: fr.appName })).toHaveStyle({
       fontFamily: tokens.fonts.title,
     });
     expect(screen.getByText(fr.home.aboutAction)).toHaveStyle({ fontFamily: tokens.fonts.label });
@@ -208,7 +208,7 @@ describe('démarrage des polices', () => {
 
   it('place les deux actions de l’accueil dans un contenu défilable qui peut grandir', async () => {
     render(<App initialRoute="Home" i18n={createAppI18n()} />);
-    await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
+    await screen.findByRole('header', { name: fr.appName });
     const scroll = screen.UNSAFE_getByType(ScrollView);
     const contentStyle = StyleSheet.flatten(scroll.props.contentContainerStyle);
     expect(contentStyle.flexGrow).toBe(1);
@@ -222,9 +222,7 @@ describe('démarrage des polices', () => {
     render(<App initialRoute="Home" i18n={createAppI18n()} />);
     expect(screen.getByText('Préparation de Teranga Pay…')).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' })).toHaveStyle({
-      fontWeight: '700',
-    });
+    expect(await screen.findByRole('header', { name: fr.appName })).toBeOnTheScreen();
     expect(screen.getByText(fr.fonts.fallback)).toBeOnTheScreen();
   });
 
@@ -236,9 +234,7 @@ describe('démarrage des polices', () => {
     expect(screen.getByText('Préparation de Nom témoin…')).toBeOnTheScreen();
 
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    expect(
-      await screen.findByRole('header', { name: 'Bienvenue sur Nom témoin' }),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Nom témoin' })).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.home.aboutAction }));
     expect(
       screen.getByText(
@@ -252,7 +248,7 @@ describe('démarrage des polices', () => {
     const i18n = createAppI18n();
     const { rerender } = render(<App initialRoute="Home" i18n={i18n} />);
     fireEvent.press(screen.getByRole('button', { name: fr.fonts.continueAction }));
-    await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' });
+    await screen.findByRole('header', { name: fr.appName });
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({
       fontFamily: undefined,
@@ -277,9 +273,7 @@ describe('démarrage des polices', () => {
     jest.mocked(useFonts).mockReturnValue([false, new Error('Exemple de police indisponible')]);
     render(<App initialRoute="Home" i18n={createAppI18n()} />);
     expect(screen.getByRole('alert', { name: fr.fonts.error })).toBeOnTheScreen();
-    expect(
-      await screen.findByRole('header', { name: 'Bienvenue sur Teranga Pay' }),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: fr.appName })).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: fr.home.designAction }));
     expect(screen.getByRole('header', { name: fr.design.title })).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: fr.design.title })).toHaveStyle({

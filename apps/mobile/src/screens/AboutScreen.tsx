@@ -21,6 +21,18 @@ export function AboutScreen({ navigation }: Props) {
       </Text>
       <Text style={[styles.description, { fontFamily: fonts.body }]}>{t('about.development')}</Text>
       <Button label={t('about.backAction')} onPress={() => navigation.goBack()} />
+      <Button
+        variant="secondary"
+        label={t('about.walletAction')}
+        onPress={() => navigation.navigate('Home')}
+      />
+      {__DEV__ && (
+        <Button
+          variant="accent"
+          label={t('about.previewAction')}
+          onPress={() => navigation.navigate('HomePreview')}
+        />
+      )}
     </ScrollView>
   );
 }

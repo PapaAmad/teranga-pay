@@ -18,3 +18,11 @@ de l’accueil technique demandent désormais `initialRoute="Home"` explicitemen
 Les jetons de test ne forment pas une phrase Bitcoin et les codes sont fictifs.
 Les [captures Web](../../../docs/design/validation-t14/README.md) complètent ces tests
 sans prouver le rendu ou les protections sur un Android physique.
+
+T16 ajoute `home-model.test.ts` pour la validation des lectures, les événements,
+les erreurs partielles, les données précédentes, les formats et les réponses
+tardives ; `home-screen.test.tsx` couvre le masquage, les unités, les trois actions,
+les réessais et les interruptions. Les anciens tests de navigation et de polices
+visent désormais le titre de marque et l’accueil de lecture, sans faux wallet.
+La [validation T16](../../../docs/design/validation-t16/README.md) distingue les
+captures Web des essais Android encore attendus.
