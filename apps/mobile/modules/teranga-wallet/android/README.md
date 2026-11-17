@@ -1,0 +1,18 @@
+# 🤖 Code Android du module wallet
+
+Le code Kotlin qui fait tourner le nœud Lightning **LDK Node** dans le téléphone et garde la phrase de récupération dans un coffre chiffré.
+
+```mermaid
+flowchart LR
+    JS["src/index.ts<br/>(pont TypeScript)"] --> M["TerangaWalletModule.kt<br/>nœud LDK, factures, paiements, événements"]
+    M --> S["SecureSeedStore.kt<br/>coffre : PIN + Android Keystore"]
+    M --> L[("noBackupFilesDir/ldk<br/>état des canaux")]
+```
+
+| Fichier | Rôle |
+| --- | --- |
+| `build.gradle` | Dépendances Android, dont LDK Node 0.7.0 |
+| `src/main/java/expo/modules/terangawallet/TerangaWalletModule.kt` | Création, déverrouillage, solde, factures, paiements, événements |
+| `src/main/java/expo/modules/terangawallet/SecureSeedStore.kt` | Chiffrement de la phrase (AES-256-GCM, PIN + Keystore), blocage après 5 PIN faux |
+
+Le chemin `src/main/java/expo/modules/terangawallet` est imposé par Android et Expo (un dossier par partie du nom du paquet). Voir le [README du module](../README.md).

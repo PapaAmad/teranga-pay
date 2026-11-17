@@ -17,6 +17,8 @@ build/
 coverage/
 *.tsbuildinfo
 apps/mobile/android/
+# Caches Gradle, y compris ceux des modules natifs locaux
+.gradle/
 apps/mobile/ios/
 # Données et secrets Lightning / signature Android
 *.jks
