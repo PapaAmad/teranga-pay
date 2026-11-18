@@ -315,6 +315,155 @@ describe('T28 | envoi engagé et résultat tardif', () => {
   });
 });
 
+describe('T28 | envoi suivi par l’identifiant du wallet (contrat T11)', () => {
+  function listening(test: ReturnType<typeof sending>) {
+    const listeners: ((event: unknown) => void)[] = [];
+    test.wallet.subscribe.mockImplementation((listener) => {
+      listeners.push(listener as (event: unknown) => void);
+      return () => undefined;
+    });
+    return (event: unknown) => listeners.forEach((listener) => listener(event));
+  }
+  const timeout = (code = 'PAYMENT_TIMEOUT') =>
+    ({
+      ok: false,
+      error: { code, paymentId: 'paiement-tardif-fictif-t28' },
+    }) as unknown as HomeResult<HomePayment>;
+
+  it.each(['PAYMENT_TIMEOUT', 'PAYMENT_PENDING'])(
+    'rattache le résultat tardif annoncé après %s, sans renvoi',
+    async (errorCode) => {
+      const test = sending();
+      const emit = listening(test);
+      await pin(test);
+      test.wallet.send.mockResolvedValueOnce(timeout(errorCode));
+      test.wallet.history.mockResolvedValue(ok([]));
+      await test.controller.confirm(testPin);
+      await drain();
+      expect(test.controller.getSnapshot()).toMatchObject({
+        phase: 'unknown',
+        committed: true,
+        canRefreshPayment: true,
+        error: { code: errorCode },
+      });
+      const other = test.reopen();
+      await other.start();
+      await other.confirm(testPin);
+      expect(test.wallet.send).toHaveBeenCalledTimes(1);
+      emit({ type: 'paiement', payment: { ...payment(), id: 'autre-paiement-fictif' } });
+      await drain();
+      expect(test.controller.getSnapshot().phase).toBe('unknown');
+      emit({ type: 'paiement', payment: payment('reussi') });
+      await drain();
+      expect(test.controller.getSnapshot()).toMatchObject({ phase: 'success', committed: true });
+      expect(other.getSnapshot()).toMatchObject({ phase: 'success', committed: true });
+    },
+  );
+
+  it('retrouve l’issue par « Vérifier » quand l’événement a été manqué', async () => {
+    const test = sending();
+    await pin(test);
+    test.wallet.send.mockResolvedValueOnce(timeout());
+    test.wallet.history.mockResolvedValueOnce(ok([]));
+    await test.controller.confirm(testPin);
+    await drain();
+    expect(test.controller.getSnapshot().phase).toBe('unknown');
+    test.wallet.history.mockResolvedValueOnce(ok([payment('echoue')]));
+    await test.controller.refreshPayment();
+    expect(test.controller.getSnapshot()).toMatchObject({
+      phase: 'failed',
+      error: { code: 'NO_ROUTE' },
+    });
+  });
+
+  it('reconnaît tout de suite une issue déjà connue de l’historique', async () => {
+    const test = sending();
+    await pin(test);
+    test.wallet.send.mockResolvedValueOnce(timeout('PAYMENT_PENDING'));
+    test.wallet.history.mockResolvedValueOnce(ok([payment('reussi')]));
+    await test.controller.confirm(testPin);
+    await drain();
+    expect(test.controller.getSnapshot()).toMatchObject({ phase: 'success', committed: true });
+    expect(test.wallet.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('n’applique jamais un autre paiement du même montant trouvé dans l’historique', async () => {
+    const test = sending();
+    await pin(test);
+    test.wallet.send.mockResolvedValueOnce(timeout());
+    test.wallet.history.mockResolvedValueOnce(
+      ok([{ ...payment('reussi'), id: 'autre-paiement-fictif' }]),
+    );
+    await test.controller.confirm(testPin);
+    await drain();
+    expect(test.controller.getSnapshot()).toMatchObject({
+      phase: 'unknown',
+      canRefreshPayment: true,
+    });
+  });
+
+  it('ne suit pas un refus NO_ROUTE, même avec un identifiant', async () => {
+    const test = sending();
+    await pin(test);
+    test.wallet.send.mockResolvedValueOnce({
+      ok: false,
+      error: { code: 'NO_ROUTE', paymentId: 'paiement-tardif-fictif-t28' },
+    } as unknown as HomeResult<HomePayment>);
+    test.wallet.history.mockClear();
+    test.wallet.history.mockResolvedValue(ok([payment('en_attente')]));
+    await test.controller.confirm(testPin);
+    await drain();
+    expect(test.controller.getSnapshot()).toMatchObject({ phase: 'failed' });
+    expect(test.wallet.history).not.toHaveBeenCalled();
+  });
+
+  it('une lecture tardive de l’ancien envoi ne touche pas un nouvel envoi', async () => {
+    const test = sending();
+    const emit = listening(test);
+    await pin(test);
+    const lateHistory = deferred<HomeResult<HomePayment[]>>();
+    test.wallet.send.mockResolvedValueOnce(timeout());
+    test.wallet.history.mockReturnValueOnce(lateHistory.promise);
+    const first = test.controller.confirm(testPin);
+    await drain();
+    emit({ type: 'paiement', payment: payment('reussi') });
+    await drain();
+    expect(test.controller.getSnapshot().phase).toBe('success');
+    test.controller.dispose();
+    const next = test.reopen();
+    await next.start();
+    await next.inspect(sendPreviewInvoice);
+    await next.requestPin();
+    const second = deferred<HomeResult<HomePayment>>();
+    test.wallet.send.mockReturnValueOnce(second.promise);
+    const confirming = next.confirm(testPin);
+    await drain();
+    expect(next.getSnapshot().phase).toBe('sending');
+    // L'historique de l'ancien envoi arrive enfin : même montant, autre opération.
+    lateHistory.resolve(ok([{ ...payment('reussi'), id: 'paiement-tardif-fictif-t28' }]));
+    await first;
+    await drain();
+    expect(next.getSnapshot().phase).toBe('sending');
+    second.resolve(ok({ ...payment('en_attente'), id: 'nouvel-envoi-fictif' }));
+    await confirming;
+  });
+
+  it('ignore un identifiant mal formé et garde l’issue inconnue', async () => {
+    const test = sending();
+    await pin(test);
+    test.wallet.send.mockResolvedValueOnce({
+      ok: false,
+      error: { code: 'PAYMENT_TIMEOUT', paymentId: 'pas valide !' },
+    } as unknown as HomeResult<HomePayment>);
+    await test.controller.confirm(testPin);
+    await drain();
+    expect(test.controller.getSnapshot()).toMatchObject({
+      phase: 'unknown',
+      canRefreshPayment: false,
+    });
+  });
+});
+
 describe('T28 | retrait simulé et lecture bornée', () => {
   it.each(['options', 'balance', 'journal'] as const)(
     'borne la lecture %s et autorise une reprise sans POST',

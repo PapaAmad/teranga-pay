@@ -138,8 +138,14 @@ function readError(value: unknown): HomeError | null {
     ...(integer(source.retryAfterSeconds, 1)
       ? { retryAfterSeconds: source.retryAfterSeconds }
       : {}),
+    ...(typeof source.paymentId === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(source.paymentId)
+      ? { paymentId: source.paymentId }
+      : {}),
   });
 }
+
+/** Contrat T11 : un envoi parti mais sans issue connue porte l'identifiant à suivre. */
+const trackedErrors = new Set(['PAYMENT_TIMEOUT', 'PAYMENT_PENDING']);
 
 function readBalance(value: unknown): HomeBalance | null {
   if (!record(value) || value.ok !== true || !record(value.value)) return null;
@@ -279,6 +285,8 @@ function readPayment(value: unknown): HomePayment | null {
 type Operation = {
   phase: 'sending' | 'success' | 'pending' | 'failed' | 'unknown';
   payment: HomePayment | null;
+  /** Paiement à suivre quand le wallet n'a pas encore d'issue (T11, `paymentId`). */
+  trackedId: string | null;
   error: HomeError | null;
   amountSats: number;
   maxFeeSats: number;
@@ -395,7 +403,7 @@ export function createSendController(
       busy: operation.phase === 'sending',
       committed: true,
       canRefreshPayment:
-        operation.payment !== null &&
+        (operation.payment !== null || operation.trackedId !== null) &&
         (operation.phase === 'pending' || operation.phase === 'unknown'),
     });
   }
@@ -404,6 +412,7 @@ export function createSendController(
   }
   function applyPayment(payment: HomePayment) {
     const operation = session.operation;
+    if (operation?.trackedId && payment.id !== operation.trackedId) return;
     if (
       operation?.payment &&
       (payment.id !== operation.payment.id ||
@@ -429,6 +438,22 @@ export function createSendController(
     operation.error = payment.status === 'echoue' ? code(payment.failure ?? 'UNKNOWN') : null;
     notifyOperation();
   }
+  /** Une lecture discrète de l'historique : l'issue a pu arriver avant l'erreur. */
+  async function refreshTracked(operation: Operation) {
+    if (!services.wallet || !operation.trackedId) return;
+    try {
+      const result: unknown = await readWithDeadline(() => services.wallet!.history({ limit: 50 }));
+      if (session.operation !== operation) return;
+      if (record(result) && result.ok === true && Array.isArray(result.value)) {
+        const payment = result.value
+          .map(readPayment)
+          .find((value) => value?.id === operation.trackedId);
+        if (payment) applyPayment(payment);
+      }
+    } catch {
+      // « Vérifier » et l'événement `paiement` restent disponibles.
+    }
+  }
   function onEvent(event: HomeWalletEvent) {
     const value: unknown = event;
     if (!active() || !record(value)) return;
@@ -440,9 +465,10 @@ export function createSendController(
       update({ walletState: value.state });
       if (session.operation) showOperation();
       else void initialise();
-    } else if (value.type === 'paiement' && session.operation?.payment) {
-      const payment = readPayment(value.payment);
-      if (payment?.id === session.operation.payment.id) applyPayment(payment);
+    } else if (value.type === 'paiement' && session.operation) {
+      const followed = session.operation.payment?.id ?? session.operation.trackedId;
+      const payment = followed ? readPayment(value.payment) : null;
+      if (payment && payment.id === followed) applyPayment(payment);
     }
   }
   async function initialise() {
@@ -883,6 +909,7 @@ export function createSendController(
       const operation: Operation = {
         phase: 'sending',
         payment: null,
+        trackedId: null,
         error: null,
         amountSats,
         maxFeeSats: preview.maxFeeSats,
@@ -963,6 +990,14 @@ export function createSendController(
       } else {
         operation.phase = error.code === 'NO_ROUTE' ? 'failed' : 'unknown';
         operation.error = error;
+        if (trackedErrors.has(error.code) && error.paymentId) {
+          // L'envoi est parti : on suit son identifiant (événement `paiement`,
+          // « Vérifier »), sans jamais proposer de le renvoyer.
+          operation.trackedId = error.paymentId;
+          notifyOperation();
+          await refreshTracked(operation);
+          return;
+        }
         notifyOperation();
       }
     },
@@ -987,12 +1022,12 @@ export function createSendController(
         !active() ||
         snapshot.busy ||
         !snapshot.canRefreshPayment ||
-        !operation?.payment ||
+        !(operation?.payment || operation?.trackedId) ||
         snapshot.walletState !== 'pret' ||
         !services.wallet
       )
         return;
-      const id = operation.payment.id;
+      const id = (operation.payment?.id ?? operation.trackedId) as string;
       const token = revision;
       update({ busy: true });
       try {
