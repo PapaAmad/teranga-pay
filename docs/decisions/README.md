@@ -18,6 +18,7 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0012](0012-onboarding-protection-et-integration.md) | Onboarding, protection et frontière du wallet           | Proposition locale T14 ; validation visuelle de PAN avant commit ou PR    |
 | [0013](0013-accueil-lecture-wallet.md)               | Accueil, valeurs inconnues et port de lecture           | Écrans T16 confirmés par PAN avant publication ; relecture Salam attendue |
 | [0014](0014-recevoir-adresse-et-qr.md)               | Adresse publique, QR fidèle et résultats du partage     | Écrans T18 confirmés par PAN avant publication ; relecture Salam attendue |
+| [0015](0015-envoyer-confirmation-et-session.md)      | Envoi, plafond de frais, clavier et barrière de session | Écrans T20 confirmés par PAN avant publication ; relecture Salam attendue |
 | [0017](0017-passerelle-simulee-et-idempotence.md)    | Retraits simulés, réservation durable et réconciliation | Proposition T23 de PAN ; vérifications et relecture Salam attendues       |
 
 La numérotation tient compte des branches encore ouvertes : les notes 0004 à 0016 sont utilisées ou réservées dans les autres tâches du projet. Vérifier les PR avant de choisir le prochain numéro. Préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.

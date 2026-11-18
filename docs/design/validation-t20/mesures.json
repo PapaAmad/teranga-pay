@@ -1,0 +1,543 @@
+{
+  "date": "2026-11-10",
+  "renderer": "React Native Web | Edge sans fenêtre | vrais composants T20",
+  "nativeCameraExecuted": false,
+  "nativeKeyboardExecuted": false,
+  "realPaymentExecuted": false,
+  "errors": [],
+  "checks": [
+    {
+      "case": "01-destination",
+      "scanAndPasteSymmetric": true,
+      "singleLine": true
+    },
+    {
+      "case": "clipboard",
+      "explicitRead": true,
+      "readFromBrowser": true,
+      "uriNormalized": true
+    },
+    {
+      "case": "sixDigits",
+      "automaticSend": false
+    },
+    {
+      "case": "pendingReadOnly",
+      "stillPending": true
+    },
+    {
+      "case": "unknownWithoutId",
+      "noResend": true,
+      "noInventedReconciliation": true
+    },
+    {
+      "case": "23-destination-320",
+      "scanAndPasteSymmetric": true,
+      "singleLine": true
+    },
+    {
+      "case": "24-destination-360",
+      "scanAndPasteSymmetric": true,
+      "singleLine": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "01-destination",
+      "title": "Destinataire | Scanner et Coller sur une ligne",
+      "note": "Deux boutons de même hauteur, libellés courts.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": {
+          "width": 166,
+          "height": 60,
+          "top": 397,
+          "bottom": 457,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 166,
+          "height": 60,
+          "top": 397,
+          "bottom": 457,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-camera-permission",
+      "title": "Scanner | permission à la demande",
+      "note": "La capture ne demande aucun accès à une caméra physique.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-verification",
+      "title": "Vérification | montant, frais et total",
+      "note": "Plafond exact transmis au wallet lors de la confirmation.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-demande",
+      "title": "Vérification | nouveau destinataire et validité",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-demande-complete",
+      "title": "Demande consultable sans troncature",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-code",
+      "title": "Code | saisie masquée et confirmation explicite",
+      "note": "Aucun envoi au sixième chiffre.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-reussite",
+      "title": "Réussite fictive | aucun transfert",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-attente",
+      "title": "Attente | vérification sans renvoi",
+      "note": "Résultat commandé par le simulateur, sans réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-incertain",
+      "title": "Délai dépassé | aucun renvoi proposé",
+      "note": "Résultat commandé par le simulateur, sans réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-echec",
+      "title": "Échec signalé par le wallet fictif",
+      "note": "Résultat commandé par le simulateur, sans réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-code-refuse",
+      "title": "Code refusé | saisie effacée",
+      "note": "Résultat commandé par le simulateur, sans réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-fcfa-indisponibles",
+      "title": "FCFA inconnus | accès au code bloqué",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-expiree",
+      "title": "Demande expirée | autre demande nécessaire",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-solde-insuffisant",
+      "title": "Facture fixe | solde insuffisant",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-invalide",
+      "title": "Demande invalide | erreur utile",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 166,
+          "height": 60,
+          "top": 47,
+          "bottom": 107,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "16-hors-connexion",
+      "title": "Hors connexion | aucun envoi automatique",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "17-lecture",
+      "title": "Erreur de lecture | reprise explicite",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "18-montant-invalide",
+      "title": "Montant hors limite | erreur près du champ",
+      "note": "Continuer reste bloqué tant que la saisie est invalide.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "19-montant",
+      "title": "Montant libre | FCFA en premier",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "20-espace-reduit",
+      "title": "Saisie accessible | espace vertical réduit",
+      "note": "Contenu défilé jusqu’au champ dans une fenêtre Web réduite ; pas un clavier Android.",
+      "layout": {
+        "width": 360,
+        "height": 460,
+        "documentWidth": 360,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 384,
+          "bottom": 444,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "21-adresse-verification",
+      "title": "Adresse Lightning | devis et plafond",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "22-etroit-attente",
+      "title": "320 pixels | attente et actions accessibles",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "scan": null,
+        "paste": null,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 494,
+          "bottom": 554,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "23-destination-320",
+      "title": "320 pixels | deux boutons symétriques",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "scan": {
+          "width": 131,
+          "height": 60,
+          "top": 436,
+          "bottom": 496,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 131,
+          "height": 60,
+          "top": 436,
+          "bottom": 496,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "24-destination-360",
+      "title": "360 pixels | libellés sur une ligne",
+      "note": "",
+      "layout": {
+        "width": 360,
+        "height": 780,
+        "documentWidth": 360,
+        "scan": {
+          "width": 151,
+          "height": 60,
+          "top": 397,
+          "bottom": 457,
+          "inViewport": true,
+          "disabled": false
+        },
+        "paste": {
+          "width": 151,
+          "height": 60,
+          "top": 397,
+          "bottom": 457,
+          "inViewport": true,
+          "disabled": false
+        },
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 704,
+          "bottom": 764,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    }
+  ]
+}

@@ -14,4 +14,19 @@ aucun service de traduction distant n’est appelé.
 
 Ajouter un texte dans le français, employer sa clé avec `useTranslation`, puis renseigner le même chemin dans `wo.ts` après validation linguistique. Éviter les phrases assemblées par concaténation ; utiliser les paramètres du moteur. Les montants FCFA gardent leurs espaces insécables U+00A0.
 
+T20 organise ses libellés dans `send.ts`, importé par le catalogue canonique sous
+`fr.send` ; les écrans continuent de lire `t('send.…')` via le contexte. Les
+plafonds de frais, l’action explicite après PIN, les erreurs de saisie et les
+résultats incertains gardent des mots distincts. Le texte de l’atelier précise
+qu’aucun paiement réel n’est effectué ; les messages ne donnent pas un timeout
+pour un échec confirmé.
+
+`native.json` contient le texte système français de permission caméra. `fr.ts`
+l’expose sous `native` et `app.config.ts` lit la même ressource au build pour le
+plugin Expo Camera. Les composants ne lisent pas ce JSON directement à
+l’exécution ; la configuration native ne peut pas employer un hook React.
+Modifier cette ressource exige une nouvelle construction pour changer le texte
+système installé. Le microphone et l’enregistrement audio sont désactivés dans
+ce plugin. Le wolof reste vide jusqu’à sa traduction et sa relecture T33.
+
 PAN réalise T09, Salam relit. Commandes : `npm run typecheck`, `npm test -- --ci` ; les tests `i18n.test.tsx` couvrent le repli, l’isolation, les paramètres et le changement de langue au cours du parcours existant. Le titre natif est contrôlé via la prop du composant remplacé par Jest ; son rendu sur Android reste à vérifier. Les essais Android réels et la relecture wolof restent distincts.

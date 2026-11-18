@@ -29,7 +29,8 @@
     "expo-crypto": "58.0.8",
     "expo-screen-capture": "~58.0.6",
     "expo-clipboard": "58.0.4",
-    "qrcode-generator": "2.0.4"
+    "qrcode-generator": "2.0.4",
+    "expo-camera": "58.0.14"
   },
   "devDependencies": {
     "@expo/metro-runtime": "~58.0.17",
