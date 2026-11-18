@@ -26,3 +26,11 @@ les réessais et les interruptions. Les anciens tests de navigation et de police
 visent désormais le titre de marque et l’accueil de lecture, sans faux wallet.
 La [validation T16](../../../docs/design/validation-t16/README.md) distingue les
 captures Web des essais Android encore attendus.
+
+T18 ajoute `receive-model.test.ts` pour l’adresse, les événements et les lectures
+obsolètes ; `receive-qr.test.ts` décode indépendamment la matrice QR et vérifie sa
+marge ; `receive-platform.test.ts` traite les résultats et refus des API natives
+et Web ; `receive-screen.test.tsx` couvre copie, partage, confidentialité, grand
+texte et anciens callbacks après verrouillage. `navigation.test.tsx` vérifie le
+trajet depuis Recevoir et la séparation de l’aperçu. Les destinations sont toutes
+fictives. Consulter la [validation T18](../../../docs/design/validation-t18/README.md).

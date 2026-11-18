@@ -93,6 +93,29 @@ Le rythme des espacements suit 4, 8, 12, 16, 24 et 32 unités. Les arrondis prop
 
 Les planches et composants de démonstration permettent d'examiner ces états ; ils ne réalisent aucun paiement. Les exemples regtest et les retraits simulés restent identifiés. Les états exacts, les essais effectués et ceux restant à conduire sont consignés dans la [validation](validation.md).
 
+### Formulaires | Action au-dessus du clavier
+
+Le 9 novembre 2026, PAN a signalé le comportement observé dans Wave. La règle
+proposée pour nos formulaires le reprend : pendant la saisie, l’action principale
+reste juste au-dessus du clavier, à portée de main.
+Placer le bandeau d’action hors du contenu défilant, dans la zone qui s’adapte au
+clavier. Les champs et leurs erreurs peuvent défiler ; le bouton conserve son
+libellé, son état et une cible d’au moins 48 dp. L’ouverture du clavier ne doit ni
+valider le formulaire ni demander de le fermer avant un appui sur Continuer.
+
+L’adaptation à la hauteur du clavier est fournie par les primitives de la
+plateforme, avec les marges de sécurité, sans hauteur de clavier supposée. En
+React Native, `KeyboardAvoidingView` ajuste la hauteur, la position ou la marge
+inférieure ; le positionnement du bandeau dans la mise en page reste à prévoir.
+[Documentation React Native](https://reactnative.dev/docs/keyboardavoidingview).
+
+C’est le comportement cible des formulaires de PIN et de montant. T18 Recevoir
+n’a aucun champ de saisie. Le PIN T14 dispose déjà d’un évitement du clavier,
+mais son bouton reste dans le contenu défilant : l’adaptation du bandeau et les
+essais sur Android restent à effectuer dans ce parcours. Vérifier ouverture et
+fermeture du clavier, petit écran, grand texte et appui direct sur l’action,
+sans recouvrir le champ actif ni compter deux fois l’espace du clavier.
+
 ## Mouvement de marque
 
 La [source animée et le MP4](../../assets/brand/motion/README.md) prolongent B : les deux modules se tracent sur place, puis le logotype et la signature apparaissent. La géométrie finale conserve le monogramme partagé. Cette introduction muette de 6,5 secondes sert au pitch ou à la communication ; elle ne devient pas un écran d’attente obligatoire dans l’application. Le HTML prévoit pause, reprise, parcours de la durée et mouvement réduit. Les exports graphiques ne prouvent pas leur lecture sur téléphone physique.

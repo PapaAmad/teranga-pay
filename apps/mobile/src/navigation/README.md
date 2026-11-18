@@ -9,6 +9,9 @@ défaut ; il ne transforme pas cette absence en solde nul.
 leurs données fictives restent séparées de l’entrée normale. La présentation du
 projet permet d’ouvrir ces accueils. `initialRoute` et l’injection des services
 permettent les vérifications isolées ; ils ne constituent pas une authentification
-du wallet. Les actions T16 ouvrent une explication, sans transfert ; les parcours
-de paiement viendront avec T18, T20 et T22. PAN maintient la navigation ; Salam relit.
+du wallet. `Receive` ouvre T18 depuis Recevoir ; `ReceivePreview`, réservé au
+développement, garde un fournisseur fictif distinct. La perte de focus suspend la
+lecture de l’adresse. Sans fournisseur T19, l’entrée normale annonce son
+indisponibilité. Envoyer et Encaisser gardent leur explication, sans transfert,
+jusqu’à T20 et T22. PAN maintient la navigation ; Salam relit.
 Lancer `npm test -- --ci` depuis la racine pour vérifier les parcours.

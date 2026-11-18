@@ -10,6 +10,7 @@ import NotoSansSemiBold from '../../assets/brand/fonts/NotoSans-SemiBold.ttf';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import type { RootStackParamList } from './src/navigation/types';
 import type { HomeServices } from './src/home/ports';
+import type { ReceiveServices } from './src/receive/ports';
 import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
@@ -25,6 +26,7 @@ type AppProps = {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
   homeServices?: HomeServices;
+  receiveServices?: ReceiveServices;
 };
 
 export default function App({
@@ -32,6 +34,7 @@ export default function App({
   initialRoute,
   onboardingServices,
   homeServices,
+  receiveServices,
 }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
@@ -39,12 +42,18 @@ export default function App({
         initialRoute={initialRoute}
         onboardingServices={onboardingServices}
         homeServices={homeServices}
+        receiveServices={receiveServices}
       />
     </TranslationProvider>
   );
 }
 
-function AppContent({ initialRoute, onboardingServices, homeServices }: Omit<AppProps, 'i18n'>) {
+function AppContent({
+  initialRoute,
+  onboardingServices,
+  homeServices,
+  receiveServices,
+}: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
   const [continueWithoutFonts, setContinueWithoutFonts] = useState(false);
@@ -83,6 +92,7 @@ function AppContent({ initialRoute, onboardingServices, homeServices }: Omit<App
               initialRoute={initialRoute}
               onboardingServices={onboardingServices}
               homeServices={homeServices}
+              receiveServices={receiveServices}
             />
           </View>
         </BrandTypographyProvider>

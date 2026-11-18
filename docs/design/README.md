@@ -19,7 +19,13 @@ la [direction artistique et le parcours](onboarding-direction.md) et les
 relecture du code par Salam ni les essais sur appareil.
 
 T16 prépare l’accueil du wallet : [recherche](accueil-recherche.md),
-[direction et états](accueil-direction.md), [captures à valider](validation-t16/README.md)
-et [suivi](../planning/suivi-t16.md). Son rendu attend un nouvel accord de PAN avant publication.
+[direction et états](accueil-direction.md), [captures confirmées par PAN](validation-t16/README.md)
+et [suivi](../planning/suivi-t16.md). Les écrans T16 ont été confirmés le 9 novembre
+2026 ; la relecture de Salam reste distincte.
+
+T18 prépare Recevoir : [recherche](recevoir-recherche.md),
+[direction](recevoir-direction.md), [captures confirmées par PAN](validation-t18/README.md)
+et [suivi](../planning/suivi-t18.md). PAN a confirmé les écrans T18 le 9 novembre
+2026 avant commit et PR ; aucune réception réelle n’est déduite de l’aperçu.
 
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

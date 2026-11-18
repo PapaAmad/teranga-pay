@@ -4,6 +4,7 @@ PAN porte cet écran et son modèle de lecture ; Salam porte le wallet T11/T15. 
 
 - `ports.ts` décrit la partie lecture du contrat T11, sans SDK, clé, PIN ou envoi.
 - `HomeScreen.tsx` rend l’estimation, les actions et les trois opérations. Il masque les montants à l’interruption et propose un réessai distinct pour une erreur partielle.
+- Le callback `onReceive` relie Recevoir au parcours T18. Les autres actions conservent leur explication jusqu’à leur tâche respective ; aucun transfert n’est déclenché par cet écran.
 - `controller.ts` charge le solde et les trois dernières opérations indépendamment, valide les données externes et signale les valeurs anciennes. Un changement wallet invalide les lectures précédentes et regroupe les rafales de notifications.
 - `format.ts` formate les nombres entiers et les dates en français, dans le fuseau de Dakar. Les unités et libellés appartiennent au catalogue T09. Le montant FCFA historique est conservé tel que fourni par le wallet.
 - Le montant en attente est distinct du disponible, estimé par calcul entier avec arrondi inférieur. Sans taux ou au-delà des entiers sûrs, aucune contre-valeur n’est inventée ; ses sats restent visibles et ce bloc suit le masquage des montants.

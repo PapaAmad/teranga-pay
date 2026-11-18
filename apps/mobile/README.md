@@ -56,6 +56,15 @@ Le français est actif et mémorisé ; le wolof est annoncé mais non sélection
 avant traduction et relecture native T33. Tous les textes de l’UI viennent des
 [ressources de traduction](src/translations/README.md).
 
+T18 relie Recevoir à un écran dédié : QR fidèle à l’adresse, copie et partage avec
+retours accessibles. Depuis l’accueil fictif, choisir Recevoir pour examiner les
+scénarios. L’entrée normale attend son fournisseur d’adresse T19 ; elle n’invente
+aucune destination. PAN a confirmé les écrans le 9 novembre 2026 avant commit et
+PR ; la relecture de Salam reste attendue. Lire le [module](src/receive/README.md), la
+[recherche](../../docs/design/recevoir-recherche.md) et le
+[suivi T18](../../docs/planning/suivi-t18.md). `qrcode-generator` et `expo-clipboard`
+servent l’encodage et la copie ; `jsqr` vérifie le décodage dans les tests seulement.
+
 Commandes utiles : `npm run typecheck --workspace @teranga-pay/mobile` et
 `npm test --workspace @teranga-pay/mobile -- --ci`. Les tests utilisent
 `jest-expo` 58, Jest 30, le preset React Native 0.88 et un renderer React 19.3 aligné.
