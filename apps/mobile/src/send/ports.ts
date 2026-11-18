@@ -6,6 +6,7 @@ import type {
   HomeWalletEvent,
   HomeWalletState,
 } from '../home/ports';
+import type { RiskPort } from '../risk/ports';
 
 /** Sous-ensemble structurel de Wallet T11/T21 ; le SDK reste sous la responsabilité de Salam. */
 export type SendPaymentPreview = {
@@ -54,4 +55,6 @@ export type SendServices = {
   mode: 'unavailable' | 'preview' | 'native';
   wallet?: SendWalletPort;
   rates?: SendRatePort;
+  /** T26/T27 : analyse sans identité ; une absence reste visible avant le PIN. */
+  risk?: RiskPort;
 };

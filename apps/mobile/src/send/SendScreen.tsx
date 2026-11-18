@@ -20,6 +20,7 @@ import { FormFrame } from './FormFrame';
 import { sendPlatform, type SendPlatformPort } from './platform';
 import type { SendServices } from './ports';
 import { QrScanner } from './QrScanner';
+import { RiskNotice } from '../risk/RiskNotice';
 
 type Props = {
   services: SendServices;
@@ -71,7 +72,8 @@ export function SendScreen({
   const interrupted = !active || !foreground;
   const phase = interrupted ? 'suspended' : state.phase;
   const result = ['sending', 'success', 'pending', 'unknown', 'failed'].includes(phase);
-  const isForm = ['destination', 'amount', 'quoting', 'review', 'pin'].includes(phase);
+  const isRisk = ['riskChecking', 'riskWarning', 'riskUnavailable'].includes(phase);
+  const isForm = ['destination', 'amount', 'quoting', 'review', 'pin'].includes(phase) || isRisk;
   const body = [styles.body, { fontFamily: fonts.body }];
   const label = [styles.label, { fontFamily: fonts.label }];
   const money = (value: number | null | undefined) =>
@@ -213,7 +215,32 @@ export function SendScreen({
     );
   else if (phase === 'review')
     footer = (
-      <Button label={t('send.confirm')} icon="shield" onPress={() => controller.requestPin()} />
+      <Button
+        label={t('send.confirm')}
+        icon="shield"
+        onPress={() => {
+          void controller.requestPin();
+        }}
+      />
+    );
+  else if (isRisk)
+    footer = (
+      <View style={styles.gap}>
+        <Button
+          label={t('risk.cancel')}
+          onPress={() => {
+            controller.cancelRisk();
+            onBack();
+          }}
+        />
+        {phase !== 'riskChecking' && (
+          <Button
+            label={t(phase === 'riskUnavailable' ? 'risk.continueUnavailable' : 'risk.continue')}
+            variant="secondary"
+            onPress={() => controller.acknowledgeRisk()}
+          />
+        )}
+      </View>
     );
   else if (phase === 'pin')
     footer = (
@@ -350,8 +377,14 @@ export function SendScreen({
             </Text>
             <Text style={[...body, styles.muted]}>{t(description)}</Text>
           </View>
-          {(phase === 'idle' || phase === 'loading' || phase === 'sending') && (
+          {(phase === 'idle' ||
+            phase === 'loading' ||
+            phase === 'sending' ||
+            phase === 'riskChecking') && (
             <ActivityIndicator color={tokens.colors.primary} accessibilityLabel={t(title)} />
+          )}
+          {(phase === 'riskWarning' || phase === 'riskUnavailable') && (
+            <RiskNotice assessment={state.risk} />
           )}
 
           {phase === 'destination' && (
@@ -470,7 +503,7 @@ export function SendScreen({
             </>
           )}
 
-          {(['review', 'pin'].includes(phase) || (result && state.preview)) && (
+          {(['review', 'pin'].includes(phase) || isRisk || (result && state.preview)) && (
             <>
               <View style={styles.amountCard}>
                 <View style={styles.cardTop}>
@@ -533,34 +566,40 @@ export function SendScreen({
             </>
           )}
 
-          {(phase === 'review' || phase === 'pin') && !state.destination.includes('@') && (
-            <View style={styles.recipient}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t(invoiceOpen ? 'send.invoiceHide' : 'send.invoiceDetails')}
-                accessibilityState={{ expanded: invoiceOpen }}
-                aria-expanded={invoiceOpen}
-                onPress={() => setInvoiceOpen((value) => !value)}
-                style={styles.disclosure}
-              >
-                <Text style={[...label, styles.flex]}>
-                  {t(invoiceOpen ? 'send.invoiceHide' : 'send.invoiceDetails')}
-                </Text>
-                <BrandIcon name="info" size={20} />
-              </Pressable>
-              {invoiceOpen && (
-                <Text
-                  selectable
-                  accessibilityLabel={state.destination}
-                  style={[...body, styles.invoice]}
+          {(phase === 'review' || phase === 'pin' || isRisk) &&
+            !state.destination.includes('@') && (
+              <View style={styles.recipient}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t(invoiceOpen ? 'send.invoiceHide' : 'send.invoiceDetails')}
+                  accessibilityState={{ expanded: invoiceOpen }}
+                  aria-expanded={invoiceOpen}
+                  onPress={() => setInvoiceOpen((value) => !value)}
+                  style={styles.disclosure}
                 >
-                  {state.destination.replace(/(.{24})/g, '$1\u200b')}
-                </Text>
-              )}
-            </View>
-          )}
+                  <Text style={[...label, styles.flex]}>
+                    {t(invoiceOpen ? 'send.invoiceHide' : 'send.invoiceDetails')}
+                  </Text>
+                  <BrandIcon name="info" size={20} />
+                </Pressable>
+                {invoiceOpen && (
+                  <Text
+                    selectable
+                    accessibilityLabel={state.destination}
+                    style={[...body, styles.invoice]}
+                  >
+                    {state.destination.replace(/(.{24})/g, '$1\u200b')}
+                  </Text>
+                )}
+              </View>
+            )}
           {phase === 'pin' && (
             <View style={styles.gap}>
+              {(state.risk === null || state.risk.confirmationRequired) && (
+                <Text style={[...body, styles.warning]}>
+                  {t(state.risk ? 'risk.pinNotice' : 'risk.pinUnavailableNotice')}
+                </Text>
+              )}
               <Text style={label}>{t('send.pinLabel')}</Text>
               <TextInput
                 accessibilityLabel={t('send.pinLabel')}
@@ -586,6 +625,21 @@ export function SendScreen({
               />
             </View>
           )}
+          {isRisk && state.validUntil && (
+            <Text style={[...body, styles.muted, styles.small]}>
+              {t('send.expiry', { time: formatHomeDate(state.validUntil, { time: true }) })}
+            </Text>
+          )}
+          {phase === 'riskUnavailable' && (
+            <Button
+              label={t('risk.retry')}
+              variant="secondary"
+              onPress={() => {
+                void controller.requestPin();
+              }}
+            />
+          )}
+          {isRisk && <Text style={[...body, styles.muted, styles.small]}>{t('risk.privacy')}</Text>}
           {phase === 'unknown' && !state.canRefreshPayment && (
             <View style={styles.notice}>
               <BrandIcon name="info" size={23} />
@@ -639,6 +693,9 @@ const phaseCopy = {
   amount: ['send.amountTitle', 'send.amountDescription'],
   quoting: ['send.amountTitle', 'send.amountDescription'],
   review: ['send.reviewTitle', 'send.reviewDescription'],
+  riskChecking: ['risk.checkingTitle', 'risk.checkingDescription'],
+  riskWarning: ['risk.warningTitle', 'risk.warningDescription'],
+  riskUnavailable: ['risk.unavailableTitle', 'risk.unavailableDescription'],
   pin: ['send.pinTitle', 'send.pinDescription'],
   sending: ['send.sendingTitle', 'send.sendingDescription'],
   success: ['send.successTitle', 'send.successDescription'],

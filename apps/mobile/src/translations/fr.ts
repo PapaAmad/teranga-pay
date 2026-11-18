@@ -3,6 +3,7 @@ import { sendText } from './send';
 import { collectText } from './collect';
 import { historyText } from './history';
 import { withdrawText } from './withdraw';
+import { riskText } from './risk';
 
 export const fr = {
   native: nativeText,
@@ -10,6 +11,7 @@ export const fr = {
   collect: collectText,
   history: historyText,
   withdraw: withdrawText,
+  risk: riskText,
   appName: 'Teranga Pay',
   fonts: {
     loading: 'Préparation de {{appName}}…',

@@ -2,6 +2,11 @@
 
 Le code TypeScript de l’interface vit ici. `navigation/` assemble les écrans, `screens/` contient les vues et `translations/` fournit les ressources locales et le contexte de traduction T09. `App.tsx` fournit les contextes partagés et `index.ts` enregistre l’application auprès d’Expo. Les textes affichés utilisent `useTranslation()` ; le français est la langue initiale et de repli. Lancer `npm run i18n:check` depuis la racine pour contrôler les textes en dur.
 
+`risk/` contient la frontière numérique T26 et les motifs de l’alerte T27.
+Le parcours `send/` demande une décision avant le PIN, conserve les délais
+et ne confond pas une analyse absente avec une absence de risque.
+Voir le [README](risk/README.md).
+
 Ajouter les futurs dossiers de composants, de services et de fonctions lorsqu’ils auront une première implémentation. Chaque dossier source conserve un README court.
 
 `onboarding/` contient les écrans T14, leur contrôleur et les adaptateurs de

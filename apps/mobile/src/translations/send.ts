@@ -128,6 +128,10 @@ export const sendText = {
   },
   scenarios: {
     title: 'Atelier | situations fictives',
+    riskWarning: 'Alerte à confirmer',
+    riskHigh: 'Plusieurs points à vérifier',
+    riskUnavailable: 'Analyse indisponible',
+    riskChecking: 'Analyse lente',
     success: 'Paiement réussi',
     pending: 'Paiement en attente',
     unknown: 'Résultat incertain',

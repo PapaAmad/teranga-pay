@@ -58,4 +58,9 @@ Les [captures T22](../../../../docs/design/validation-t22/README.md) permettent 
 relire ces états en contexte. Le partage du reçu fictif conserve sa qualification
 et n’inclut pas la facture ; la capture Web ne prouve pas les annonces TalkBack.
 
+`risk.ts` traduit localement les sept codes T26 et les choix avant PIN T27.
+Aucun texte distant n’est affiché. Le score n’est pas présenté comme une
+probabilité de fraude et l’indisponibilité ne produit aucun avis rassurant.
+La ressource wolof reste vide jusqu’à T33 et sa relecture native.
+
 PAN réalise T09, Salam relit. Commandes : `npm run typecheck`, `npm test -- --ci` ; les tests `i18n.test.tsx` couvrent le repli, l’isolation, les paramètres et le changement de langue au cours du parcours existant. Le titre natif est contrôlé via la prop du composant remplacé par Jest ; son rendu sur Android reste à vérifier. Les essais Android réels et la relecture wolof restent distincts.

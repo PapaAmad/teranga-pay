@@ -318,6 +318,10 @@ function SendPreviewRoute({
   const { t } = useTranslation();
   const fonts = useBrandFonts();
   const names: SendPreviewScenario[] = [
+    'riskWarning',
+    'riskHigh',
+    'riskUnavailable',
+    'riskChecking',
     'success',
     'pending',
     'unknown',

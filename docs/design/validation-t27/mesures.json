@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-12",
+  "renderer": "Composants React Native réels | Web | Edge sans fenêtre",
+  "nativeDeviceExecuted": false,
+  "realWalletUsed": false,
+  "errors": [],
+  "checks": [
+    "Avertissement, accord, PIN synthétique et appui final distincts",
+    "Un nouvel essai en panne ne donne pas accès automatiquement au PIN",
+    "Le délai dépassé produit une indisponibilité, sans continuation automatique",
+    "Annuler revient au portefeuille sans paiement"
+  ],
+  "captures": [
+    {
+      "name": "01-recapitulatif",
+      "title": "Relire le montant avant l’analyse",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-sans-alerte-pin",
+      "title": "Absence d’alerte | aucun avis de paiement sûr",
+      "note": "Le serveur fictif ne demande pas d’accord supplémentaire. Le PIN et le bouton final restent nécessaires.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-alerte",
+      "title": "Alerte | deux faits à vérifier",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 698,
+          "bottom": 758,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-alerte-recapitulatif",
+      "title": "Alerte | montant, frais et destinataire restent consultables",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-pin-apres-alerte",
+      "title": "Accord sur l’alerte | le paiement attend encore le PIN",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-resultat-fictif",
+      "title": "Résultat | une simulation explicitement nommée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-plusieurs-raisons",
+      "title": "Plusieurs signaux | pas de pourcentage de fraude",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 698,
+          "bottom": 758,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-alerte-320",
+      "title": "320 pixels | motifs et annulation accessibles",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-espace-reduit",
+      "title": "360 × 460 | choix maintenus dans le cadre",
+      "note": "Fenêtre réduite, sans prétendre mesurer le clavier Android.",
+      "layout": {
+        "width": 360,
+        "height": 460,
+        "documentWidth": 360,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 314,
+          "bottom": 374,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-indisponible",
+      "title": "Analyse indisponible | pas de conclusion rassurante",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-indisponible-reprise",
+      "title": "Réessayer ou relire le détail, sans envoi automatique",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 698,
+          "bottom": 758,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-pin-sans-analyse",
+      "title": "Choix explicite sans analyse | PIN et confirmation conservés",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-analyse-en-cours",
+      "title": "Analyse lente | annulation disponible",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-delai-depasse",
+      "title": "Après le délai | décision toujours attendue",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-apres-annulation",
+      "title": "Nouvelle entrée | demande précédente effacée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    }
+  ]
+}
