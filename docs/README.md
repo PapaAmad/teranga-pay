@@ -39,3 +39,7 @@ Les PDF décrivent le produit **visé**. Les guides décrivent ce que le dépôt
 ## Préparer la présentation | Brouillon
 
 Le [dossier pitch et soumission](pitch/README.md) contient les textes T38. Les preuves et les répétitions restent à compléter avant toute présentation publique.
+
+## Sécurité | Revue historique
+
+Le [dossier sécurité](securite/README.md) conserve la revue T31 du 7 novembre et ses limites. Elle doit être rejouée sur le SHA actuel avant de conclure sur la sécurité du dépôt consolidé.
