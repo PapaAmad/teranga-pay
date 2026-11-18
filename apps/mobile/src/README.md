@@ -12,3 +12,7 @@ Consulter son [README](onboarding/README.md) pour la frontière portée avec Sal
 `home/` contient l’accueil T16, son port de lecture, ses formats et ses scénarios
 fictifs. Le branchement réel attend la composition validée avec Salam ; les données
 absentes ne deviennent pas un faux solde. Voir le [README](home/README.md).
+
+`receive/` contient T18 : lecture d’une adresse publique, QR, copie et partage.
+Le contexte normal reste sans fournisseur T19 branché ; l’atelier de développement
+utilise seulement des adresses `.example` non payables. Voir le [README](receive/README.md).

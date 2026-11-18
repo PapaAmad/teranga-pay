@@ -31,6 +31,7 @@ type Props = {
   onAbout: () => void;
   onDesign: () => void;
   onRequireUnlock: () => void;
+  onReceive?: () => void;
   onPreview?: () => void;
   onExitPreview?: () => void;
   previewControls?: ReactNode;
@@ -42,6 +43,7 @@ export function HomeScreen({
   onAbout,
   onDesign,
   onRequireUnlock,
+  onReceive,
   onPreview,
   onExitPreview,
   previewControls,
@@ -349,11 +351,15 @@ export function HomeScreen({
                 accessibilityRole="button"
                 accessibilityLabel={actionLabel(kind)}
                 accessibilityHint={
-                  blocked ? t('dashboard.actionsBlocked') : t('dashboard.actionUnavailable')
+                  blocked
+                    ? t('dashboard.actionsBlocked')
+                    : kind === 'receive' && onReceive
+                      ? t('receive.description')
+                      : t('dashboard.actionUnavailable')
                 }
                 accessibilityState={{ disabled: blocked }}
                 disabled={blocked}
-                onPress={() => setAction(kind)}
+                onPress={() => (kind === 'receive' && onReceive ? onReceive() : setAction(kind))}
                 style={({ pressed }) => [
                   styles.action,
                   fontScale >= 1.6 && styles.actionHorizontal,

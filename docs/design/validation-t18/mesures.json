@@ -1,0 +1,521 @@
+{
+  "date": "2026-11-09",
+  "renderer": "Composants React Native réels | React Native Web | Edge headless",
+  "viewportUnits": "pixels CSS, deviceScaleFactor 1",
+  "path": "Onboarding > Découvrir le projet > Essayer l’accueil fictif > Recevoir",
+  "captures": [
+    {
+      "name": "01-sans-service",
+      "title": "Service non branché | atelier de développement",
+      "note": "Aucune adresse ni QR inventé quand le service manque.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": null,
+          "share": null
+        }
+      }
+    },
+    {
+      "name": "02-recevoir",
+      "title": "Recevoir | adresse fictive disponible",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 691,
+            "bottom": 751,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 761,
+            "bottom": 821,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "03-copie",
+      "title": "Copie confirmée | presse-papiers vérifié",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 298,
+            "bottom": 358,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 368,
+            "bottom": 428,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "04-aide",
+      "title": "Aide | compatibilité et preuve de réception",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 48,
+            "bottom": 108,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 118,
+            "bottom": 178,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "05-partage-ouvert-simule",
+      "title": "Retour de partage | navigateur simulé",
+      "note": "Le test intercepte le texte en mémoire ; aucun envoi externe.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 286,
+            "bottom": 346,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 356,
+            "bottom": 416,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "06-copie-refusee",
+      "title": "Copie refusée | nouvel essai possible",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 298,
+            "bottom": 358,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 368,
+            "bottom": 428,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "07-partage-annule",
+      "title": "Partage annulé | aucune réussite inventée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 286,
+            "bottom": 346,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 356,
+            "bottom": 416,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "08-partage-indisponible",
+      "title": "Partage indisponible | copie proposée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 286,
+            "bottom": 346,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 356,
+            "bottom": 416,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "09-hors-connexion",
+      "title": "Hors connexion | adresse connue et limite visible",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 342,
+            "height": 60,
+            "top": 861,
+            "bottom": 921,
+            "visibleInViewport": false,
+            "disabled": false
+          },
+          "share": {
+            "width": 342,
+            "height": 60,
+            "top": 931,
+            "bottom": 991,
+            "visibleInViewport": false,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "10-chargement",
+      "title": "Chargement | aucun QR anticipé",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": null,
+          "share": null
+        }
+      }
+    },
+    {
+      "name": "11-erreur",
+      "title": "Erreur de lecture | réessayer",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": null,
+          "share": null
+        }
+      }
+    },
+    {
+      "name": "12-service-absent",
+      "title": "Atelier | service absent",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": null,
+          "share": null
+        }
+      }
+    },
+    {
+      "name": "13-verrouille",
+      "title": "Portefeuille verrouillé | adresse retirée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "overflows": [],
+        "commands": {
+          "copy": null,
+          "share": null
+        }
+      }
+    },
+    {
+      "name": "14-recevoir-360",
+      "title": "Recevoir | 360 × 800",
+      "note": "",
+      "layout": {
+        "width": 360,
+        "height": 800,
+        "documentWidth": 360,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 312,
+            "height": 60,
+            "top": 715,
+            "bottom": 775,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 312,
+            "height": 60,
+            "top": 785,
+            "bottom": 845,
+            "visibleInViewport": false,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "14-recevoir-320",
+      "title": "Recevoir | 320 × 568",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 272,
+            "height": 60,
+            "top": 766,
+            "bottom": 826,
+            "visibleInViewport": false,
+            "disabled": false
+          },
+          "share": {
+            "width": 272,
+            "height": 60,
+            "top": 836,
+            "bottom": 896,
+            "visibleInViewport": false,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "15-adresse-longue-320",
+      "title": "Adresse longue | QR et texte à 320 pixels",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 272,
+            "height": 60,
+            "top": 933,
+            "bottom": 993,
+            "visibleInViewport": false,
+            "disabled": false
+          },
+          "share": {
+            "width": 272,
+            "height": 60,
+            "top": 1003,
+            "bottom": 1063,
+            "visibleInViewport": false,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "17-adresse-longue-texte",
+      "title": "Adresse longue intégrale | aucune ellipse",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 272,
+            "height": 60,
+            "top": 488,
+            "bottom": 548,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 272,
+            "height": 60,
+            "top": 558,
+            "bottom": 618,
+            "visibleInViewport": false,
+            "disabled": false
+          }
+        }
+      }
+    },
+    {
+      "name": "16-adresse-longue-actions",
+      "title": "Adresse complète | copie exacte et actions atteignables",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 568,
+        "documentWidth": 320,
+        "overflows": [],
+        "commands": {
+          "copy": {
+            "width": 272,
+            "height": 60,
+            "top": 316,
+            "bottom": 376,
+            "visibleInViewport": true,
+            "disabled": false
+          },
+          "share": {
+            "width": 272,
+            "height": 60,
+            "top": 386,
+            "bottom": 446,
+            "visibleInViewport": true,
+            "disabled": false
+          }
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "decodes": [
+    {
+      "name": "nominal-390",
+      "decoder": "jsQR 1.4.0 | raster PNG du SVG réellement rendu",
+      "address": "exemple@teranga.example",
+      "expectedIdentical": true,
+      "qrWidth": 231,
+      "rasterWidth": 231,
+      "modulePixels": 7,
+      "quietZoneModules": 4,
+      "version": 2
+    },
+    {
+      "name": "longue-320",
+      "decoder": "jsQR 1.4.0 | raster PNG du SVG réellement rendu",
+      "address": "exemple.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@ddddddddddddddddddddddddddddddddddddddddddddd.teranga.example",
+      "expectedIdentical": true,
+      "qrWidth": 212,
+      "rasterWidth": 212,
+      "modulePixels": 4,
+      "quietZoneModules": 4,
+      "version": 7
+    }
+  ],
+  "actions": [
+    {
+      "action": "copy",
+      "method": "Presse-papiers réel du navigateur headless, lecture après écriture",
+      "address": "exemple@teranga.example",
+      "rawAscii": true,
+      "zeroWidthCharacter": false
+    },
+    {
+      "action": "share-opened",
+      "method": "navigator.share remplacé en mémoire ; aucune feuille ni application externe",
+      "payload": {
+        "title": "Mon adresse Teranga Pay",
+        "text": "Exemple Teranga Pay, non payable : exemple@teranga.example\nAdresse fictive de démonstration. N’envoyez aucun paiement."
+      }
+    },
+    {
+      "action": "copy-long-address-320",
+      "method": "Presse-papiers réel du navigateur headless",
+      "address": "exemple.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@ddddddddddddddddddddddddddddddddddddddddddddd.teranga.example",
+      "zeroWidthCharacter": false,
+      "presentation": {
+        "displayTextIdentical": true,
+        "accessibleLabelIdentical": true
+      }
+    }
+  ],
+  "limits": [
+    "Écrans T18 confirmés par PAN le 9 novembre 2026 avant commit et PR.",
+    "Images Web, pas des captures Android ni une vérification TalkBack.",
+    "Le QR a été décodé depuis le bitmap réellement rendu, sans caméra physique.",
+    "Adresses réservées fictives .example, aucun wallet, service LNURL réel ou paiement.",
+    "Copie vérifiée dans le navigateur headless, pas dans le presse-papiers Android.",
+    "Partage nominal intercepté en mémoire, annulation et indisponibilité simulées par l’atelier ; aucun envoi externe.",
+    "Grand texte et annonces sur appareil restent à vérifier séparément."
+  ]
+}

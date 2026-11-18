@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Recevoir T18</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="tag">T18 | Écrans confirmés par PAN</span>
+      <h1>Votre adresse,<br />pour recevoir.</h1>
+      <p>
+        Projet de Salam et PAN. Ces 18 captures proviennent des vrais composants React Native rendus
+        dans Edge le 9 novembre 2026. Cliquer sur une image ouvre l’original.
+      </p>
+      <p>
+        Un QR lisible, une adresse complète et deux gestes : copier ou partager. Le marine et le
+        citron prolongent l’accueil ; le code garde ses modules noirs sur blanc et sa marge vide.
+        L’atelier utilise exclusivement des destinations fictives, signalées à l’écran.
+      </p>
+      <p>
+        <strong>PAN a confirmé ces écrans le 9 novembre 2026 avant commit et PR T18.</strong> Le
+        partage nominal a été intercepté en mémoire ; aucun message n’a été envoyé. Les états
+        d’erreur et d’annulation sont simulés dans l’atelier. Aucune image ne prouve un paiement ou
+        une intégration Android native.
+      </p>
+      <p>
+        <a href="README.md">Résultats et limites</a> |
+        <a href="mesures.json">Mesures du parcours</a> |
+        <a href="../recevoir-recherche.md">Recherche</a> |
+        <a href="../recevoir-direction.md">Direction</a> |
+        <a href="../../planning/suivi-t18.md">Suivi T18</a>
+      </p>
+      <div class="proofs">
+        <span>18 captures Web</span><span>390, 360 et 320 pixels</span
+        ><span>Deux QR décodés exactement</span><span>Copie nominale et longue vérifiée</span
+        ><span>Aucun débordement horizontal relevé</span>
+      </div>
+    </header>
+    <main>
+      <figure>
+        <a href="02-recevoir.png" aria-label="Ouvrir : Recevoir | adresse fictive disponible">
+          <img
+            src="02-recevoir.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Recevoir | adresse fictive disponible | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Recevoir | adresse fictive disponible<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="01-sans-service.png"
+          aria-label="Ouvrir : Service non branché | atelier de développement"
+        >
+          <img
+            src="01-sans-service.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Service non branché | atelier de développement | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Service non branché | atelier de développement<small
+            >390 × 844 pixels | Aucune adresse ni QR inventé quand le service manque.</small
+          >
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="03-copie.png" aria-label="Ouvrir : Copie confirmée | presse-papiers vérifié">
+          <img
+            src="03-copie.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Copie confirmée | presse-papiers vérifié | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Copie confirmée | presse-papiers vérifié<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="04-aide.png" aria-label="Ouvrir : Aide | compatibilité et preuve de réception">
+          <img
+            src="04-aide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Aide | compatibilité et preuve de réception | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Aide | compatibilité et preuve de réception<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="05-partage-ouvert-simule.png"
+          aria-label="Ouvrir : Retour de partage | navigateur simulé"
+        >
+          <img
+            src="05-partage-ouvert-simule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retour de partage | navigateur simulé | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Retour de partage | navigateur simulé<small
+            >390 × 844 pixels | Le test intercepte le texte en mémoire ; aucun envoi externe.</small
+          >
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="06-copie-refusee.png" aria-label="Ouvrir : Copie refusée | nouvel essai possible">
+          <img
+            src="06-copie-refusee.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Copie refusée | nouvel essai possible | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Copie refusée | nouvel essai possible<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="07-partage-annule.png"
+          aria-label="Ouvrir : Partage annulé | aucune réussite inventée"
+        >
+          <img
+            src="07-partage-annule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage annulé | aucune réussite inventée | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Partage annulé | aucune réussite inventée<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="08-partage-indisponible.png"
+          aria-label="Ouvrir : Partage indisponible | copie proposée"
+        >
+          <img
+            src="08-partage-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage indisponible | copie proposée | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Partage indisponible | copie proposée<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="09-hors-connexion.png"
+          aria-label="Ouvrir : Hors connexion | adresse connue et limite visible"
+        >
+          <img
+            src="09-hors-connexion.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Hors connexion | adresse connue et limite visible | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Hors connexion | adresse connue et limite visible<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="10-chargement.png" aria-label="Ouvrir : Chargement | aucun QR anticipé">
+          <img
+            src="10-chargement.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Chargement | aucun QR anticipé | capture des composants réels"
+          />
+        </a>
+        <figcaption>Chargement | aucun QR anticipé<small>390 × 844 pixels</small></figcaption>
+      </figure>
+
+      <figure>
+        <a href="11-erreur.png" aria-label="Ouvrir : Erreur de lecture | réessayer">
+          <img
+            src="11-erreur.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Erreur de lecture | réessayer | capture des composants réels"
+          />
+        </a>
+        <figcaption>Erreur de lecture | réessayer<small>390 × 844 pixels</small></figcaption>
+      </figure>
+
+      <figure>
+        <a href="12-service-absent.png" aria-label="Ouvrir : Atelier | service absent">
+          <img
+            src="12-service-absent.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Atelier | service absent | capture des composants réels"
+          />
+        </a>
+        <figcaption>Atelier | service absent<small>390 × 844 pixels</small></figcaption>
+      </figure>
+
+      <figure>
+        <a href="13-verrouille.png" aria-label="Ouvrir : Portefeuille verrouillé | adresse retirée">
+          <img
+            src="13-verrouille.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Portefeuille verrouillé | adresse retirée | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Portefeuille verrouillé | adresse retirée<small>390 × 844 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="14-recevoir-360.png" aria-label="Ouvrir : Recevoir | 360 × 800">
+          <img
+            src="14-recevoir-360.png"
+            width="360"
+            height="800"
+            loading="lazy"
+            alt="Recevoir | 360 × 800 | capture des composants réels"
+          />
+        </a>
+        <figcaption>Recevoir | 360 × 800<small>360 × 800 pixels</small></figcaption>
+      </figure>
+
+      <figure>
+        <a href="14-recevoir-320.png" aria-label="Ouvrir : Recevoir | 320 × 568">
+          <img
+            src="14-recevoir-320.png"
+            width="320"
+            height="568"
+            loading="lazy"
+            alt="Recevoir | 320 × 568 | capture des composants réels"
+          />
+        </a>
+        <figcaption>Recevoir | 320 × 568<small>320 × 568 pixels</small></figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="15-adresse-longue-320.png"
+          aria-label="Ouvrir : Adresse longue | QR et texte à 320 pixels"
+        >
+          <img
+            src="15-adresse-longue-320.png"
+            width="320"
+            height="568"
+            loading="lazy"
+            alt="Adresse longue | QR et texte à 320 pixels | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Adresse longue | QR et texte à 320 pixels<small>320 × 568 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="17-adresse-longue-texte.png"
+          aria-label="Ouvrir : Adresse longue intégrale | aucune ellipse"
+        >
+          <img
+            src="17-adresse-longue-texte.png"
+            width="320"
+            height="568"
+            loading="lazy"
+            alt="Adresse longue intégrale | aucune ellipse | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Adresse longue intégrale | aucune ellipse<small>320 × 568 pixels</small>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a
+          href="16-adresse-longue-actions.png"
+          aria-label="Ouvrir : Adresse complète | copie exacte et actions atteignables"
+        >
+          <img
+            src="16-adresse-longue-actions.png"
+            width="320"
+            height="568"
+            loading="lazy"
+            alt="Adresse complète | copie exacte et actions atteignables | capture des composants réels"
+          />
+        </a>
+        <figcaption>
+          Adresse complète | copie exacte et actions atteignables<small>320 × 568 pixels</small>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>
+      <p>
+        Pour parcourir l’écran : lancer <code>npm run mobile:web -- --offline --port 8092</code>,
+        puis ouvrir <a href="http://localhost:8092">l’aperçu local</a>. Choisir « Découvrir le
+        projet », « Essayer l’accueil fictif », puis « Recevoir ». Les scénarios sont accessibles en
+        bas de l’écran.
+      </p>
+      <p>
+        Les QR ont été décodés depuis les bitmaps réellement rendus avec jsQR 1.4.0. Cela ne
+        remplace pas un scan de téléphone à téléphone. TalkBack, la copie et le partage Android,
+        ainsi que le branchement réel de l’adresse T19, restent à vérifier séparément.
+      </p>
+    </footer>
+  </body>
+</html>
