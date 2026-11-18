@@ -44,4 +44,11 @@ le 10 novembre 2026 avant commit et PR et autorisé leur publication, en prépar
 La relecture de Salam et la CI distante restent attendues ; le contrat de
 corrélation avec le règlement et les essais natifs restent à composer avec Salam.
 
+T24 prépare Historique : [recherche](historique-recherche.md),
+[direction et états](historique-direction.md), [décision](../decisions/0018-historique-et-totaux.md)
+et [suivi](../planning/suivi-t24.md). Le cumul distingue la date d’opération,
+les FCFA inconnus, les pages restantes et les retraits simulés. PAN a confirmé les nouveaux écrans le 11 novembre 2026 avant commit et PR. Les
+[25 captures](validation-t24/README.md) et le suivi documentent les preuves Web ;
+les essais Android et la relecture de Salam restent distincts.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

@@ -1,5 +1,10 @@
 # Accueil | T16
 
+T24 ajoute « Tout voir » près des dernières opérations. Le callback `onHistory`
+ouvre le journal complet en lecture seule ; depuis l’atelier, il ouvre un
+historique fictif isolé. Le [suivi T24](../../../../docs/planning/suivi-t24.md)
+précise les fournisseurs encore à composer.
+
 PAN porte cet écran et son modèle de lecture ; Salam porte le wallet T11/T15. Le branchement natif dépend de leur validation et ne transforme jamais un exemple en portefeuille réel.
 
 - `ports.ts` décrit la partie lecture du contrat T11, sans SDK, clé, PIN ou envoi.

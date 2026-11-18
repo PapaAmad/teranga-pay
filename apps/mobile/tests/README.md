@@ -1,5 +1,14 @@
 # Tests mobiles
 
+T24 ajoute `history-model.test.ts`, `history-preview.test.ts` et
+`history-screen.test.tsx` : validation des deux sources, pagination, cumul de
+Dakar, FCFA inconnus, dépassement numérique, reprise, masquage et partage
+minimal. Les anciens callbacks et doubles appuis sont exercés ; le retour
+Android est testé avec l’API matérielle remplacée, sans prétendre à un essai
+physique. Quatre parcours supplémentaires de `navigation.test.tsx` vérifient
+injection, repli Home, aperçu isolé et retour du reçu vers l’accueil.
+La [galerie T24](../../../docs/design/validation-t24/README.md) complète ces tests.
+
 `navigation.test.tsx` vérifie un parcours réel : arrivée sur l’accueil, ouverture de la présentation puis retour. Une rupture de route ou un bouton débranché fait échouer le test.
 
 `design-system.test.tsx` exerce les états des composants, leurs styles de cible minimale de 48 dp et le chargement des polices. Le passage du repli aux polices de marque doit conserver la navigation et la saisie. Le test d’accueil vérifie que les deux commandes appartiennent à un contenu défilable pouvant grandir ; Jest ne mesure pas le défilement ou le texte agrandi sur un appareil Android.

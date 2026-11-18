@@ -30,6 +30,9 @@ import {
   type SendPreviewScenario,
 } from '../send/preview';
 import { Button, tokens, useBrandFonts } from '../ui';
+import { HistoryScreen } from '../history/HistoryScreen';
+import type { HistoryServices } from '../history/ports';
+import { createHistoryPreviewServices, type HistoryPreviewScenario } from '../history/preview';
 
 import { WalletLabScreen } from '../screens/WalletLabScreen';
 import { AboutScreen } from '../screens/AboutScreen';
@@ -43,6 +46,7 @@ const HomeContext = createContext<HomeServices>({ mode: 'unavailable' });
 const ReceiveContext = createContext<ReceiveServices>({ mode: 'unavailable' });
 const SendContext = createContext<SendServices>({ mode: 'unavailable' });
 const CollectContext = createContext<CollectServices>({ mode: 'unavailable' });
+const HistoryContext = createContext<HistoryServices | null>(null);
 
 function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const services = useContext(HomeContext);
@@ -55,6 +59,7 @@ function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'H
       onReceive={() => navigation.navigate('Receive')}
       onSend={() => navigation.navigate('Send')}
       onCollect={() => navigation.navigate('Collect')}
+      onHistory={() => navigation.navigate('History')}
       onPreview={__DEV__ ? () => navigation.navigate('HomePreview') : undefined}
     />
   );
@@ -85,6 +90,7 @@ function HomePreviewRoute({
       onReceive={() => navigation.navigate('ReceivePreview')}
       onSend={() => navigation.navigate('SendPreview')}
       onCollect={() => navigation.navigate('CollectPreview')}
+      onHistory={() => navigation.navigate('HistoryPreview')}
       onExitPreview={() => navigation.goBack()}
       previewControls={
         <View style={previewStyles.panel}>
@@ -505,6 +511,126 @@ function CollectPreviewRoute({
   );
 }
 
+function HistoryRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'History'>) {
+  const explicit = useContext(HistoryContext);
+  const home = useContext(HomeContext);
+  const services = useMemo<HistoryServices>(
+    () => explicit ?? { mode: home.mode, wallet: home.wallet },
+    [explicit, home],
+  );
+  const active = useIsFocused();
+  return (
+    <HistoryScreen
+      services={services}
+      active={active}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onPreview={__DEV__ ? () => navigation.navigate('HistoryPreview') : undefined}
+    />
+  );
+}
+type HistoryWorkshopScenario = HistoryPreviewScenario | 'shareDismissed' | 'shareUnavailable';
+function HistoryPreviewRoute({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, 'HistoryPreview'>) {
+  const [scenario, setScenario] = useState<HistoryWorkshopScenario>('ready');
+  const services = useMemo(
+    () =>
+      createHistoryPreviewServices(
+        scenario === 'shareDismissed' || scenario === 'shareUnavailable' ? 'ready' : scenario,
+      ),
+    [scenario],
+  );
+  const platform = useMemo<Pick<ReceivePlatformPort, 'share'>>(
+    () => ({
+      share:
+        scenario === 'shareDismissed'
+          ? async () => 'dismissed'
+          : scenario === 'shareUnavailable'
+            ? async () => {
+                throw new Error('SHARE_UNAVAILABLE');
+              }
+            : receivePlatform.share,
+    }),
+    [scenario],
+  );
+  const { t } = useTranslation();
+  const fonts = useBrandFonts();
+  const active = useIsFocused();
+  const names: HistoryWorkshopScenario[] = [
+    'ready',
+    'empty',
+    'partial',
+    'offline',
+    'walletError',
+    'withdrawalError',
+    'unknownAmounts',
+    'largeAmount',
+    'locked',
+    'pagingError',
+    'shareDismissed',
+    'shareUnavailable',
+  ];
+  return (
+    <HistoryScreen
+      key={scenario}
+      services={services}
+      active={active}
+      clock={services.now}
+      platform={platform}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onExitPreview={() => navigation.goBack()}
+      previewControls={
+        <View style={previewStyles.panel}>
+          <Text
+            accessibilityRole="header"
+            style={{
+              ...tokens.typography.label,
+              color: tokens.colors.ink,
+              fontFamily: fonts.title,
+            }}
+          >
+            {t('history.scenarios.title')}
+          </Text>
+          <Button
+            label={t('history.scenarios.confirm')}
+            variant="secondary"
+            onPress={() => services.confirmPending()}
+          />
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t('history.scenarios.title')}
+            style={previewStyles.choices}
+          >
+            {names.map((name) => (
+              <Pressable
+                key={name}
+                accessibilityRole="radio"
+                accessibilityLabel={t(`history.scenarios.${name}`)}
+                accessibilityState={{ checked: scenario === name }}
+                aria-checked={scenario === name}
+                onPress={() => setScenario(name)}
+                style={[previewStyles.choice, scenario === name && previewStyles.selected]}
+              >
+                <Text
+                  style={{
+                    ...tokens.typography.label,
+                    color: scenario === name ? tokens.colors.onPrimary : tokens.colors.ink,
+                    fontFamily: fonts.label,
+                  }}
+                >
+                  {t(`history.scenarios.${name}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      }
+    />
+  );
+}
+
 function OnboardingRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Onboarding'>) {
   const services = useContext(Services);
   if (!services) throw new Error('Onboarding services unavailable');
@@ -544,6 +670,7 @@ export function RootNavigator({
   receiveServices,
   sendServices,
   collectServices,
+  historyServices,
 }: {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
@@ -551,6 +678,7 @@ export function RootNavigator({
   receiveServices?: ReceiveServices;
   sendServices?: SendServices;
   collectServices?: CollectServices;
+  historyServices?: HistoryServices;
 }) {
   const { t } = useTranslation();
   const [services] = useState(() => onboardingServices ?? createPlatformServices());
@@ -558,6 +686,7 @@ export function RootNavigator({
   const [receiving] = useState<ReceiveServices>(() => receiveServices ?? { mode: 'unavailable' });
   const [sending] = useState<SendServices>(() => sendServices ?? { mode: 'unavailable' });
   const [collecting] = useState<CollectServices>(() => collectServices ?? { mode: 'unavailable' });
+  const [history] = useState<HistoryServices | null>(() => historyServices ?? null);
 
   return (
     <Services.Provider value={services}>
@@ -565,90 +694,104 @@ export function RootNavigator({
         <ReceiveContext.Provider value={receiving}>
           <SendContext.Provider value={sending}>
             <CollectContext.Provider value={collecting}>
-              <NavigationContainer linking={linking}>
-                <Stack.Navigator
-                  initialRouteName={initialRoute}
-                  screenOptions={{ headerBackTitle: t('navigation.back') }}
-                >
-                  <Stack.Screen
-                    name="Onboarding"
-                    component={OnboardingRoute}
-                    options={{ headerShown: false, title: t('appName') }}
-                  />
-                  {__DEV__ && (
+              <HistoryContext.Provider value={history}>
+                <NavigationContainer linking={linking}>
+                  <Stack.Navigator
+                    initialRouteName={initialRoute}
+                    screenOptions={{ headerBackTitle: t('navigation.back') }}
+                  >
                     <Stack.Screen
-                      name="OnboardingPreview"
-                      component={PreviewRoute}
+                      name="Onboarding"
+                      component={OnboardingRoute}
                       options={{ headerShown: false, title: t('appName') }}
                     />
-                  )}
-                  <Stack.Screen
-                    name="Home"
-                    component={HomeRoute}
-                    options={{ headerShown: false, title: t('appName') }}
-                  />
-                  {__DEV__ && (
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="OnboardingPreview"
+                        component={PreviewRoute}
+                        options={{ headerShown: false, title: t('appName') }}
+                      />
+                    )}
                     <Stack.Screen
-                      name="HomePreview"
-                      component={HomePreviewRoute}
+                      name="Home"
+                      component={HomeRoute}
                       options={{ headerShown: false, title: t('appName') }}
                     />
-                  )}
-                  <Stack.Screen
-                    name="Receive"
-                    component={ReceiveRoute}
-                    options={{ headerShown: false, title: t('receive.navigation') }}
-                  />
-                  {__DEV__ && (
                     <Stack.Screen
-                      name="ReceivePreview"
-                      component={ReceivePreviewRoute}
+                      name="History"
+                      component={HistoryRoute}
+                      options={{ headerShown: false, title: t('history.navigation') }}
+                    />
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="HistoryPreview"
+                        component={HistoryPreviewRoute}
+                        options={{ headerShown: false, title: t('history.navigation') }}
+                      />
+                    )}
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="HomePreview"
+                        component={HomePreviewRoute}
+                        options={{ headerShown: false, title: t('appName') }}
+                      />
+                    )}
+                    <Stack.Screen
+                      name="Receive"
+                      component={ReceiveRoute}
                       options={{ headerShown: false, title: t('receive.navigation') }}
                     />
-                  )}
-                  <Stack.Screen
-                    name="About"
-                    component={AboutScreen}
-                    options={{ title: t('navigation.about') }}
-                  />
-                  <Stack.Screen
-                    name="Send"
-                    component={SendRoute}
-                    options={{ headerShown: false, title: t('send.navigation') }}
-                  />
-                  {__DEV__ && (
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="ReceivePreview"
+                        component={ReceivePreviewRoute}
+                        options={{ headerShown: false, title: t('receive.navigation') }}
+                      />
+                    )}
                     <Stack.Screen
-                      name="SendPreview"
-                      component={SendPreviewRoute}
+                      name="About"
+                      component={AboutScreen}
+                      options={{ title: t('navigation.about') }}
+                    />
+                    <Stack.Screen
+                      name="Send"
+                      component={SendRoute}
                       options={{ headerShown: false, title: t('send.navigation') }}
                     />
-                  )}
-                  <Stack.Screen
-                    name="DesignSystem"
-                    component={DesignSystemScreen}
-                    options={{ title: t('navigation.designSystem') }}
-                  />
-                  <Stack.Screen
-                    name="Collect"
-                    component={CollectRoute}
-                    options={{ headerShown: false, title: t('collect.navigation') }}
-                  />
-                  {__DEV__ && (
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="SendPreview"
+                        component={SendPreviewRoute}
+                        options={{ headerShown: false, title: t('send.navigation') }}
+                      />
+                    )}
                     <Stack.Screen
-                      name="CollectPreview"
-                      component={CollectPreviewRoute}
+                      name="DesignSystem"
+                      component={DesignSystemScreen}
+                      options={{ title: t('navigation.designSystem') }}
+                    />
+                    <Stack.Screen
+                      name="Collect"
+                      component={CollectRoute}
                       options={{ headerShown: false, title: t('collect.navigation') }}
                     />
-                  )}
-                  {__DEV__ ? (
-                    <Stack.Screen
-                      name="WalletLab"
-                      component={WalletLabScreen}
-                      options={{ title: t('walletLab.title') }}
-                    />
-                  ) : null}
-                </Stack.Navigator>
-              </NavigationContainer>
+                    {__DEV__ && (
+                      <Stack.Screen
+                        name="CollectPreview"
+                        component={CollectPreviewRoute}
+                        options={{ headerShown: false, title: t('collect.navigation') }}
+                      />
+                    )}
+                    {__DEV__ ? (
+                      <Stack.Screen
+                        name="WalletLab"
+                        component={WalletLabScreen}
+                        options={{ title: t('walletLab.title') }}
+                      />
+                    ) : null}
+                  </Stack.Navigator>
+                </NavigationContainer>
+              </HistoryContext.Provider>
             </CollectContext.Provider>
           </SendContext.Provider>
         </ReceiveContext.Provider>

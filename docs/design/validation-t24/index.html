@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Historique T24</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T24</p>
+      <h1>Chaque mouvement trouve sa place.</h1>
+      <p>
+        Écrans confirmés par PAN le 11 novembre 2026 avant commit et PR. Les vrais composants sont
+        rendus sur le Web avec des données fictives ; aucun paiement réel ni essai Android n’est
+        montré.
+      </p>
+      <p>
+        Les montants du wallet et les retraits simulés restent distincts. Les cumuls portent sur les
+        opérations datées du jour à Dakar et annoncent leur couverture.
+      </p>
+      <p>
+        <a href="README.md">Vérifications et limites</a> |
+        <a href="mesures.json">Mesures du parcours</a>
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-journal.png"
+          ><img
+            src="01-journal.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Historique | résumé compact et opérations"
+        /></a>
+        <figcaption>
+          <strong>Historique | résumé compact et opérations</strong>
+          <p>Les retraits simulés restent distincts des montants du portefeuille.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-receptions.png"
+          ><img
+            src="02-receptions.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Filtre Reçus | un statut écrit pour chaque opération"
+        /></a>
+        <figcaption>
+          <strong>Filtre Reçus | un statut écrit pour chaque opération</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-recu.png"
+          ><img
+            src="03-recu.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reçu fictif | montant conservé et frais connus"
+        /></a>
+        <figcaption>
+          <strong>Reçu fictif | montant conservé et frais connus</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-recu-partage.png"
+          ><img
+            src="04-recu-partage.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reçu | date d’opération, référence et retour du partage"
+        /></a>
+        <figcaption>
+          <strong>Reçu | date d’opération, référence et retour du partage</strong>
+          <p>Options interceptées en mémoire ; aucun message envoyé.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-frais.png"
+          ><img
+            src="05-frais.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Paiement envoyé | frais en sats, FCFA historiques non inventés"
+        /></a>
+        <figcaption>
+          <strong>Paiement envoyé | frais en sats, FCFA historiques non inventés</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-attente.png"
+          ><img
+            src="06-attente.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="En attente | détail sans preuve de règlement"
+        /></a>
+        <figcaption>
+          <strong>En attente | détail sans preuve de règlement</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-echec.png"
+          ><img
+            src="07-echec.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Échec | état conservé sans commande de renvoi"
+        /></a>
+        <figcaption>
+          <strong>Échec | état conservé sans commande de renvoi</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-journal-simule.png"
+          ><img
+            src="08-journal-simule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retraits simulés | journal et cumul distincts"
+        /></a>
+        <figcaption>
+          <strong>Retraits simulés | journal et cumul distincts</strong>
+          <p>Les fonds de démonstration ne sont pas additionnés au wallet.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-recu-simule.png"
+          ><img
+            src="09-recu-simule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reçu Wave simulé | montant, frais et total explicites"
+        /></a>
+        <figcaption>
+          <strong>Reçu Wave simulé | montant, frais et total explicites</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-incertain.png"
+          ><img
+            src="10-incertain.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retrait incertain | même opération à vérifier"
+        /></a>
+        <figcaption>
+          <strong>Retrait incertain | même opération à vérifier</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-vide.png"
+          ><img
+            src="11-vide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Journal vide | aucun mouvement inventé"
+        /></a>
+        <figcaption>
+          <strong>Journal vide | aucun mouvement inventé</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-partiel.png"
+          ><img
+            src="12-partiel.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Journal paginé | cumul annoncé partiel"
+        /></a>
+        <figcaption>
+          <strong>Journal paginé | cumul annoncé partiel</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-complet.png"
+          ><img
+            src="13-complet.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Toutes les pages consultées | cumul complet pour cette lecture"
+        /></a>
+        <figcaption>
+          <strong>Toutes les pages consultées | cumul complet pour cette lecture</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-erreur-page.png"
+          ><img
+            src="14-erreur-page.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Erreur de page | données conservées et cumul partiel"
+        /></a>
+        <figcaption>
+          <strong>Erreur de page | données conservées et cumul partiel</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-reprise-page.png"
+          ><img
+            src="15-reprise-page.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reprise de page | suite relue sans perdre les premières opérations"
+        /></a>
+        <figcaption>
+          <strong>Reprise de page | suite relue sans perdre les premières opérations</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="16-hors-connexion.png"
+          ><img
+            src="16-hors-connexion.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Hors connexion | lecture locale signalée comme ancienne"
+        /></a>
+        <figcaption>
+          <strong>Hors connexion | lecture locale signalée comme ancienne</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="17-source-indisponible.png"
+          ><img
+            src="17-source-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Journal simulé indisponible | aucun faux total nul"
+        /></a>
+        <figcaption>
+          <strong>Journal simulé indisponible | aucun faux total nul</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="18-fcfa-inconnus.png"
+          ><img
+            src="18-fcfa-inconnus.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="FCFA manquants | sous-total connu et inconnus explicites"
+        /></a>
+        <figcaption>
+          <strong>FCFA manquants | sous-total connu et inconnus explicites</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="19-grand-montant-320.png"
+          ><img
+            src="19-grand-montant-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | montant complet et coupures visuelles"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | montant complet et coupures visuelles</strong>
+          <p>Les libellés accessibles et le partage gardent les nombres canoniques.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="20-verrouille.png"
+          ><img
+            src="20-verrouille.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Wallet verrouillé | journal et reçus masqués"
+        /></a>
+        <figcaption>
+          <strong>Wallet verrouillé | journal et reçus masqués</strong>
+          <p>Aucune valeur précédente conservée dans le rendu.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="21-partage-annule.png"
+          ><img
+            src="21-partage-annule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage annulé | aucun état de paiement modifié"
+        /></a>
+        <figcaption>
+          <strong>Partage annulé | aucun état de paiement modifié</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="22-partage-indisponible.png"
+          ><img
+            src="22-partage-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage indisponible | retour clair et réessai volontaire"
+        /></a>
+        <figcaption>
+          <strong>Partage indisponible | retour clair et réessai volontaire</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="23-journal-320.png"
+          ><img
+            src="23-journal-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | liste et filtres utilisables"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | liste et filtres utilisables</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="24-journal-360.png"
+          ><img
+            src="24-journal-360.png"
+            width="360"
+            height="780"
+            loading="lazy"
+            alt="360 pixels | résumé et plusieurs opérations visibles"
+        /></a>
+        <figcaption>
+          <strong>360 pixels | résumé et plusieurs opérations visibles</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="25-recu-320.png"
+          ><img
+            src="25-recu-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | détail défilant et action de partage fixe"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | détail défilant et action de partage fixe</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>11 novembre 2026 | écrans confirmés par PAN avant commit et PR.</footer>
+  </body>
+</html>
