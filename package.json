@@ -41,7 +41,11 @@
     "test:tooling": "node --test scripts/*.test.mjs scripts/github/*.test.mjs infrastructure/seed/*.test.mjs",
     "repo:check": "node scripts/check-repository.mjs && node scripts/check-mobile-translations.mjs",
     "prepare": "husky",
-    "mobile:web": "npm run web --workspace @teranga-pay/mobile --"
+    "mobile:web": "npm run web --workspace @teranga-pay/mobile --",
+    "e2e:install": "node scripts/install-maestro.mjs",
+    "e2e:check": "node scripts/mobile-e2e.mjs check",
+    "e2e:build:android": "node scripts/build-mobile-e2e.mjs",
+    "e2e:android": "node scripts/mobile-e2e.mjs android"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.4",

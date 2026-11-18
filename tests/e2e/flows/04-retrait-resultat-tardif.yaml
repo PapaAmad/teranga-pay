@@ -1,0 +1,71 @@
+appId: pay.teranga.demo.e2e
+tags:
+  - android
+  - fictif
+  - reprise
+---
+- launchApp:
+    appId: pay.teranga.demo.e2e
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Découvrir le projet'
+    timeout: 240000
+- tapOn: 'Découvrir le projet'
+- scrollUntilVisible:
+    element: 'Essayer l’accueil fictif'
+    direction: DOWN
+- tapOn: 'Essayer l’accueil fictif'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Retirer en cash'
+    direction: DOWN
+- tapOn: 'Retirer en cash'
+- assertVisible: 'Retrait simulé \| aucun transfert réel'
+- scrollUntilVisible:
+    element: 'Confirmation sans réponse'
+    direction: DOWN
+- tapOn: 'Confirmation sans réponse'
+- scrollUntilVisible:
+    element: 'Choisir Orange Money'
+    direction: UP
+- tapOn: 'Choisir Orange Money'
+- tapOn:
+    id: 'withdraw-amount'
+- inputText: '2500'
+- hideKeyboard
+- tapOn:
+    text: 'Voir les frais'
+    enabled: true
+- assertVisible: 'Vérifiez le retrait\.'
+- assertVisible: 'Retrait simulé \| aucun transfert réel'
+# La confirmation part une fois. Aucun bouton de reprise n’est actionné ensuite.
+- tapOn:
+    text: 'Confirmer le retrait simulé'
+    enabled: true
+- scrollUntilVisible:
+    element: 'Votre demande est transmise\.'
+    direction: UP
+- extendedWaitUntil:
+    visible: 'Le résultat reste à vérifier\.'
+    timeout: 25000
+- assertVisible: 'Le résultat reste à vérifier\.'
+- assertVisible: 'La demande est toujours suivie\. Ne recommencez pas l’opération ; vous pouvez revenir au portefeuille puis consulter son suivi\.'
+- assertNotVisible: 'Retrait simulé terminé\.'
+- assertNotVisible: 'Confirmer le retrait simulé'
+- assertNotVisible: 'Reprendre ce retrait simulé'
+- assertNotVisible: 'Préparer un autre retrait'
+- takeScreenshot: '04-retrait-resultat-incertain-fictif'
+# Même requête en vol : libération explicite de sa réponse fictive.
+- scrollUntilVisible:
+    element: 'Recevoir le résultat fictif'
+    direction: DOWN
+    timeout: 60000
+- tapOn: 'Recevoir le résultat fictif'
+- scrollUntilVisible:
+    element: 'Retrait simulé terminé\.'
+    direction: UP
+- assertVisible: 'Retrait simulé terminé\.'
+- assertVisible: 'Le compte de démonstration Orange Money a reçu 2.500 FCFA fictifs\. Aucun transfert réel n’a eu lieu\.'
+- assertNotVisible: 'Le résultat reste à vérifier\.'
+- assertVisible: 'Retrait simulé \| aucun transfert réel'
+- takeScreenshot: '04-retrait-resultat-tardif-fictif'

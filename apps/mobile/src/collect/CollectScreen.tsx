@@ -370,6 +370,7 @@ export function CollectScreen({
             <View style={styles.amountLine}>
               <TextInput
                 accessibilityLabel={t('collect.amountLabel')}
+                testID="collect-amount"
                 accessibilityHint={amountInvalid ? t('collect.errors.AMOUNT_INVALID') : undefined}
                 value={amount}
                 onChangeText={setAmount}
@@ -570,7 +571,7 @@ export function CollectScreen({
             </View>
           ))}
         {feedback && !interrupted && (
-          <Text accessibilityRole="status" accessibilityLiveRegion="polite" style={body}>
+          <Text role="status" accessibilityLiveRegion="polite" style={body}>
             {t(`collect.${feedback}`)}
           </Text>
         )}

@@ -1,0 +1,96 @@
+appId: pay.teranga.demo.e2e
+tags:
+  - android
+  - fictif
+  - nominal
+---
+- launchApp:
+    appId: pay.teranga.demo.e2e
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Découvrir le projet'
+    timeout: 240000
+- scrollUntilVisible:
+    element: 'Essayer le parcours fictif'
+    direction: DOWN
+- tapOn: 'Essayer le parcours fictif'
+- assertVisible: 'Aperçu fictif \| aucun portefeuille créé'
+- tapOn: 'Créer mon portefeuille'
+- assertVisible: 'On se comprend\.'
+- tapOn: 'Français'
+- tapOn: 'Continuer'
+- scrollUntilVisible:
+    element: 'J’ai de quoi noter'
+    direction: DOWN
+- tapOn: 'J’ai de quoi noter'
+# Le code ci-dessous est inventé et accepté uniquement par l’atelier en mémoire.
+- assertVisible: 'Aperçu fictif \| aucun portefeuille créé'
+- assertVisible: 'Utilisez un code fictif pour cet aperçu\.'
+- tapOn:
+    id: 'onboarding-pin'
+- inputText: '482615'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Continuer'
+    direction: DOWN
+- tapOn:
+    text: 'Continuer'
+    enabled: true
+- assertVisible: 'Encore une fois\.'
+- tapOn:
+    id: 'onboarding-pin'
+- inputText: '482615'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Créer et voir mes mots'
+    direction: DOWN
+- tapOn:
+    text: 'Créer et voir mes mots'
+    enabled: true
+# Ces jetons ne sont pas une phrase Bitcoin. Aucune capture de l’étape des mots.
+- assertVisible: 'Aperçu fictif \| aucun portefeuille créé'
+- scrollUntilVisible:
+    element: 'Mot 2 : exemple02'
+    direction: DOWN
+- assertVisible: 'Mot 2 : exemple02'
+- scrollUntilVisible:
+    element: 'Mot 6 : exemple06'
+    direction: DOWN
+- assertVisible: 'Mot 6 : exemple06'
+- scrollUntilVisible:
+    element: 'Mot 10 : exemple10'
+    direction: DOWN
+- assertVisible: 'Mot 10 : exemple10'
+- scrollUntilVisible:
+    element: 'J’ai noté mes douze mots'
+    direction: DOWN
+- tapOn: 'J’ai noté mes douze mots'
+- scrollUntilVisible:
+    element: 'Mot 2, choix exemple02'
+    direction: UP
+- tapOn: 'Mot 2, choix exemple02'
+- scrollUntilVisible:
+    element: 'Mot 6, choix exemple06'
+    direction: DOWN
+- tapOn: 'Mot 6, choix exemple06'
+- scrollUntilVisible:
+    element: 'Mot 10, choix exemple10'
+    direction: DOWN
+- tapOn: 'Mot 10, choix exemple10'
+- scrollUntilVisible:
+    element: 'Vérifier ma copie'
+    direction: DOWN
+- tapOn:
+    text: 'Vérifier ma copie'
+    enabled: true
+- scrollUntilVisible:
+    element: 'Aperçu terminé \| Données fictives'
+    direction: UP
+- assertVisible: 'Vous avez terminé l’aperçu\. Aucun portefeuille ni clé n’a été créé\.'
+- assertVisible: 'Aperçu terminé \| Données fictives'
+- takeScreenshot: '01-onboarding-fictif-termine'
+- scrollUntilVisible:
+    element: 'Quitter l’aperçu'
+    direction: DOWN
+- tapOn: 'Quitter l’aperçu'
+- assertVisible: 'Découvrir le projet'

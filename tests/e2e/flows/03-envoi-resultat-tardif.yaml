@@ -1,0 +1,85 @@
+appId: pay.teranga.demo.e2e
+tags:
+  - android
+  - fictif
+  - reprise
+---
+- launchApp:
+    appId: pay.teranga.demo.e2e
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Découvrir le projet'
+    timeout: 240000
+- tapOn: 'Découvrir le projet'
+- scrollUntilVisible:
+    element: 'Essayer l’accueil fictif'
+    direction: DOWN
+- tapOn: 'Essayer l’accueil fictif'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Envoyer'
+    direction: DOWN
+- tapOn: 'Envoyer'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Envoi sans réponse'
+    direction: DOWN
+- tapOn: 'Envoi sans réponse'
+- scrollUntilVisible:
+    element: 'Utiliser la demande fictive'
+    direction: UP
+- tapOn: 'Utiliser la demande fictive'
+- tapOn:
+    text: 'Confirmer le destinataire'
+    enabled: true
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Atelier fictif \| utilisez 6 chiffres inventés\. Aucun code personnel\.'
+    direction: DOWN
+- assertVisible: 'Atelier fictif \| utilisez 6 chiffres inventés\. Aucun code personnel\.'
+- scrollUntilVisible:
+    element:
+      id: 'send-pin'
+    direction: UP
+- tapOn:
+    id: 'send-pin'
+- inputText: '482615'
+- hideKeyboard
+# Un seul appui financier ; l’attente porte sur un état, pas sur un délai fixe.
+- tapOn:
+    text: 'Simuler l’envoi de 4.500 FCFA'
+    enabled: true
+- scrollUntilVisible:
+    element: 'Envoi en cours'
+    direction: UP
+- scrollUntilVisible:
+    element: 'Résultat à vérifier'
+    direction: UP
+    timeout: 25000
+- extendedWaitUntil:
+    visible: 'Résultat à vérifier'
+    timeout: 25000
+- assertVisible: 'Résultat à vérifier'
+- assertVisible: 'Le délai est dépassé, mais le paiement peut encore aboutir\. Ne renvoyez pas le montant\.'
+- assertNotVisible: 'Simulation terminée'
+- assertNotVisible:
+    id: 'send-pin'
+- assertNotVisible: 'Simuler l’envoi de .*'
+- assertVisible:
+    text: 'Revenir au portefeuille'
+    enabled: true
+- takeScreenshot: '03-envoi-resultat-incertain-fictif'
+# Ce bouton résout la promesse initiale ; il ne crée aucun nouvel envoi.
+- scrollUntilVisible:
+    element: 'Recevoir le résultat fictif'
+    direction: DOWN
+- tapOn: 'Recevoir le résultat fictif'
+- scrollUntilVisible:
+    element: 'Simulation terminée'
+    direction: UP
+- assertVisible: 'Simulation terminée'
+- assertVisible: 'Ce résultat est fictif\. Aucun argent n’a été envoyé\.'
+- assertNotVisible: 'Résultat à vérifier'
+- assertNotVisible:
+    id: 'send-pin'
+- takeScreenshot: '03-envoi-resultat-tardif-fictif'

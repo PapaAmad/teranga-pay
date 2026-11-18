@@ -12,6 +12,46 @@ L'arbre réservé `.github` utilise `GUIDE.md`, sauf `ISSUE_TEMPLATE` qui utilis
 
 `github/` contient la préparation du dépôt distant, ses réglages, labels et issues. Ces outils restent en prévisualisation tant qu'une application explicite n'est pas demandée.
 
+## Piloter Android avec Maestro | T30
+
+`npm run e2e:install` utilise `install-maestro.mjs` pour télécharger Maestro
+2.12.1, vérifier le SHA256 de l’archive avant extraction et le conserver dans
+`.tmp/tooling`. Java et les outils Android restent des prérequis externes ;
+aucune dépendance n’est ajoutée au bundle mobile ni au `PATH` global.
+
+`npm run e2e:check` lance `mobile-e2e.mjs check` : le script vérifie la version
+du CLI, le paquet déclaré dans les quatre parcours et leur syntaxe Maestro.
+Il ne lance pas d’appareil. `npm run e2e:build:android` utilise
+`build-mobile-e2e.mjs` pour générer et compiler un APK debug x86_64 portant
+l’identifiant isolé `pay.teranga.demo.e2e`, sans l’installer.
+
+Après installation explicite de cet APK et démarrage de Metro sur le port 8081,
+`npm run e2e:android -- --device emulator-5554` vérifie la cible et le paquet
+installé, établit le relais ADB et exécute les quatre parcours fictifs. Un rapport
+JUnit complet et réussi pour la sélection est requis avant le relevé de succès ;
+la syntaxe seule ou un cas ignoré ne suffisent pas. Les essais internes ciblés
+du lanceur conservent leur liste `flows` et leur nombre `cases` dans le relevé ;
+deux cas réussis n’y prouvent pas une suite de quatre. Les rapports restent dans `.tmp/e2e`, ignoré.
+Les tests Node de ces scripts participent à `npm run test:tooling`.
+
+`android-e2e-space.mjs` prépare uniquement le job Android d’une VM Linux GitHub
+hébergée, avec le SDK canonique `/usr/local/lib/android/sdk`. Le mode `prepare`
+retire ses NDK préinstallés inutilisés par les tests, sans toucher au job de
+compilation, puis exige 13 Gio libres avant l’image Android. Le mode
+`check-boot`, appelé dans une étape GitHub distincte après installation de
+l’image et création du dossier `ANDROID_AVD_HOME`, ne supprime rien et exige
+9 Gio sur son système de fichiers. Son échec bloque cette étape avant l’action
+émulateur ; le contrôle n’utilise pas son hook de pré-lancement. Les autres
+contextes, dont Windows
+local et les runners autohébergés, sont refusés. Ce script ne sert pas à nettoyer
+un SDK de développement. Ses tests vérifient ces refus, le périmètre de
+suppression et les deux seuils ; les relevés vont dans `.tmp/e2e`.
+
+Le [guide Maestro](../docs/guides/tests-maestro.md) décrit les prérequis JDK 21,
+Android et les commandes. Le [suivi T30](../docs/planning/suivi-t30.md) consigne
+les exécutions réelles. Ces parcours de composants natifs utilisent les ateliers
+de démonstration ; ils ne prouvent pas un paiement du wallet du téléphone.
+
 `brand-colors.mjs` définit les 18 couples fonctionnels de la charte : 12 paires de texte à 4,5:1 et 6 indices graphiques à 3:1, dont la sélection Android. `node scripts/export-brand-contrast.mjs` régénère `assets/brand/contrast.json` depuis les tokens, avec les couleurs exactes, les ratios non arrondis et les seuils. La sortie est reproductible sans date variable, sans appel réseau et sans dépendance ajoutée ; une paire insuffisante produit un code de sortie 1.
 
 `brand.test.mjs` compare le rapport livré au calcul courant pour détecter un rapport périmé, vérifie les bornes et seuils du calcul ainsi que la cohérence des SVG. Il contrôle aussi les tailles et SHA-256 des trois polices et deux licences livrées, selon le manifeste des sources : aucun nettoyage des fichiers de licence n'est autorisé par ces tests. Lancer `npm run test:tooling` ; ces vérifications ne constituent pas une certification d'accessibilité de l'application.

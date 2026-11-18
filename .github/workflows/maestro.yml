@@ -1,0 +1,202 @@
+name: Maestro
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - '.github/workflows/maestro.yml'
+      - '.nvmrc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'apps/mobile/**'
+      - 'assets/brand/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - 'tests/e2e/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/maestro.yml'
+      - '.nvmrc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'apps/mobile/**'
+      - 'assets/brand/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - 'tests/e2e/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maestro-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action == 'edited' && !github.event.changes.base && 'metadata' || 'native' }}
+  cancel-in-progress: true
+
+env:
+  HUSKY: '0'
+  CI: 'true'
+  TERANGA_E2E_BUILD: '1'
+  EXPO_NO_BROWSER: '1'
+  EXPO_NO_TELEMETRY: '1'
+  MAESTRO_CLI_NO_ANALYTICS: 'true'
+  MAESTRO_DISABLE_UPDATE_CHECK: 'true'
+  MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: 'true'
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: '180000'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Maestro | compilation ignorée' || 'Maestro | APK fictif' }}
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Installer npm et les dépendances verrouillées
+        run: |
+          npm install --global npm@12.2.1
+          npm ci
+      - name: Compiler l’APK debug Android pour les ateliers fictifs
+        run: |
+          df -h .
+          npm run e2e:build:android
+      - name: Lier l’APK au code exact et relever son empreinte
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          mkdir -p .tmp/e2e-apk
+          cp apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk .tmp/e2e-apk/
+          printf '%s\n' "$GITHUB_SHA" > .tmp/e2e-apk/source.sha
+          cd .tmp/e2e-apk
+          sha256sum app-debug.apk source.sha > SHA256SUMS
+          stat --format='APK fictif | %s octets' app-debug.apk
+          df -h .
+      - name: Transmettre uniquement l’APK fictif au job de test
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-apk-fictif-${{ github.run_id }}
+          path: .tmp/e2e-apk/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  android:
+    # Les métadonnées seules ne doivent ni masquer ni annuler une exécution native.
+    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'Maestro | métadonnées ignorées' || 'Maestro | Android fictif' }}
+    needs: build
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ANDROID_AVD_HOME: /home/runner/.android/avd
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Installer npm et les dépendances verrouillées
+        run: |
+          npm install --global npm@12.2.1
+          npm ci
+      - name: Installer Maestro 2.12.1 et vérifier la syntaxe des parcours
+        run: |
+          npm run e2e:install
+          npm run e2e:check
+      - name: Récupérer l’APK de cette exécution
+        uses: actions/download-artifact@v4
+        with:
+          name: maestro-apk-fictif-${{ github.run_id }}
+          path: .tmp/e2e-apk/
+      - name: Vérifier l’APK et le code avant lancement
+        run: |
+          cd .tmp/e2e-apk
+          sha256sum --check --strict SHA256SUMS
+          test "$(cat source.sha)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          mkdir -p ../e2e
+          cp source.sha ../e2e/apk-source.sha
+          cp SHA256SUMS ../e2e/apk-SHA256SUMS
+      - name: Préparer l’espace du job Android hébergé
+        run: node scripts/android-e2e-space.mjs prepare
+      - name: Installer l’image et vérifier l’espace AVD avant le boot
+        run: |
+          t30_sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          set +o pipefail
+          yes | "$t30_sdkmanager" --licenses > /dev/null
+          t30_sdk_status=${PIPESTATUS[1]}
+          set -o pipefail
+          test "$t30_sdk_status" -eq 0
+          "$t30_sdkmanager" --install 'build-tools;37.0.0' 'platform-tools' 'platforms;android-35' 'emulator' 'system-images;android-35;google_apis;x86_64' --channel=0
+          mkdir -p "$ANDROID_AVD_HOME"
+          node scripts/android-e2e-space.mjs check-boot
+      - name: Activer l’accélération KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+      - name: Démarrer Metro pour l’application installée
+        run: |
+          mkdir -p .tmp/e2e
+          cd apps/mobile
+          nohup node ../../node_modules/expo/bin/cli start --lan --port 8081 > ../../.tmp/e2e/metro.log 2>&1 < /dev/null &
+          echo "$!" > ../../.tmp/e2e/metro.pid
+      - name: Exécuter les quatre parcours sur l’émulateur Android
+        # ReactiveCircus/android-emulator-runner v2.34.0 | version vérifiée et figée.
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 2560M
+          emulator-port: 5554
+          emulator-boot-timeout: 300
+          disable-linux-hw-accel: false
+          disable-animations: true
+          disable-spellchecker: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: |
+            adb -s emulator-5554 install -r .tmp/e2e-apk/app-debug.apk
+            npm run e2e:android -- --device emulator-5554
+      - name: Arrêter Metro
+        if: ${{ always() }}
+        run: |
+          if [ -f .tmp/e2e/metro.pid ]; then
+            kill "$(cat .tmp/e2e/metro.pid)" 2>/dev/null || true
+          fi
+      - name: Conserver les résultats et diagnostics fictifs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-android-fictif-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/e2e/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7

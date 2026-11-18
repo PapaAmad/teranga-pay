@@ -13,9 +13,10 @@ type Props = {
   helperText?: string;
   error?: string;
   disabled?: boolean;
-} & Pick<TextInputProps, 'inputMode' | 'keyboardType' | 'autoCapitalize'>;
+} & Pick<TextInputProps, 'inputMode' | 'keyboardType' | 'autoCapitalize' | 'testID'>;
 
 export function Field({
+  testID,
   label,
   value,
   onChangeText,
@@ -38,6 +39,7 @@ export function Field({
         {label}
       </Text>
       <TextInput
+        testID={testID}
         accessibilityLabel={label}
         accessibilityLabelledBy={labelId}
         accessibilityHint={hint}
