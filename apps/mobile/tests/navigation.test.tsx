@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  act,
+  fireEvent,
+  fireEventAsync,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { AppState } from 'react-native';
 
 import App from '../App';
@@ -7,9 +14,130 @@ import { fr } from '../src/translations/fr';
 import { createHomePreviewServices } from '../src/home/preview';
 import { createReceivePreviewServices } from '../src/receive/preview';
 import { createSendPreviewServices, sendPreviewInvoice } from '../src/send/preview';
+import { createCollectPreviewServices } from '../src/collect/preview';
 
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 jest.mock('../src/send/QrScanner', () => ({ QrScanner: () => null }));
+
+describe('navigation Encaisser T22', () => {
+  let original: PropertyDescriptor | undefined;
+  beforeEach(() => {
+    original = Object.getOwnPropertyDescriptor(AppState, 'currentState');
+    Object.defineProperty(AppState, 'currentState', {
+      configurable: true,
+      writable: true,
+      value: 'active',
+    });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (original) Object.defineProperty(AppState, 'currentState', original);
+  });
+
+  async function createMerchantRequest() {
+    const input = await screen.findByLabelText(fr.collect.amountLabel);
+    await fireEventAsync.changeText(input, '2500');
+    await waitFor(() => {
+      expect(screen.getByLabelText(fr.collect.amountLabel)).toHaveProp('value', '2500');
+      expect(screen.getByRole('button', { name: fr.collect.continue })).toBeEnabled();
+    });
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.collect.continue }));
+    await screen.findByRole('header', { name: fr.collect.reviewTitle });
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.collect.create }));
+    await screen.findByRole('header', { name: fr.collect.waitingTitle });
+  }
+
+  it('relie Encaisser au fournisseur injecté et confirme seulement son règlement', async () => {
+    const fixture = createCollectPreviewServices();
+    const create = jest.spyOn(fixture.invoices!, 'create');
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        collectServices={{ ...fixture, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.collect }));
+    expect(await screen.findByRole('header', { name: fr.collect.title })).toBeOnTheScreen();
+    expect(screen.queryByText(fr.collect.preview)).toBeNull();
+    expect(screen.queryByText(fr.dashboard.actionUnavailable)).toBeNull();
+    await createMerchantRequest();
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('header', { name: fr.collect.paidTitle })).toBeNull();
+    act(() => fixture.confirmPayment());
+    expect(await screen.findByRole('header', { name: fr.collect.paidTitle })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: fr.collect.receiptTitle })).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: fr.collect.back }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+  });
+
+  it('garde Encaisser fictif isolé du fournisseur du contexte normal', async () => {
+    const normal = createCollectPreviewServices();
+    const create = jest.spyOn(normal.invoices!, 'create');
+    const lookup = jest.spyOn(normal.invoices!, 'lookup');
+    render(
+      <App
+        initialRoute="HomePreview"
+        collectServices={{ ...normal, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.collect }));
+    expect(await screen.findByRole('header', { name: fr.collect.title })).toBeOnTheScreen();
+    expect(screen.getByText(fr.collect.preview)).toBeOnTheScreen();
+    await createMerchantRequest();
+    expect(create).not.toHaveBeenCalled();
+    expect(lookup).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByRole('button', { name: fr.collect.back }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+  });
+
+  it('ne remplace pas le service marchand absent par une demande de démonstration', async () => {
+    render(<App initialRoute="Collect" i18n={createAppI18n()} />);
+    await act(async () => {});
+    expect(
+      await screen.findByRole('header', { name: fr.collect.unavailableTitle }),
+    ).toBeOnTheScreen();
+    expect(screen.queryByLabelText(fr.collect.amountLabel)).toBeNull();
+    expect(screen.queryByText(fr.collect.preview)).toBeNull();
+    expect(screen.queryByRole('image', { name: /Demande de paiement/ })).toBeNull();
+  });
+
+  it('reprend la demande existante après retour à l’accueil sans en créer une deuxième', async () => {
+    const fixture = createCollectPreviewServices();
+    const create = jest.spyOn(fixture.invoices!, 'create');
+    const lookup = jest.spyOn(fixture.invoices!, 'lookup');
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        collectServices={{ ...fixture, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.collect }));
+    await createMerchantRequest();
+    const reads = lookup.mock.calls.length;
+    fireEvent.press(screen.getByRole('button', { name: fr.collect.back }));
+    await screen.findByRole('header', { name: fr.dashboard.recent });
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.collect }));
+    expect(await screen.findByRole('header', { name: fr.collect.waitingTitle })).toBeOnTheScreen();
+    await waitFor(() => expect(lookup.mock.calls.length).toBeGreaterThan(reads));
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(lookup).toHaveBeenLastCalledWith({
+      paymentId: 'apercu-collecte-fictive-1',
+      paymentRequest: 'lnbcrt1exemplecollectefictivenonpayable1'.padEnd(326, 'a'),
+    });
+    expect(screen.queryByLabelText(fr.collect.amountLabel)).toBeNull();
+  });
+});
 
 describe('navigation du socle mobile', () => {
   it('ouvre les informations du projet puis revient à l’accueil', async () => {

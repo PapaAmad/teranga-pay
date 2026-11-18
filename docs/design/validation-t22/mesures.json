@@ -1,0 +1,525 @@
+{
+  "date": "2026-11-10",
+  "renderer": "React Native Web | Edge sans fenêtre | composants T22 réels",
+  "nativeKeyboardExecuted": false,
+  "nativePaymentExecuted": false,
+  "externalShareSent": false,
+  "errors": [],
+  "checks": [
+    {
+      "case": "clipboard",
+      "realBrowserClipboard": true,
+      "expectedBytes": 326,
+      "identical": true
+    },
+    {
+      "case": "shareRequest",
+      "interceptedInMemory": true,
+      "containsExactRequest": true
+    },
+    {
+      "case": "shareReceipt",
+      "interceptedInMemory": true,
+      "fictitiousExplicit": true,
+      "noPaymentRequest": true
+    },
+    {
+      "case": "dense2048",
+      "qrHidden": true,
+      "exactClipboardBytes": 2048
+    }
+  ],
+  "decodes": [
+    {
+      "name": "nominal-390",
+      "decoder": "jsQR 1.4.0 | bitmap PNG du vrai SVG",
+      "payloadBytes": 326,
+      "expectedIdentical": true,
+      "qrWidth": 231,
+      "rasterWidth": 231,
+      "modulePixels": 3,
+      "quietZoneModules": 4,
+      "version": 13
+    },
+    {
+      "name": "nominal-320",
+      "decoder": "jsQR 1.4.0 | bitmap PNG du vrai SVG",
+      "payloadBytes": 326,
+      "expectedIdentical": true,
+      "qrWidth": 231,
+      "rasterWidth": 231,
+      "modulePixels": 3,
+      "quietZoneModules": 4,
+      "version": 13
+    },
+    {
+      "name": "nominal-360",
+      "decoder": "jsQR 1.4.0 | bitmap PNG du vrai SVG",
+      "payloadBytes": 326,
+      "expectedIdentical": true,
+      "qrWidth": 231,
+      "rasterWidth": 231,
+      "modulePixels": 3,
+      "quietZoneModules": 4,
+      "version": 13
+    }
+  ],
+  "captures": [
+    {
+      "name": "01-montant",
+      "title": "Le prix de la vente | FCFA en premier",
+      "note": "Aucun solde personnel sur cet écran.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-montant-invalide",
+      "title": "Montant invalide | correction près du champ",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-verification",
+      "title": "Vérifier le prix | création explicite",
+      "note": "Le devis seul ne crée pas une facture.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 698,
+          "bottom": 758,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-attente",
+      "title": "Présenter au client | prix, QR et délai",
+      "note": "Demande fictive de 326 octets, QR décodé depuis le bitmap rendu.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-copie",
+      "title": "Copie exacte | aucune confirmation de règlement",
+      "note": "Presse-papiers du navigateur relu après écriture.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-partage",
+      "title": "Partager la demande | le paiement reste à vérifier",
+      "note": "Partage intercepté en mémoire, aucun envoi externe.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-paye",
+      "title": "Paiement fictif confirmé | reçu simple",
+      "note": "Le résultat vient du paiement exact, pas de la copie ou du partage.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-recu",
+      "title": "Reçu fictif | date de vérification et référence",
+      "note": "Le prix FCFA est celui demandé ; la date indique la confirmation observée.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-expiration",
+      "title": "Expiration | retirer les moyens de payer",
+      "note": "Vérification de la même demande et nouvelle vente explicites.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 698,
+          "bottom": 758,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-confirmation-apres-delai",
+      "title": "Confirmation après le délai | vente à vérifier",
+      "note": "Cette date ne prétend pas être l’heure réelle du règlement.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-creation-incertaine",
+      "title": "Création incertaine | pas de nouvelle facture automatique",
+      "note": "Une facture a pu être créée : la barrière de session reste active.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-hors-connexion",
+      "title": "Hors connexion | reprise explicite",
+      "note": "Scénario contrôlé, sans service réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-verrouille",
+      "title": "Wallet verrouillé | informations masquées",
+      "note": "Scénario contrôlé, sans service réseau.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-devis-indisponible",
+      "title": "Devis indisponible | aucune facture créée",
+      "note": "Le montant saisi reste corrigeable.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-autre-paiement",
+      "title": "Suivi incohérent | aucun paiement confirmé",
+      "note": "Une réponse avec une autre référence ne produit aucun reçu.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "16-facture-dense",
+      "title": "Facture dense | repli lisible et copie intégrale",
+      "note": "2048 octets conservés ; aucun QR trop petit pour ses modules.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "17-copie-refusee",
+      "title": "Copie refusée | autre action disponible",
+      "note": "Échec ou annulation ne change pas le statut du paiement.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "18-partage-annule",
+      "title": "Partage annulé | attente conservée",
+      "note": "Échec ou annulation ne change pas le statut du paiement.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "19-partage-indisponible",
+      "title": "Partage indisponible | erreur près des actions",
+      "note": "Échec ou annulation ne change pas le statut du paiement.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "20-service-absent",
+      "title": "Service absent | aucun QR inventé",
+      "note": "Le contexte normal n’utilise jamais le simulateur comme repli.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "21-attente-320",
+      "title": "320 pixels | QR entier et action fixe",
+      "note": "Contenu défilé pour montrer la demande ; le pied de page reste accessible.",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "22-attente-360",
+      "title": "360 pixels | demande à montrer au client",
+      "note": "",
+      "layout": {
+        "width": 360,
+        "height": 780,
+        "documentWidth": 360,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 704,
+          "bottom": 764,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "23-espace-reduit",
+      "title": "Saisie | espace vertical réduit",
+      "note": "Fenêtre Web et contenu défilé jusqu’au champ ; ce n’est pas un clavier Android.",
+      "layout": {
+        "width": 360,
+        "height": 460,
+        "documentWidth": 360,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 384,
+          "bottom": 444,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "24-montant-maximal",
+      "title": "320 pixels | montant maximal complet",
+      "note": "La limite de saisie conserve le prix complet.",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 494,
+          "bottom": 554,
+          "inViewport": true,
+          "disabled": false
+        },
+        "overflows": []
+      }
+    }
+  ]
+}

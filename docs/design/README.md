@@ -35,4 +35,13 @@ PAN a confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR et
 autorisé la publication. La relecture de Salam et la CI distante restent attendues ;
 le branchement natif et les essais sur Android restent distincts de l’atelier fictif.
 
+T22 prépare Encaisser : [recherche](encaisser-recherche.md),
+[direction et états](encaisser-direction.md), [décision](../decisions/0016-encaisser-demande-et-recu.md)
+[24 captures inspectées](validation-t22/README.md) et [suivi](../planning/suivi-t22.md).
+La galerie ne présente aucun débordement ni erreur console détectés et son QR est
+décodé depuis le bitmap rendu à trois largeurs. PAN a confirmé les nouveaux écrans
+le 10 novembre 2026 avant commit et PR et autorisé leur publication, en préparation.
+La relecture de Salam et la CI distante restent attendues ; le contrat de
+corrélation avec le règlement et les essais natifs restent à composer avec Salam.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

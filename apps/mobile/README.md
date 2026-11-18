@@ -38,8 +38,8 @@ depuis cette présentation, choisir « Voir l’accueil du portefeuille » pour 
 normale ou « Essayer l’accueil fictif » pour l’atelier de développement.
 L’entrée normale ne dispose pas encore du port natif et n’invente aucun solde.
 L’aperçu permet de vérifier le solde, le masquage, les opérations et les états de
-lecture avec des données fictives. Recevoir ouvre T18 et Envoyer ouvre T20 ;
-Encaisser conserve une explication jusqu’à T22. Ces routes ne branchent pas seules
+lecture avec des données fictives. Recevoir ouvre T18, Envoyer ouvre T20 et
+Encaisser ouvre T22. Ces routes ne branchent pas seules
 un wallet natif. Les tâches du [plan](../../docs/planning/roadmap.md) précisent
 les frontières d’intégration. Démonstration en regtest uniquement,
 cash-out Wave/Orange Money simulé.
@@ -85,6 +85,36 @@ configure la caméra sans microphone ni permission audio et lit l’explication
 système française dans les ressources T09. Une nouvelle construction native est
 nécessaire pour appliquer ces réglages ; l’aperçu Web et Expo Go ne prouvent pas
 le fonctionnement du wallet de Salam ni celui d’un APK construit pour le projet.
+
+T22 relie Encaisser au prix de la vente, au devis figé cinq minutes, à sa demande
+QR et au suivi du règlement correspondant. La préparation du prix ne crée pas
+encore de facture ; Afficher le QR est une action explicite. Le QR, la copie et
+le partage conservent la même demande complète. À expiration, les moyens de payer
+ce code sont retirés sans prétendre annuler un règlement déjà engagé. La date du
+reçu « Vérifié le » décrit l’observation de la confirmation, pas une heure de
+règlement déduite de `Payment.createdAt`.
+
+Depuis l’accueil fictif, choisir Encaisser pour l’atelier séparé. L’entrée normale
+attend le complément natif liant chaque facture à son identifiant et respectant
+l’échéance du devis ; sans ce fournisseur, elle explique son indisponibilité.
+Les nouvelles ventes restent explicites et les anciennes demandes connues gardent
+leur suivi pendant la session. Aucun nouveau paquet n’est ajouté en T22. PAN a
+confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR et autorisé
+leur publication, en préparation ; la relecture de Salam et la CI distante restent
+attendues. Lire le
+[module Encaisser](src/collect/README.md), la
+[recherche](../../docs/design/encaisser-recherche.md) et le
+[suivi T22](../../docs/planning/suivi-t22.md). La
+[galerie de validation](../../docs/design/validation-t22/README.md) réunit 24
+captures inspectées, sans débordement ni erreur console détectés. Le QR de 326
+octets est décodé depuis le bitmap rendu à 390, 360 et 320 pixels ; les copies de
+326 et 2 048 octets sont relues à l’identique dans le navigateur. Ces preuves
+Web ne valident pas le clavier Android, le scan physique ou un paiement natif.
+
+La vérification locale du 10 novembre 2026 passe avec 644 tests mobiles dans vingt
+suites, ainsi que les types et le lint. L’export Android de diagnostic
+`--no-bytecode` réussit avec 1 081 modules, un bundle de 1,8 Mo et 21 ressources ;
+il ne compile pas Hermes et ne construit pas d’APK.
 
 Commandes utiles : `npm run typecheck --workspace @teranga-pay/mobile` et
 `npm test --workspace @teranga-pay/mobile -- --ci`. Les tests utilisent

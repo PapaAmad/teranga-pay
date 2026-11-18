@@ -29,4 +29,20 @@ Modifier cette ressource exige une nouvelle construction pour changer le texte
 système installé. Le microphone et l’enregistrement audio sont désactivés dans
 ce plugin. Le wolof reste vide jusqu’à sa traduction et sa relecture T33.
 
+T22 ajoute `collect.ts`, importé par `fr.ts` sous `fr.collect`. Le parcours lit
+ces clés via `t('collect.…')` : prix demandé, attente, expiration, suivi incertain,
+copie, partage et reçu ont des libellés distincts. Le compteur conserve une
+valeur consultable sans annonce automatique de chaque seconde ; les changements
+d’état restent annoncés séparément.
+
+« Vérifié le » désigne `confirmedAt`, l’instant où T22 observe une preuve de
+règlement cohérente. « Confirmation après le délai » ne prétend pas dater
+l’envoi du client ou le règlement effectif. Le reçu fictif et son message de
+partage gardent cette qualification, sans déclarer qu’un paiement réel a été
+exécuté. Aucun catalogue wolof n’est rempli par anticipation.
+
+Les [captures T22](../../../../docs/design/validation-t22/README.md) permettent de
+relire ces états en contexte. Le partage du reçu fictif conserve sa qualification
+et n’inclut pas la facture ; la capture Web ne prouve pas les annonces TalkBack.
+
 PAN réalise T09, Salam relit. Commandes : `npm run typecheck`, `npm test -- --ci` ; les tests `i18n.test.tsx` couvrent le repli, l’isolation, les paramètres et le changement de langue au cours du parcours existant. Le titre natif est contrôlé via la prop du composant remplacé par Jest ; son rendu sur Android reste à vérifier. Les essais Android réels et la relecture wolof restent distincts.

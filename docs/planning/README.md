@@ -9,6 +9,7 @@ Salam porte le planning général ; PAN prépare le suivi du socle et les outils
 - [Suivi T16](suivi-t16.md) : accueil, lecture du wallet, états, revues des dépendances et validation visuelle.
 - [Suivi T18](suivi-t18.md) : adresse de réception, QR, copie et partage, preuves et intégration T19 attendue.
 - [Suivi T20](suivi-t20.md) : parcours d’envoi, autorisation, frais plafonnés, incertitude et relecture de T21.
+- [Suivi T22](suivi-t22.md) : prix marchand figé, facture suivie, confirmation correspondante et reçu simple.
 - [Feuille de route T01 à T40](roadmap.md) : phases, responsables, dates et jalons du plan d'équipe.
 - [Publication GitHub](publication-github.md) : état vérifié du dépôt privé, de l'accès, des PR et de la configuration distante.
 - [Suivi T23](suivi-t23.md) : passerelle Wave/Orange Money simulée, reprise durable et preuves contre les doubles retraits.

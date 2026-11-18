@@ -21,6 +21,24 @@ son wallet fictif séparé du contexte normal et propose les scénarios contrôl
 La perte de focus suspend la préparation et efface la saisie privée ; une
 opération déjà soumise conserve sa barrière de session lors du retour et du
 remontage avec le même wallet. Quitter l’écran n’annule pas un paiement soumis.
-Encaisser garde son explication jusqu’à T22. PAN maintient la navigation ; Salam
-relit. PAN a confirmé les écrans T20 le 10 novembre 2026 avant commit et PR.
+PAN a confirmé les écrans T20 le 10 novembre 2026 avant commit et PR.
+
+`Collect` ouvre T22 depuis Encaisser et reçoit un `CollectServices` propre,
+injectable via `App` et `RootNavigator`. L’entrée normale reste indisponible sans
+le fournisseur natif capable de lier facture et paiement et de respecter
+l’échéance du devis. `CollectPreview`, enregistré seulement en développement,
+utilise ses propres fournisseurs fictifs et son horloge contrôlée ; il ne
+sollicite jamais le service du contexte normal.
+
+Hors focus, le parcours marchand retire ses informations ; la reprise retrouve
+les demandes connues du même wallet sans créer une deuxième facture. Une
+confirmation d’une ancienne demande ne valide pas la vente courante. Quitter
+l’écran ne promet aucune annulation native. La date du reçu est celle de la
+vérification observée par l’application. PAN a confirmé les écrans T22 le
+10 novembre 2026 avant commit et PR et autorisé leur publication, en préparation.
+La relecture de Salam et la CI distante restent attendues. Les
+[captures T22](../../../../docs/design/validation-t22/README.md) et les quatre
+parcours de navigation marchands vérifient séparément l’atelier, l’injection,
+l’absence de fournisseur et la reprise de la même facture. PAN maintient la
+navigation ; Salam relit.
 Lancer `npm test -- --ci` depuis la racine pour vérifier les parcours.

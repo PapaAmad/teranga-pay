@@ -52,7 +52,41 @@ fausse confirmation. Le grand texte garde Scanner et Coller lisibles et utilisab
 Les parcours de navigation T20 vérifient l’injection du fournisseur normal, la
 séparation de l’atelier et la conservation de l’incertitude après retour à
 l’accueil puis réouverture. Tous les résultats de paiement sont contrôlés et
-fictifs. Au 10 novembre 2026, la suite mobile complète compte **487 tests réussis
-dans seize suites**. Cette preuve locale ne valide ni permission système réelle,
+fictifs. Le socle jusqu’à T20 a été vérifié le 10 novembre 2026 avec **487 tests
+réussis dans seize suites**. Cette preuve locale ne valide ni permission système réelle,
 ni scan physique, TalkBack, clavier Android ou paiement regtest. Le
 [suivi T20](../../../docs/planning/suivi-t20.md) conserve les preuves et les limites.
+
+T22 ajoute `collect-model.test.ts` pour la préparation sans création implicite,
+la correspondance stricte devis/facture/paiement, les échéances, les courses et la
+barrière de session. Les 68 cas ciblés couvrent aussi les vingt archives sans
+éviction silencieuse, les anciennes demandes et la confirmation observée après
+le délai. Le reçu conserve le prix demandé au devis et `confirmedAt` ; les tests
+ne renomment pas `Payment.createdAt` en heure de règlement.
+
+Les 61 tests QR et plateforme de `collect-qr.test.tsx` et
+`collect-platform.test.ts` vérifient matrice, marge de quatre modules, charge
+exacte, densité, facture longue, copie et refus des API. Une variante de 2 048
+caractères peut requérir le repli du rendu sans perdre ses alternatives de copie
+et de partage. Le décodage indépendant n’équivaut pas à un scan physique.
+
+Les 24 tests de `collect-screen.test.tsx` utilisent le vrai contrôleur, les
+ressources T09 et des services fictifs. Ils vérifient erreurs de montant,
+création explicite, QR fidèle, copier/partager, callbacks périmés, expiration,
+perte de focus, reprise, reçu fictif et confirmation d’une ancienne vente sans
+valider la nouvelle. Quatre parcours T22 dans `navigation.test.tsx` couvrent
+l’injection normale, l’atelier séparé, le fournisseur absent et le retour vers
+la même facture sans recréation. Le helper attend la valeur contrôlée et le
+bouton activé avant son unique appui, avec les événements asynchrones de RNTL.
+La suite de navigation complète passe avec treize tests. L’exécution mobile
+complète du 10 novembre 2026 passe avec **644 tests dans vingt suites**. Lire le
+[suivi T22](../../../docs/planning/suivi-t22.md) pour les preuves et les essais
+Android restant à conduire.
+
+La [validation visuelle T22](../../../docs/design/validation-t22/README.md)
+consigne 24 captures sans débordement ni erreur console détectés. Le vrai SVG
+rendu est décodé depuis son bitmap aux largeurs 390, 360 et 320 pixels : demande
+complète de 326 octets, version 13, modules de trois pixels et marge de quatre
+modules. Les copies nominale et de 2 048 octets sont relues dans le navigateur ;
+le partage et le reçu sont interceptés en mémoire sans envoi externe. La fenêtre
+360 × 460 vérifie un espace réduit, pas un clavier Android.

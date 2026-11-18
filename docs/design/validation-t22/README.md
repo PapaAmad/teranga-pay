@@ -1,0 +1,29 @@
+# Validation visuelle T22 | Encaisser
+
+Projet de Salam et PAN. PAN porte le parcours marchand ; Salam fournit les services et relit. **PAN a confirmé les nouveaux écrans T22 le 10 novembre 2026 avant commit et PR et autorisé leur publication.** La publication est en préparation ; la relecture de Salam et la CI distante restent attendues. Ouvrir la [galerie](index.html), la [demande à montrer](04-attente.png) ou le [reçu fictif](07-paye.png).
+
+Le parcours propose le prix en FCFA, sa vérification, une création explicite, le QR avec son échéance, puis un reçu après confirmation correspondant à cette demande. Le solde personnel du commerçant reste hors de l’écran présenté au client. Le bandeau d’action reste hors du défilement, dans le cadre T20 adapté au clavier.
+
+| Before                                                               | After                                                                         | Why                                                                                             |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Encaisser ouvrait une explication de disponibilité.                  | Un parcours prépare le prix, montre la demande et suit son règlement.         | Donner au marchand les étapes de cette vente sans exposer son solde.                            |
+| Une facture peut être plus dense qu’une adresse T18.                 | Le QR suit sa vraie matrice ; une densité excessive propose copie et partage. | Garder des modules entiers et la demande complète, sans code illisible réduit artificiellement. |
+| Une copie ou un partage peut être confondu avec un règlement.        | Ces actions ont leur propre retour ; seul le paiement exact produit un reçu.  | Éviter de remettre la commande avant confirmation.                                              |
+| Une expiration peut être prise pour une annulation certaine.         | Les moyens de payer sont retirés et la demande reste vérifiable.              | Conserver le suivi d’un paiement déjà engagé sans créer une autre facture automatiquement.      |
+| Une date de création ne garantit pas l’heure effective du règlement. | Le reçu indique « Vérifié le » à la date où l’app observe la preuve.          | Décrire uniquement ce que les données permettent de confirmer.                                  |
+
+La galerie utilise les vrais composants React Native rendus avec React Native Web dans Edge sans fenêtre visible. Les résultats, montants et factures non payables viennent de l’atelier explicitement fictif, sans réseau wallet, clé ni paiement réel. Les [mesures](mesures.json) consignent chaque capture, la taille du viewport, les débordements, les actions et le décodage du QR.
+
+Le décodage indépendant utilise le bitmap PNG du SVG réellement rendu, pas sa chaîne source. Il contrôle la demande complète et les quatre modules de marge. La copie est relue dans le presse-papiers du navigateur. Le partage nominal est intercepté en mémoire ; annulation et indisponibilité sont pilotées par l’atelier. Aucun message externe n’est envoyé et ces contrôles ne valent pas des essais Android.
+
+Les 24 captures du 10 novembre 2026 n’ont produit ni erreur de console ni débordement horizontal détecté. Le QR nominal de 326 octets est décodé à 390, 360 et 320 pixels : version 13, modules de trois pixels, marge de quatre modules. Le presse-papiers restitue exactement les demandes de 326 et 2048 octets. La demande de 2048 octets utilise le repli sans QR à cette taille ; son décodage unitaire à une taille supérieure ne prouve pas un scan sur téléphone.
+
+Les captures couvrent le parcours, montant invalide, devis indisponible, création incertaine, expiration, confirmation après le délai, suivi incohérent, facture trop dense, service absent, verrouillage et erreurs de copie/partage. Les contrôles à 320 et 360 pixels distinguent contenu défilant et action fixe. La fenêtre de 360 × 460 illustre un espace réduit avec le champ atteint par défilement ; **elle ne montre pas un clavier Android**.
+
+Les tests du modèle contrôlent aussi doubles appuis, remontage, anciennes demandes, identités déjà utilisées et réponses tardives après confirmation. Les reçus visibles sont bornés sans oublier les identités déjà utilisées pendant la session. Cette mémoire ne remplace pas la reprise durable après arrêt du processus.
+
+Les 644 tests mobiles des 20 suites passent, dont 68 du modèle T22, 61 du QR et de la plateforme, 24 de l’écran et quatre parcours de navigation ajoutés. Les tests d’outillage comptent 112 réussites et un cas de lien symbolique ignoré sous Windows. L’export Android JavaScript de diagnostic passe avec 1081 modules et 21 assets ; l’option sans bytecode ne constitue ni une compilation Hermes ni une installation d’APK.
+
+Le contexte normal explique l’absence de fournisseur natif et ne remplace jamais ce manque par une facture fictive. La [revue d’intégration T11](https://github.com/PapaAmad/teranga-pay/pull/53#pullrequestreview-5839032083) demande la correspondance facture/paiement et une expiration native respectant le devis. TalkBack, grand texte sur appareil, clavier, partage natif, scan physique et règlement regtest restent à vérifier lors de cette intégration.
+
+Commande utile : `npm run mobile:web -- --offline --port 8092`, puis ouvrir `http://localhost:8092`. Choisir « Découvrir le projet », « Essayer l’accueil fictif », puis « Encaisser ». Les commandes fictives et scénarios sont dans le contenu défilant. Consulter la [recherche](../encaisser-recherche.md), la [direction](../encaisser-direction.md), le [suivi](../../planning/suivi-t22.md) et l’[ADR 0016](../../decisions/0016-encaisser-demande-et-recu.md).
