@@ -1,0 +1,400 @@
+{
+  "date": "2026-11-11",
+  "renderer": "Vrais composants React Native | Web | Edge sans fenêtre",
+  "nativeScreenExecuted": false,
+  "talkBackExecuted": false,
+  "externalShareSent": false,
+  "realPaymentExecuted": false,
+  "errors": [],
+  "checks": [
+    {
+      "case": "receiptShare",
+      "interceptedInMemory": true,
+      "fictitiousExplicit": true,
+      "yearExplicit": true,
+      "noInvisibleBreaks": true,
+      "noInvoiceOrMemo": true
+    },
+    {
+      "case": "pendingShare",
+      "explicitNotPaymentProof": true
+    },
+    {
+      "case": "simulationShare",
+      "distinctFromWallet": true,
+      "explicitNoRealTransfer": true
+    },
+    {
+      "case": "walletPagination",
+      "pagesRead": 3,
+      "completeAfterLastPage": true
+    },
+    {
+      "case": "pageRetry",
+      "firstPagePreserved": true,
+      "completeAfterRetry": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "01-journal",
+      "title": "Historique | résumé compact et opérations",
+      "note": "Les retraits simulés restent distincts des montants du portefeuille.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-receptions",
+      "title": "Filtre Reçus | un statut écrit pour chaque opération",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-recu",
+      "title": "Reçu fictif | montant conservé et frais connus",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-recu-partage",
+      "title": "Reçu | date d’opération, référence et retour du partage",
+      "note": "Options interceptées en mémoire ; aucun message envoyé.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-frais",
+      "title": "Paiement envoyé | frais en sats, FCFA historiques non inventés",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-attente",
+      "title": "En attente | détail sans preuve de règlement",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-echec",
+      "title": "Échec | état conservé sans commande de renvoi",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-journal-simule",
+      "title": "Retraits simulés | journal et cumul distincts",
+      "note": "Les fonds de démonstration ne sont pas additionnés au wallet.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-recu-simule",
+      "title": "Reçu Wave simulé | montant, frais et total explicites",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-incertain",
+      "title": "Retrait incertain | même opération à vérifier",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-vide",
+      "title": "Journal vide | aucun mouvement inventé",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-partiel",
+      "title": "Journal paginé | cumul annoncé partiel",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-complet",
+      "title": "Toutes les pages consultées | cumul complet pour cette lecture",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-erreur-page",
+      "title": "Erreur de page | données conservées et cumul partiel",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-reprise-page",
+      "title": "Reprise de page | suite relue sans perdre les premières opérations",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "16-hors-connexion",
+      "title": "Hors connexion | lecture locale signalée comme ancienne",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "17-source-indisponible",
+      "title": "Journal simulé indisponible | aucun faux total nul",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "18-fcfa-inconnus",
+      "title": "FCFA manquants | sous-total connu et inconnus explicites",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "19-grand-montant-320",
+      "title": "320 pixels | montant complet et coupures visuelles",
+      "note": "Les libellés accessibles et le partage gardent les nombres canoniques.",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "20-verrouille",
+      "title": "Wallet verrouillé | journal et reçus masqués",
+      "note": "Aucune valeur précédente conservée dans le rendu.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "21-partage-annule",
+      "title": "Partage annulé | aucun état de paiement modifié",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "22-partage-indisponible",
+      "title": "Partage indisponible | retour clair et réessai volontaire",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "23-journal-320",
+      "title": "320 pixels | liste et filtres utilisables",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "24-journal-360",
+      "title": "360 pixels | résumé et plusieurs opérations visibles",
+      "note": "",
+      "layout": {
+        "width": 360,
+        "height": 780,
+        "documentWidth": 360,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "25-recu-320",
+      "title": "320 pixels | détail défilant et action de partage fixe",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    }
+  ]
+}

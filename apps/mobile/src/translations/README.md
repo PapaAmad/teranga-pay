@@ -1,5 +1,11 @@
 # Traductions de l’application | T09
 
+T24 ajoute `history.ts`, enregistré sous `fr.history` : filtres, reçus,
+incertitude, pagination, montants inconnus et qualification de simulation.
+Les dates portent une année ; « Date de l’opération » ne prétend pas dater le
+règlement. Les textes de partage utilisent `sourceContext` pour éviter le
+paramètre réservé `context` d’i18next. Le catalogue wolof reste vide.
+
 `fr.ts` est le catalogue français canonique. `wo.ts` prépare les mêmes clés sous forme partielle : il reste vide tant que les textes wolof ne sont pas traduits et relus en T33. Le moteur i18next utilise explicitement le français lorsqu’une clé wolof manque ou contient une chaîne vide. Une structure prête pour le wolof ne signifie pas que la traduction est livrée.
 
 `index.ts` initialise les ressources locales sans attente réseau et fournit `TranslationProvider`, `useTranslation`, l’instance `appI18n` et la fabrique isolée `createAppI18n`. Les écrans et la navigation consomment les clés à travers le provider ; ils ne lisent pas directement un catalogue. `i18next.d.ts` fait vérifier les clés et les paramètres par TypeScript. Les textes d’accueil, de présentation et de chargement partagent `appName`, par exemple `t('home.title', { appName: t('appName') })`.

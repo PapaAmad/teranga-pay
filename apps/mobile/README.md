@@ -1,5 +1,15 @@
 # Application mobile | Teranga Pay
 
+T24 ajoute l’historique en lecture seule depuis « Tout voir » près des dernières
+opérations : filtres, détails, reçus et cumul du jour à Dakar. L’atelier fictif
+est accessible depuis l’accueil fictif et reste distinct de l’entrée normale.
+Les retraits simulés conservent leur journal séparé ; un montant FCFA inconnu
+n’est jamais reconstruit au taux courant. Aucun nouveau paquet n’est ajouté.
+PAN a confirmé les nouveaux écrans le 11 novembre 2026 avant commit et PR.
+Lire le [module](src/history/README.md), le
+[suivi T24](../../docs/planning/suivi-t24.md) et les
+[25 captures](../../docs/design/validation-t24/README.md).
+
 Projet de Salam et PAN. Socle React Native et Expo en TypeScript, destiné d’abord
 à Android. PAN porte les écrans ; Salam apporte le wallet, Lightning et le coffre.
 

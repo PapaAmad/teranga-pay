@@ -13,6 +13,7 @@ import type { HomeServices } from './src/home/ports';
 import type { ReceiveServices } from './src/receive/ports';
 import type { SendServices } from './src/send/ports';
 import type { CollectServices } from './src/collect/ports';
+import type { HistoryServices } from './src/history/ports';
 import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
@@ -31,6 +32,7 @@ type AppProps = {
   receiveServices?: ReceiveServices;
   sendServices?: SendServices;
   collectServices?: CollectServices;
+  historyServices?: HistoryServices;
 };
 
 export default function App({
@@ -41,6 +43,7 @@ export default function App({
   receiveServices,
   sendServices,
   collectServices,
+  historyServices,
 }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
@@ -51,6 +54,7 @@ export default function App({
         receiveServices={receiveServices}
         sendServices={sendServices}
         collectServices={collectServices}
+        historyServices={historyServices}
       />
     </TranslationProvider>
   );
@@ -63,6 +67,7 @@ function AppContent({
   receiveServices,
   sendServices,
   collectServices,
+  historyServices,
 }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
@@ -105,6 +110,7 @@ function AppContent({
               receiveServices={receiveServices}
               sendServices={sendServices}
               collectServices={collectServices}
+              historyServices={historyServices}
             />
           </View>
         </BrandTypographyProvider>

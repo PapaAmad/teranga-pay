@@ -34,6 +34,7 @@ type Props = {
   onReceive?: () => void;
   onSend?: () => void;
   onCollect?: () => void;
+  onHistory?: () => void;
   onPreview?: () => void;
   onExitPreview?: () => void;
   previewControls?: ReactNode;
@@ -48,6 +49,7 @@ export function HomeScreen({
   onReceive,
   onSend,
   onCollect,
+  onHistory,
   onPreview,
   onExitPreview,
   previewControls,
@@ -561,6 +563,16 @@ export function HomeScreen({
               </Text>
               <Text style={[...body, styles.meta]}>{t('dashboard.recentLimit')}</Text>
             </View>
+            {onHistory && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('history.open')}
+                onPress={onHistory}
+                style={{ minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 }}
+              >
+                <Text style={label}>{t('history.openShort')}</Text>
+              </Pressable>
+            )}
           </View>
           {state.history.stale && foreground && (
             <Text role="status" accessibilityLiveRegion="polite" style={[...body, styles.warning]}>

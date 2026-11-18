@@ -1,5 +1,12 @@
 # Navigation
 
+`History` ouvre T24 depuis « Tout voir » et reçoit `historyServices` via `App`.
+Sans injection propre, il reprend uniquement les lectures du wallet Home ;
+aucun journal de retrait n’est inventé. `HistoryPreview`, réservé au
+développement, garde ses données et son partage fictifs séparés du contexte
+normal. Retour ferme le détail, conserve le filtre de liste puis revient à
+l’accueil ; la perte de focus masque le journal. PAN a confirmé les nouveaux écrans le 11 novembre 2026 avant commit et PR.
+
 `RootNavigator.tsx` déclare la pile native et ses titres, lus avec `useTranslation` pour suivre la langue courante. `types.ts` liste les routes et leurs paramètres pour que TypeScript vérifie chaque changement d’écran. La pile reste stable pendant une mise à jour des textes.
 
 La pile démarre sur `Onboarding` et conserve `Home`, `About` et la galerie T08

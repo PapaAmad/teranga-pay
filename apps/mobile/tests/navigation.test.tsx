@@ -15,9 +15,132 @@ import { createHomePreviewServices } from '../src/home/preview';
 import { createReceivePreviewServices } from '../src/receive/preview';
 import { createSendPreviewServices, sendPreviewInvoice } from '../src/send/preview';
 import { createCollectPreviewServices } from '../src/collect/preview';
+import { createHistoryPreviewServices } from '../src/history/preview';
 
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 jest.mock('../src/send/QrScanner', () => ({ QrScanner: () => null }));
+
+describe('navigation Historique T24', () => {
+  let original: PropertyDescriptor | undefined;
+  beforeEach(() => {
+    original = Object.getOwnPropertyDescriptor(AppState, 'currentState');
+    Object.defineProperty(AppState, 'currentState', {
+      configurable: true,
+      writable: true,
+      value: 'active',
+    });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (original) Object.defineProperty(AppState, 'currentState', original);
+  });
+
+  it('ouvre depuis l’accueil le journal injecté et ses retraits sans lui substituer le wallet d’accueil', async () => {
+    const home = createHomePreviewServices();
+    const homeRead = jest.spyOn(home.wallet!, 'history');
+    const history = createHistoryPreviewServices();
+    const walletRead = jest.spyOn(history.wallet!, 'history');
+    const withdrawalRead = jest.spyOn(history.withdrawals!, 'history');
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...home, mode: 'native' }}
+        historyServices={{ ...history, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.history.open }));
+    expect(await screen.findByRole('header', { name: fr.history.title })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Retrait Wave \|/ })).toBeOnTheScreen();
+    expect(walletRead).toHaveBeenCalledWith({ limit: 20 });
+    expect(withdrawalRead).toHaveBeenCalledWith({ limit: 20 });
+    expect(homeRead).not.toHaveBeenCalledWith({ limit: 20 });
+    expect(screen.queryByText(fr.history.preview)).toBeNull();
+    expect(screen.queryByText(fr.history.scenarios.title)).toBeNull();
+  });
+
+  it('réutilise le wallet d’accueil sans service Historique explicite et ne fabrique pas de retraits', async () => {
+    const home = createHomePreviewServices();
+    const history = jest.spyOn(home.wallet!, 'history');
+    const balance = jest.spyOn(home.wallet!, 'balance');
+    render(
+      <App
+        initialRoute="History"
+        homeServices={{ ...home, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    expect(await screen.findByRole('header', { name: fr.history.title })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Argent reçu \| \+25/ })).toBeOnTheScreen();
+    expect(history).toHaveBeenCalledWith({ limit: 20 });
+    expect(balance).not.toHaveBeenCalled();
+    expect(screen.queryByText(fr.history.preview)).toBeNull();
+    await fireEventAsync.press(screen.getByRole('radio', { name: fr.history.filters.simulated }));
+    expect(screen.getAllByText(fr.history.withdrawalsUnavailable).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /^Retrait / })).toBeNull();
+  });
+
+  it('garde l’historique de l’aperçu isolé des lectures du contexte normal', async () => {
+    const normal = createHistoryPreviewServices();
+    const state = jest.spyOn(normal.wallet!, 'state');
+    const history = jest.spyOn(normal.wallet!, 'history');
+    const withdrawals = jest.spyOn(normal.withdrawals!, 'history');
+    render(
+      <App
+        initialRoute="HomePreview"
+        historyServices={{ ...normal, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.history.open }));
+    expect(await screen.findByRole('header', { name: fr.history.title })).toBeOnTheScreen();
+    expect(screen.getByText(fr.history.preview)).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: fr.history.scenarios.title })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Argent reçu \| \+12/ })).toBeOnTheScreen();
+    expect(state).not.toHaveBeenCalled();
+    expect(history).not.toHaveBeenCalled();
+    expect(withdrawals).not.toHaveBeenCalled();
+  });
+
+  it('revient du reçu à la liste filtrée puis à l’accueil sans perdre une étape', async () => {
+    const history = createHistoryPreviewServices();
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        historyServices={{ ...history, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.history.open }));
+    await screen.findByRole('header', { name: fr.history.title });
+    await fireEventAsync.press(screen.getByRole('radio', { name: fr.history.filters.sent }));
+    await fireEventAsync.press(
+      await screen.findByRole('button', { name: /^Paiement envoyé \| −2/ }),
+    );
+    expect(await screen.findByRole('header', { name: fr.history.receiptTitle })).toBeOnTheScreen();
+    expect(screen.getByLabelText('demo-envoi-1')).toBeOnTheScreen();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.history.back }));
+    expect(await screen.findByRole('header', { name: fr.history.title })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: fr.history.filters.sent })).toHaveProp(
+      'accessibilityState',
+      { checked: true },
+    );
+    expect(screen.queryByRole('button', { name: /^Argent reçu \|/ })).toBeNull();
+    expect(screen.queryByRole('header', { name: fr.history.receiptTitle })).toBeNull();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.history.back }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: fr.history.open })).toBeOnTheScreen();
+    expect(screen.queryByRole('header', { name: fr.history.title })).toBeNull();
+  });
+});
 
 describe('navigation Encaisser T22', () => {
   let original: PropertyDescriptor | undefined;
