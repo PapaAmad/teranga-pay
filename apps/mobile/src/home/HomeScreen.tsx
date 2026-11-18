@@ -35,6 +35,7 @@ type Props = {
   onSend?: () => void;
   onCollect?: () => void;
   onHistory?: () => void;
+  onWithdraw?: () => void;
   onPreview?: () => void;
   onExitPreview?: () => void;
   previewControls?: ReactNode;
@@ -50,6 +51,7 @@ export function HomeScreen({
   onSend,
   onCollect,
   onHistory,
+  onWithdraw,
   onPreview,
   onExitPreview,
   previewControls,
@@ -556,6 +558,21 @@ export function HomeScreen({
               )}
             </View>
           )}
+          {onWithdraw && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('withdraw.open')}
+              accessibilityHint={t('withdraw.simulationHint')}
+              onPress={onWithdraw}
+              style={({ pressed }) => [styles.withdrawEntry, pressed && styles.pressed]}
+            >
+              <BrandIcon name="withdraw" size={28} />
+              <View style={styles.flex}>
+                <Text style={label}>{t('withdraw.open')}</Text>
+                <Text style={[...body, styles.meta]}>{t('withdraw.simulationShort')}</Text>
+              </View>
+            </Pressable>
+          )}
           <View style={styles.sectionHeading}>
             <View style={styles.flex}>
               <Text accessibilityRole="header" style={title}>
@@ -668,6 +685,18 @@ export function HomeScreen({
 }
 
 const styles = StyleSheet.create({
+  withdrawEntry: {
+    minHeight: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    padding: 20,
+    marginBottom: 24,
+    backgroundColor: tokens.colors.surface,
+    borderWidth: 1,
+    borderColor: tokens.colors.line,
+    borderRadius: 24,
+  },
   safe: { flex: 1, backgroundColor: tokens.colors.canvas },
   flex: { flex: 1 },
   toolbar: {

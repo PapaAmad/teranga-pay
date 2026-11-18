@@ -732,6 +732,13 @@ describe('encaisser | expiration, archives et reprise', () => {
 });
 
 describe('encaisser | atelier fictif contrôlé', () => {
+  it('fige l’échéance du prix depuis une seule lecture de l’horloge', async () => {
+    let movingTime = Date.UTC(2026, 10, 12, 12);
+    const services = createCollectPreviewServices('waiting', { now: () => movingTime++ });
+    const result = await services.rates!.quote(2500);
+    if (!result.ok) throw Error('Prix fictif indisponible');
+    expect(Date.parse(result.value.expiresAt) - Date.parse(result.value.createdAt)).toBe(300_000);
+  });
   it.each([
     ['waiting', 'waiting'],
     ['paid', 'paid'],

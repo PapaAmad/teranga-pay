@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import type { TFunction } from 'i18next';
 import {
   ActivityIndicator,
   AppState,
@@ -34,7 +33,10 @@ import {
 import type { HistoryEntry, HistoryServices } from './ports';
 import { historyDayKey, type HistoryDailyBucket, type HistoryCoverage } from './summary';
 
-type Translate = TFunction<'translation'>;
+type TitleTranslate = {
+  (key: 'history.received' | 'history.sent' | 'history.wave' | 'history.orange'): string;
+  (key: 'history.withdrawal', options: { operator: string }): string;
+};
 export type HistoryFilter = 'all' | 'received' | 'sent' | 'simulated';
 type Props = {
   services: HistoryServices;
@@ -47,7 +49,7 @@ type Props = {
   onExitPreview?: () => void;
   platform?: Pick<ReceivePlatformPort, 'share'>;
 };
-function entryTitle(entry: HistoryEntry, t: Translate) {
+function entryTitle(entry: HistoryEntry, t: TitleTranslate) {
   return entry.source === 'wallet'
     ? t(entry.payment.direction === 'recu' ? 'history.received' : 'history.sent')
     : t('history.withdrawal', {

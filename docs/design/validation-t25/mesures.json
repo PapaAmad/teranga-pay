@@ -1,0 +1,496 @@
+{
+  "date": "2026-11-12",
+  "renderer": "Vrais composants React Native | Web | Edge sans fenêtre",
+  "nativeDeviceExecuted": false,
+  "realWalletUsed": false,
+  "realOperatorUsed": false,
+  "errors": [],
+  "checks": [
+    {
+      "case": "pending",
+      "sameReference": true,
+      "explicitResultAndRefresh": true
+    },
+    {
+      "case": "providerRetry",
+      "sameReference": true,
+      "explicitRetry": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "01-entree",
+      "title": "Accueil | entrée distincte pour Retirer",
+      "note": "Les trois actions principales sont conservées.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-operateurs",
+      "title": "Choix | logos Wave et Orange Money",
+      "note": "Fichiers locaux, flèches Orange Money orange et noire, marques qualifiées par la simulation.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-montant",
+      "title": "Montant | saisie FCFA et frais fictifs",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-recapitulatif",
+      "title": "Confirmation | principal, frais et total avant effet",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-succes",
+      "title": "Succès Wave | aucun transfert réel",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-reference",
+      "title": "Référence | date et état métier conservés",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-orange-recapitulatif",
+      "title": "Orange Money | même règle de frais avant confirmation",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-orange-succes",
+      "title": "Succès Orange Money | résultat fictif explicite",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-montant-invalide",
+      "title": "Correction | montant invalide expliqué",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-groupes-invalides",
+      "title": "Correction | groupes ambigus refusés",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-prix-expire",
+      "title": "Prix expiré | nouvelle lecture explicite",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-prix-renouvele",
+      "title": "Prix relu | aucune confirmation automatique",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-attente",
+      "title": "Attente | vérifier cette demande avant une autre",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-attente-confirmee",
+      "title": "Confirmation tardive | même référence",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-reponse-perdue",
+      "title": "Réponse perdue | aucune fausse confirmation",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "16-demande-retrouvee",
+      "title": "Reprise | même demande retrouvée après réponse perdue",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "17-simulateur-indisponible",
+      "title": "Incertitude | réservation fictive conservée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "18-meme-reference",
+      "title": "Reprise volontaire | aucune nouvelle réservation",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "19-refus",
+      "title": "Refus | raison et nouvelle préparation explicite",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "20-solde-insuffisant",
+      "title": "Solde fictif insuffisant | corriger sans soumission",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "21-prix-indisponible",
+      "title": "Prix indisponible | relire les frais",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "22-hors-connexion",
+      "title": "Hors connexion | pas de prix ni de faux solde",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "23-journal-indisponible",
+      "title": "Journal indisponible | premier POST empêché",
+      "note": "L’échec d’écriture est vérifié dans les tests et le parcours de processus.",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "24-operateurs-320",
+      "title": "320 pixels | logos et noms lisibles",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "25-recapitulatif-320",
+      "title": "320 pixels | total et action dans le cadre",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "26-espace-reduit",
+      "title": "360 × 460 | action hors du contenu défilant",
+      "note": "Fenêtre réduite ; ce n’est pas une mesure de clavier Android.",
+      "layout": {
+        "width": 360,
+        "height": 460,
+        "documentWidth": 360,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 384,
+          "bottom": 444,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "27-sans-fournisseur",
+      "title": "Entrée normale | fournisseur absent expliqué",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    }
+  ]
+}

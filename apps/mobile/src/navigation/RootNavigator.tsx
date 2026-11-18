@@ -33,6 +33,9 @@ import { Button, tokens, useBrandFonts } from '../ui';
 import { HistoryScreen } from '../history/HistoryScreen';
 import type { HistoryServices } from '../history/ports';
 import { createHistoryPreviewServices, type HistoryPreviewScenario } from '../history/preview';
+import { WithdrawScreen } from '../withdraw/WithdrawScreen';
+import type { WithdrawServices } from '../withdraw/ports';
+import { createWithdrawPreviewServices, type WithdrawPreviewScenario } from '../withdraw/preview';
 
 import { WalletLabScreen } from '../screens/WalletLabScreen';
 import { AboutScreen } from '../screens/AboutScreen';
@@ -47,6 +50,7 @@ const ReceiveContext = createContext<ReceiveServices>({ mode: 'unavailable' });
 const SendContext = createContext<SendServices>({ mode: 'unavailable' });
 const CollectContext = createContext<CollectServices>({ mode: 'unavailable' });
 const HistoryContext = createContext<HistoryServices | null>(null);
+const WithdrawContext = createContext<WithdrawServices>({ mode: 'unavailable' });
 
 function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const services = useContext(HomeContext);
@@ -60,6 +64,7 @@ function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'H
       onSend={() => navigation.navigate('Send')}
       onCollect={() => navigation.navigate('Collect')}
       onHistory={() => navigation.navigate('History')}
+      onWithdraw={() => navigation.navigate('Withdraw')}
       onPreview={__DEV__ ? () => navigation.navigate('HomePreview') : undefined}
     />
   );
@@ -91,6 +96,7 @@ function HomePreviewRoute({
       onSend={() => navigation.navigate('SendPreview')}
       onCollect={() => navigation.navigate('CollectPreview')}
       onHistory={() => navigation.navigate('HistoryPreview')}
+      onWithdraw={() => navigation.navigate('WithdrawPreview')}
       onExitPreview={() => navigation.goBack()}
       previewControls={
         <View style={previewStyles.panel}>
@@ -631,6 +637,110 @@ function HistoryPreviewRoute({
   );
 }
 
+function WithdrawRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Withdraw'>) {
+  const services = useContext(WithdrawContext);
+  const active = useIsFocused();
+  return (
+    <WithdrawScreen
+      services={services}
+      active={active}
+      onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home'))}
+      onPreview={__DEV__ ? () => navigation.navigate('WithdrawPreview') : undefined}
+    />
+  );
+}
+
+function WithdrawPreviewRoute({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, 'WithdrawPreview'>) {
+  const [scenario, setScenario] = useState<WithdrawPreviewScenario>('ready');
+  const services = useMemo(() => createWithdrawPreviewServices(scenario), [scenario]);
+  const active = useIsFocused();
+  const { t } = useTranslation();
+  const fonts = useBrandFonts();
+  const scenarios = [
+    'ready',
+    'pending',
+    'lostResponse',
+    'providerUnavailable',
+    'declined',
+    'emptyBalance',
+    'quoteFailure',
+    'offline',
+    'journalFailure',
+  ] as const;
+  return (
+    <WithdrawScreen
+      key={scenario}
+      services={services}
+      active={active}
+      clock={services.now}
+      onBack={() => navigation.goBack()}
+      onExitPreview={() => navigation.goBack()}
+      previewControls={
+        <>
+          <Text
+            accessibilityRole="header"
+            style={{
+              ...tokens.typography.label,
+              color: tokens.colors.ink,
+              fontFamily: fonts.title,
+            }}
+          >
+            {t('withdraw.scenarios.title')}
+          </Text>
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t('withdraw.scenarios.title')}
+            style={previewStyles.choices}
+          >
+            {scenarios.map((name) => (
+              <Pressable
+                key={name}
+                accessibilityRole="radio"
+                accessibilityLabel={t(`withdraw.scenarios.${name}`)}
+                accessibilityState={{ checked: scenario === name }}
+                aria-checked={scenario === name}
+                onPress={() => setScenario(name)}
+                style={({ pressed }) => [
+                  previewStyles.choice,
+                  scenario === name && previewStyles.selected,
+                  pressed && previewStyles.pressed,
+                ]}
+              >
+                <Text
+                  style={{
+                    ...tokens.typography.label,
+                    fontFamily: fonts.label,
+                    color: scenario === name ? tokens.colors.onPrimary : tokens.colors.ink,
+                  }}
+                >
+                  {t(`withdraw.scenarios.${name}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <Button
+            label={t('withdraw.scenarios.expire')}
+            variant="secondary"
+            onPress={services.expireQuote}
+          />
+          <Button
+            label={t('withdraw.scenarios.complete')}
+            variant="secondary"
+            onPress={services.completePending}
+          />
+          <Button
+            label={t('withdraw.scenarios.restore')}
+            variant="secondary"
+            onPress={services.restoreProvider}
+          />
+        </>
+      }
+    />
+  );
+}
+
 function OnboardingRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Onboarding'>) {
   const services = useContext(Services);
   if (!services) throw new Error('Onboarding services unavailable');
@@ -671,6 +781,7 @@ export function RootNavigator({
   sendServices,
   collectServices,
   historyServices,
+  withdrawServices,
 }: {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
@@ -679,6 +790,7 @@ export function RootNavigator({
   sendServices?: SendServices;
   collectServices?: CollectServices;
   historyServices?: HistoryServices;
+  withdrawServices?: WithdrawServices;
 }) {
   const { t } = useTranslation();
   const [services] = useState(() => onboardingServices ?? createPlatformServices());
@@ -687,6 +799,9 @@ export function RootNavigator({
   const [sending] = useState<SendServices>(() => sendServices ?? { mode: 'unavailable' });
   const [collecting] = useState<CollectServices>(() => collectServices ?? { mode: 'unavailable' });
   const [history] = useState<HistoryServices | null>(() => historyServices ?? null);
+  const [withdrawal] = useState<WithdrawServices>(
+    () => withdrawServices ?? { mode: 'unavailable' },
+  );
 
   return (
     <Services.Provider value={services}>
@@ -696,100 +811,114 @@ export function RootNavigator({
             <CollectContext.Provider value={collecting}>
               <HistoryContext.Provider value={history}>
                 <NavigationContainer linking={linking}>
-                  <Stack.Navigator
-                    initialRouteName={initialRoute}
-                    screenOptions={{ headerBackTitle: t('navigation.back') }}
-                  >
-                    <Stack.Screen
-                      name="Onboarding"
-                      component={OnboardingRoute}
-                      options={{ headerShown: false, title: t('appName') }}
-                    />
-                    {__DEV__ && (
+                  <WithdrawContext.Provider value={withdrawal}>
+                    <Stack.Navigator
+                      initialRouteName={initialRoute}
+                      screenOptions={{ headerBackTitle: t('navigation.back') }}
+                    >
                       <Stack.Screen
-                        name="OnboardingPreview"
-                        component={PreviewRoute}
+                        name="Onboarding"
+                        component={OnboardingRoute}
                         options={{ headerShown: false, title: t('appName') }}
                       />
-                    )}
-                    <Stack.Screen
-                      name="Home"
-                      component={HomeRoute}
-                      options={{ headerShown: false, title: t('appName') }}
-                    />
-                    <Stack.Screen
-                      name="History"
-                      component={HistoryRoute}
-                      options={{ headerShown: false, title: t('history.navigation') }}
-                    />
-                    {__DEV__ && (
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="OnboardingPreview"
+                          component={PreviewRoute}
+                          options={{ headerShown: false, title: t('appName') }}
+                        />
+                      )}
                       <Stack.Screen
-                        name="HistoryPreview"
-                        component={HistoryPreviewRoute}
+                        name="Home"
+                        component={HomeRoute}
+                        options={{ headerShown: false, title: t('appName') }}
+                      />
+                      <Stack.Screen
+                        name="History"
+                        component={HistoryRoute}
                         options={{ headerShown: false, title: t('history.navigation') }}
                       />
-                    )}
-                    {__DEV__ && (
                       <Stack.Screen
-                        name="HomePreview"
-                        component={HomePreviewRoute}
-                        options={{ headerShown: false, title: t('appName') }}
+                        name="Withdraw"
+                        component={WithdrawRoute}
+                        options={{ headerShown: false, title: t('withdraw.navigation') }}
                       />
-                    )}
-                    <Stack.Screen
-                      name="Receive"
-                      component={ReceiveRoute}
-                      options={{ headerShown: false, title: t('receive.navigation') }}
-                    />
-                    {__DEV__ && (
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="WithdrawPreview"
+                          component={WithdrawPreviewRoute}
+                          options={{ headerShown: false, title: t('withdraw.navigation') }}
+                        />
+                      )}
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="HistoryPreview"
+                          component={HistoryPreviewRoute}
+                          options={{ headerShown: false, title: t('history.navigation') }}
+                        />
+                      )}
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="HomePreview"
+                          component={HomePreviewRoute}
+                          options={{ headerShown: false, title: t('appName') }}
+                        />
+                      )}
                       <Stack.Screen
-                        name="ReceivePreview"
-                        component={ReceivePreviewRoute}
+                        name="Receive"
+                        component={ReceiveRoute}
                         options={{ headerShown: false, title: t('receive.navigation') }}
                       />
-                    )}
-                    <Stack.Screen
-                      name="About"
-                      component={AboutScreen}
-                      options={{ title: t('navigation.about') }}
-                    />
-                    <Stack.Screen
-                      name="Send"
-                      component={SendRoute}
-                      options={{ headerShown: false, title: t('send.navigation') }}
-                    />
-                    {__DEV__ && (
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="ReceivePreview"
+                          component={ReceivePreviewRoute}
+                          options={{ headerShown: false, title: t('receive.navigation') }}
+                        />
+                      )}
                       <Stack.Screen
-                        name="SendPreview"
-                        component={SendPreviewRoute}
+                        name="About"
+                        component={AboutScreen}
+                        options={{ title: t('navigation.about') }}
+                      />
+                      <Stack.Screen
+                        name="Send"
+                        component={SendRoute}
                         options={{ headerShown: false, title: t('send.navigation') }}
                       />
-                    )}
-                    <Stack.Screen
-                      name="DesignSystem"
-                      component={DesignSystemScreen}
-                      options={{ title: t('navigation.designSystem') }}
-                    />
-                    <Stack.Screen
-                      name="Collect"
-                      component={CollectRoute}
-                      options={{ headerShown: false, title: t('collect.navigation') }}
-                    />
-                    {__DEV__ && (
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="SendPreview"
+                          component={SendPreviewRoute}
+                          options={{ headerShown: false, title: t('send.navigation') }}
+                        />
+                      )}
                       <Stack.Screen
-                        name="CollectPreview"
-                        component={CollectPreviewRoute}
+                        name="DesignSystem"
+                        component={DesignSystemScreen}
+                        options={{ title: t('navigation.designSystem') }}
+                      />
+                      <Stack.Screen
+                        name="Collect"
+                        component={CollectRoute}
                         options={{ headerShown: false, title: t('collect.navigation') }}
                       />
-                    )}
-                    {__DEV__ ? (
-                      <Stack.Screen
-                        name="WalletLab"
-                        component={WalletLabScreen}
-                        options={{ title: t('walletLab.title') }}
-                      />
-                    ) : null}
-                  </Stack.Navigator>
+                      {__DEV__ && (
+                        <Stack.Screen
+                          name="CollectPreview"
+                          component={CollectPreviewRoute}
+                          options={{ headerShown: false, title: t('collect.navigation') }}
+                        />
+                      )}
+                      {__DEV__ ? (
+                        <Stack.Screen
+                          name="WalletLab"
+                          component={WalletLabScreen}
+                          options={{ title: t('walletLab.title') }}
+                        />
+                      ) : null}
+                    </Stack.Navigator>
+                  </WithdrawContext.Provider>
                 </NavigationContainer>
               </HistoryContext.Provider>
             </CollectContext.Provider>

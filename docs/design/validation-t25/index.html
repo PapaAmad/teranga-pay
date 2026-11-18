@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Retirer T25</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T25</p>
+      <h1>Un retrait clair, une seule demande.</h1>
+      <p>
+        Écrans confirmés par PAN le 12 novembre 2026 avant commit et PR. Vrais composants Web,
+        comptes et résultats fictifs ; aucun transfert réel ni essai sur téléphone n’est présenté.
+      </p>
+      <p>
+        Wave et Orange Money gardent leurs signes d’origine. Montant destiné, frais fictifs et total
+        sont relus avant la confirmation explicite.
+      </p>
+      <p>
+        <a href="README.md">Preuves et limites</a> | <a href="mesures.json">Mesures du parcours</a>
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-entree.png"
+          ><img
+            src="01-entree.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Accueil | entrée distincte pour Retirer"
+        /></a>
+        <figcaption>
+          <strong>Accueil | entrée distincte pour Retirer</strong>
+          <p>Les trois actions principales sont conservées.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-operateurs.png"
+          ><img
+            src="02-operateurs.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Choix | logos Wave et Orange Money"
+        /></a>
+        <figcaption>
+          <strong>Choix | logos Wave et Orange Money</strong>
+          <p>
+            Fichiers locaux, flèches Orange Money orange et noire, marques qualifiées par la
+            simulation.
+          </p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-montant.png"
+          ><img
+            src="03-montant.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Montant | saisie FCFA et frais fictifs"
+        /></a>
+        <figcaption>
+          <strong>Montant | saisie FCFA et frais fictifs</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-recapitulatif.png"
+          ><img
+            src="04-recapitulatif.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Confirmation | principal, frais et total avant effet"
+        /></a>
+        <figcaption>
+          <strong>Confirmation | principal, frais et total avant effet</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-succes.png"
+          ><img
+            src="05-succes.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Succès Wave | aucun transfert réel"
+        /></a>
+        <figcaption>
+          <strong>Succès Wave | aucun transfert réel</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-reference.png"
+          ><img
+            src="06-reference.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Référence | date et état métier conservés"
+        /></a>
+        <figcaption>
+          <strong>Référence | date et état métier conservés</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-orange-recapitulatif.png"
+          ><img
+            src="07-orange-recapitulatif.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Orange Money | même règle de frais avant confirmation"
+        /></a>
+        <figcaption>
+          <strong>Orange Money | même règle de frais avant confirmation</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-orange-succes.png"
+          ><img
+            src="08-orange-succes.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Succès Orange Money | résultat fictif explicite"
+        /></a>
+        <figcaption>
+          <strong>Succès Orange Money | résultat fictif explicite</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-montant-invalide.png"
+          ><img
+            src="09-montant-invalide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Correction | montant invalide expliqué"
+        /></a>
+        <figcaption>
+          <strong>Correction | montant invalide expliqué</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-groupes-invalides.png"
+          ><img
+            src="10-groupes-invalides.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Correction | groupes ambigus refusés"
+        /></a>
+        <figcaption>
+          <strong>Correction | groupes ambigus refusés</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-prix-expire.png"
+          ><img
+            src="11-prix-expire.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Prix expiré | nouvelle lecture explicite"
+        /></a>
+        <figcaption>
+          <strong>Prix expiré | nouvelle lecture explicite</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-prix-renouvele.png"
+          ><img
+            src="12-prix-renouvele.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Prix relu | aucune confirmation automatique"
+        /></a>
+        <figcaption>
+          <strong>Prix relu | aucune confirmation automatique</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-attente.png"
+          ><img
+            src="13-attente.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Attente | vérifier cette demande avant une autre"
+        /></a>
+        <figcaption>
+          <strong>Attente | vérifier cette demande avant une autre</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-attente-confirmee.png"
+          ><img
+            src="14-attente-confirmee.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Confirmation tardive | même référence"
+        /></a>
+        <figcaption>
+          <strong>Confirmation tardive | même référence</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-reponse-perdue.png"
+          ><img
+            src="15-reponse-perdue.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Réponse perdue | aucune fausse confirmation"
+        /></a>
+        <figcaption>
+          <strong>Réponse perdue | aucune fausse confirmation</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="16-demande-retrouvee.png"
+          ><img
+            src="16-demande-retrouvee.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reprise | même demande retrouvée après réponse perdue"
+        /></a>
+        <figcaption>
+          <strong>Reprise | même demande retrouvée après réponse perdue</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="17-simulateur-indisponible.png"
+          ><img
+            src="17-simulateur-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Incertitude | réservation fictive conservée"
+        /></a>
+        <figcaption>
+          <strong>Incertitude | réservation fictive conservée</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="18-meme-reference.png"
+          ><img
+            src="18-meme-reference.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reprise volontaire | aucune nouvelle réservation"
+        /></a>
+        <figcaption>
+          <strong>Reprise volontaire | aucune nouvelle réservation</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="19-refus.png"
+          ><img
+            src="19-refus.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Refus | raison et nouvelle préparation explicite"
+        /></a>
+        <figcaption>
+          <strong>Refus | raison et nouvelle préparation explicite</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="20-solde-insuffisant.png"
+          ><img
+            src="20-solde-insuffisant.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Solde fictif insuffisant | corriger sans soumission"
+        /></a>
+        <figcaption>
+          <strong>Solde fictif insuffisant | corriger sans soumission</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="21-prix-indisponible.png"
+          ><img
+            src="21-prix-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Prix indisponible | relire les frais"
+        /></a>
+        <figcaption>
+          <strong>Prix indisponible | relire les frais</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="22-hors-connexion.png"
+          ><img
+            src="22-hors-connexion.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Hors connexion | pas de prix ni de faux solde"
+        /></a>
+        <figcaption>
+          <strong>Hors connexion | pas de prix ni de faux solde</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="23-journal-indisponible.png"
+          ><img
+            src="23-journal-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Journal indisponible | premier POST empêché"
+        /></a>
+        <figcaption>
+          <strong>Journal indisponible | premier POST empêché</strong>
+          <p>L’échec d’écriture est vérifié dans les tests et le parcours de processus.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="24-operateurs-320.png"
+          ><img
+            src="24-operateurs-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | logos et noms lisibles"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | logos et noms lisibles</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="25-recapitulatif-320.png"
+          ><img
+            src="25-recapitulatif-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | total et action dans le cadre"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | total et action dans le cadre</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="26-espace-reduit.png"
+          ><img
+            src="26-espace-reduit.png"
+            width="360"
+            height="460"
+            loading="lazy"
+            alt="360 × 460 | action hors du contenu défilant"
+        /></a>
+        <figcaption>
+          <strong>360 × 460 | action hors du contenu défilant</strong>
+          <p>Fenêtre réduite ; ce n’est pas une mesure de clavier Android.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="27-sans-fournisseur.png"
+          ><img
+            src="27-sans-fournisseur.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Entrée normale | fournisseur absent expliqué"
+        /></a>
+        <figcaption>
+          <strong>Entrée normale | fournisseur absent expliqué</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>12 novembre 2026 | écrans confirmés par PAN avant commit et PR.</footer>
+  </body>
+</html>

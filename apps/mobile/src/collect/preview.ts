@@ -60,6 +60,7 @@ export function createCollectPreviewServices(
       async quote(amountXof) {
         if (scenario === 'error') return { ok: false, error: { code: 'RATE_UNAVAILABLE' } };
         const rate = 45_000_000n;
+        const issuedAt = clock();
         sequence += 1;
         return {
           ok: true,
@@ -69,8 +70,8 @@ export function createCollectPreviewServices(
             amountSats: Number((BigInt(amountXof) * 100_000_000n + rate - 1n) / rate),
             xofPerBtc: Number(rate),
             source: 'fixe',
-            createdAt: iso(clock()),
-            expiresAt: iso(clock() + 300_000),
+            createdAt: iso(issuedAt),
+            expiresAt: iso(issuedAt + 300_000),
           },
         };
       },

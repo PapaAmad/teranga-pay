@@ -1,0 +1,24 @@
+{
+  "retrieved": "2026-11-11",
+  "purpose": "Identification des opérateurs dans un parcours exclusivement simulé T25.",
+  "license": "Marques et créations de leurs propriétaires respectifs ; aucune licence MIT ni affiliation déduite.",
+  "assets": [
+    {
+      "file": "wave.png",
+      "url": "https://www.wave.com/img/favicon.png",
+      "page": "https://www.wave.com/fr/",
+      "sha256": "4dd4a6945b2e8b00502ce7e33d324ee0493ecfb862fa8bd271b07821019f8750",
+      "owner": "Wave Mobile Money"
+    },
+    {
+      "file": "orange-money.svg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/19/Logo_Orange_Money.svg",
+      "page": "https://commons.wikimedia.org/wiki/File:Logo_Orange_Money.svg",
+      "officialPage": "https://www.orange.ci/fr/n-orange-money.html",
+      "retrieved": "2026-11-12",
+      "sha256": "ae72d4b9de099198f2045e089def1a82cb036d113c602b0b0bbf28952343c4bd",
+      "owner": "Orange / Orange Money",
+      "display": "Cadre du pictogramme à deux flèches 0 0 221 115 ; fichier complet, tracés et couleurs conservés."
+    }
+  ]
+}

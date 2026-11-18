@@ -1,0 +1,106 @@
+{
+  "date": "2026-11-12",
+  "backendSha": "c0b8b40975e623c685c1f48d1ba6968a23a21907",
+  "sourceHashes": {
+    "apps/mobile/src/home/format.ts": "1984dfb7a3cbb232e486825eb833fd6f50749a568eed44d104c4f8789b2ca18b",
+    "apps/mobile/src/withdraw/journal.ts": "d26abb75b34ccb0290f324f289771c5b8a4918e3597da3de3f895a2d8a6e2f7f",
+    "apps/mobile/src/withdraw/controller.ts": "4645cf43c275cf24ad0f77ef3808764d09be26613f0be4da60b116dce29604d0"
+  },
+  "simulation": true,
+  "realWalletUsed": false,
+  "realOperatorUsed": false,
+  "nativeDeviceExecuted": false,
+  "externalNetworkUsed": false,
+  "tokenStoredInArgumentsOrFiles": false,
+  "tokenPrinted": false,
+  "scenarios": [
+    {
+      "name": "lostResponse",
+      "realHttpLoopback": true,
+      "distinctServerProcesses": true,
+      "distinctClientProcesses": true,
+      "weakMapStateNotReused": true,
+      "durableFileJournalAcknowledgedBeforeInitialPost": true,
+      "expiredQuoteReused": true,
+      "sameQuoteAndIdempotencyKey": true,
+      "sameWithdrawalId": true,
+      "startPosts": 0,
+      "before": {
+        "balance": {
+          "simulation": true,
+          "availableSats": 1994222,
+          "heldSats": 0
+        },
+        "withdrawalRows": 1,
+        "providerRows": 1,
+        "status": "reussi"
+      },
+      "after": {
+        "balance": {
+          "simulation": true,
+          "availableSats": 1994222,
+          "heldSats": 0
+        },
+        "withdrawalRows": 1,
+        "providerRows": 1,
+        "creditXof": 2500,
+        "status": "reussi"
+      },
+      "recoveryRequests": [
+        {
+          "method": "POST",
+          "endpoint": "/v1/withdrawals",
+          "quoteId": "f3143a02-c520-42ba-aafa-0a2c0cdeed93",
+          "httpStatus": 200
+        }
+      ],
+      "lostResponseInjection": "Réponse HTTP 201 consommée puis écartée à la frontière du modèle, après succès serveur."
+    },
+    {
+      "name": "providerUnavailable",
+      "realHttpLoopback": true,
+      "distinctServerProcesses": true,
+      "distinctClientProcesses": true,
+      "weakMapStateNotReused": true,
+      "durableFileJournalAcknowledgedBeforeInitialPost": true,
+      "expiredQuoteReused": true,
+      "sameQuoteAndIdempotencyKey": true,
+      "sameWithdrawalId": true,
+      "startPosts": 0,
+      "before": {
+        "balance": {
+          "simulation": true,
+          "availableSats": 1988666,
+          "heldSats": 11334
+        },
+        "withdrawalRows": 1,
+        "providerRows": 0,
+        "status": "incertain"
+      },
+      "after": {
+        "balance": {
+          "simulation": true,
+          "availableSats": 1988666,
+          "heldSats": 0
+        },
+        "withdrawalRows": 1,
+        "providerRows": 1,
+        "creditXof": 5000,
+        "status": "reussi"
+      },
+      "recoveryRequests": [
+        {
+          "method": "GET",
+          "endpoint": "/v1/withdrawals/e0ee417f-f984-46cd-ad42-9f1a3dbf98b2",
+          "httpStatus": 200
+        },
+        {
+          "method": "POST",
+          "endpoint": "/v1/withdrawals/e0ee417f-f984-46cd-ad42-9f1a3dbf98b2/retry",
+          "httpStatus": 200
+        }
+      ],
+      "retryExplicitSameReference": true
+    }
+  ]
+}

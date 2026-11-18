@@ -22,6 +22,7 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0016](0016-encaisser-demande-et-recu.md)            | Demande marchande, règlement correspondant et reçu simple | Proposition locale T22 ; nouveaux écrans à présenter à PAN avant commit et PR |
 | [0017](0017-passerelle-simulee-et-idempotence.md)    | Retraits simulés, réservation durable et réconciliation   | Proposition T23 de PAN ; vérifications et relecture Salam attendues           |
 | [0018](0018-historique-et-totaux.md)                 | Historique, reçus et convention des cumuls du jour        | Écrans T24 confirmés par PAN avant publication ; relecture Salam attendue     |
+| [0019](0019-retrait-simule-et-reprise.md)            | Retrait simulé, confirmation et reprise durable           | Écrans T25 confirmés par PAN avant publication ; relecture Salam attendue     |
 
 La numérotation tient compte des branches encore ouvertes : les notes 0004 à 0016 sont utilisées ou réservées dans les autres tâches du projet. Vérifier les PR avant de choisir le prochain numéro. Préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
 

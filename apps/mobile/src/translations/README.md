@@ -1,5 +1,12 @@
 # Traductions de l’application | T09
 
+T25 ajoute `withdraw.ts`, enregistré sous `fr.withdraw`. Les noms d’opérateurs,
+frais fictifs, confirmations, attentes, réponses perdues et reprises restent
+distincts. Aucun texte wolof n’est ajouté. Les logos sont décoratifs : le nom
+traduit et l’action gardent leur libellé accessible. La frontière de traduction
+du titre T24 est limitée aux clés qu’elle utilise pour éviter une expansion de
+types excessive quand le catalogue grandit, sans retirer les contrôles de clés.
+
 T24 ajoute `history.ts`, enregistré sous `fr.history` : filtres, reçus,
 incertitude, pagination, montants inconnus et qualification de simulation.
 Les dates portent une année ; « Date de l’opération » ne prétend pas dater le

@@ -1,5 +1,12 @@
 # Navigation
 
+`Withdraw` reçoit `withdrawServices` via `App`. Sans service, journal et fabrique
+d’UUID composés, l’entrée annonce l’indisponibilité. `WithdrawPreview`, réservé
+au développement, conserve son atelier séparé des fournisseurs normaux. Le
+service injecté reste stable pendant la session pour partager la barrière de
+confirmation entre les écrans ; le journal retrouve l’intention après remontage.
+Revenir à l’accueil n’annule pas une demande engagée. PAN a confirmé les écrans T25 le 12 novembre 2026 avant commit et PR ; Salam relit.
+
 `History` ouvre T24 depuis « Tout voir » et reçoit `historyServices` via `App`.
 Sans injection propre, il reprend uniquement les lectures du wallet Home ;
 aucun journal de retrait n’est inventé. `HistoryPreview`, réservé au
