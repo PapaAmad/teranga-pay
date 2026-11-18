@@ -1,12 +1,12 @@
-# 🤝 Contrats partagés (T11)
+# 🤝 Contrats partagés | T11
 
-Ce package définit le « contrat » entre les écrans de l'application (PAN) et la logique du wallet (Salam). Les écrans ne parlent qu'à l'interface `Wallet`. Le vrai wallet LDK Node ([décision 0008, PR #50](https://github.com/PapaAmad/teranga-pay/pull/50)) et le faux wallet ci-dessous respectent la même interface, ce qui permet de passer de l'un à l'autre sans toucher aux écrans.
+Ce package définit le « contrat » entre les écrans de l'application (PAN) et la logique du wallet (Salam). Les ports propres aux écrans décrivent les fonctions attendues de l’interface `Wallet`. Le vrai wallet LDK Node ([décision 0008, PR #50](https://github.com/PapaAmad/teranga-pay/pull/50)) et le faux wallet ci-dessous respectent la même interface, ce qui prépare les adaptateurs dont la composition reste suivie dans le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120).
 
-**État : proposition de Salam, à valider à deux.** C'est une tâche commune : PAN valide les états, les erreurs et les unités pendant la relecture.
+**État : base T11 consolidée sur autorisation de PAN.** C'est une tâche commune : PAN valide les états, les erreurs et les unités pendant la relecture.
 
 ```mermaid
 flowchart LR
-    Screens["📱 Écrans de PAN<br/>onboarding, accueil, recevoir, envoyer"] -->|"appelle"| W{{"🤝 Interface Wallet<br/>@teranga-pay/contracts"}}
+    Screens["📱 Ports des écrans de PAN<br/>composition restante"] -.->|"contrat prévu"| W{{"🤝 Interface Wallet<br/>@teranga-pay/contracts"}}
     W -->|"en développement"| Fake["🧸 Faux wallet<br/>@teranga-pay/contracts/fake"]
     W -->|"dans l'application"| Real["⚡ Wallet LDK Node<br/>module natif (T15)"]
 ```

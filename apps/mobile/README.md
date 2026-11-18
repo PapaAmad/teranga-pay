@@ -1,162 +1,108 @@
-# Application mobile | Teranga Pay
+# 📱 Application mobile
 
-T30 ajoute des parcours Maestro pour un APK debug Android isolé
-`pay.teranga.demo.e2e`. Ils utilisent les ateliers fictifs et ne composent pas
-le wallet du téléphone. Le [guide T30](../../docs/guides/tests-maestro.md)
-décrit `npm run e2e:build:android`, l’installation et l’exécution ; le
-[suivi](../../docs/planning/suivi-t30.md) distingue les preuves réellement obtenues.
+> L’application Android de Teranga Pay prépare les parcours de réception, d’envoi et d’encaissement, avec les montants en FCFA d’abord. Les bases sont consolidées ; le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120) des ports UI au wallet et à l’API reste ouvert.
 
-T25 ajoute « Retirer en cash » sous les actions principales. Le parcours
-strictement simulé choisit l’opérateur, prépare un prix avec frais, demande une
-confirmation explicite puis suit la même référence après une panne. Le journal
-doit être enregistré avant la première soumission ; aucune donnée wallet ou
-aucun PIN n’est demandé. Lire le [module](src/withdraw/README.md), la
-[décision 0019](../../docs/decisions/0019-retrait-simule-et-reprise.md) et la
-[galerie de validation](../../docs/design/validation-t25/README.md).
-PAN a confirmé les nouveaux écrans le 12 novembre 2026 avant commit et PR.
+Projet de Salam et PAN. PAN porte les écrans. Salam porte le wallet (le « porte-monnaie » qui garde les clés et fait les paiements).
 
-T24 ajoute l’historique en lecture seule depuis « Tout voir » près des dernières
-opérations : filtres, détails, reçus et cumul du jour à Dakar. L’atelier fictif
-est accessible depuis l’accueil fictif et reste distinct de l’entrée normale.
-Les retraits simulés conservent leur journal séparé ; un montant FCFA inconnu
-n’est jamais reconstruit au taux courant. Aucun nouveau paquet n’est ajouté.
-PAN a confirmé les nouveaux écrans le 11 novembre 2026 avant commit et PR.
-Lire le [module](src/history/README.md), le
-[suivi T24](../../docs/planning/suivi-t24.md) et les
-[25 captures](../../docs/design/validation-t24/README.md).
+<p align="center">
+  <img src="../../docs/design/validation-t14/01-accueil.png" alt="Bienvenue" width="160">
+  <img src="../../docs/design/validation-t16/02-accueil.png" alt="Accueil" width="160">
+  <img src="../../docs/design/validation-t20/03-verification.png" alt="Vérification avant envoi" width="160">
+  <img src="../../docs/design/validation-t24/01-journal.png" alt="Historique" width="160">
+</p>
 
-Projet de Salam et PAN. Socle React Native et Expo en TypeScript, destiné d’abord
-à Android. PAN porte les écrans ; Salam apporte le wallet, Lightning et le coffre.
+## Les écrans, un par un
 
-Depuis la racine : `npm ci`, puis `npm run mobile`. Le projet utilise **Expo SDK 58**,
-avec React 19.3.0 et React Native 0.88.1, suite à la migration de PAN pour son Expo Go
-Android. Utiliser une version d’Expo Go compatible SDK 58. Le téléphone et le PC
-doivent pouvoir communiquer sur le même réseau ; scanner le QR affiché par Expo.
-Pour demander explicitement le réseau local :
-`npm run start --workspace @teranga-pay/mobile -- --lan`.
-Depuis le terminal Expo, `a` ouvre Android si un appareil ou un émulateur est prêt.
-Le simulateur iOS nécessite macOS.
+| Écran                          | À quoi il sert                                                                           |                                     Aperçu                                      | Code                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------------- | :-----------------------------------------------------------------------------: | ---------------------------------------------- |
+| **Bienvenue** (T14)            | Choisir sa langue, créer son code à 6 chiffres, noter et vérifier ses 12 mots de secours |      <img src="../../docs/design/validation-t14/05-code.png" width="110">       | [`src/onboarding`](src/onboarding/README.md)   |
+| **Accueil** (T16)              | Voir son solde en FCFA (et en sats), ses dernières opérations, et les 3 actions          |   <img src="../../docs/design/validation-t16/03-operations.png" width="110">    | [`src/home`](src/home/README.md)               |
+| **Recevoir** (T18)             | Montrer un QR code ou son adresse Lightning, la copier, la partager                      |    <img src="../../docs/design/validation-t18/02-recevoir.png" width="110">     | [`src/receive`](src/receive/README.md)         |
+| **Envoyer** (T20)              | Scanner ou coller une demande, vérifier le montant et les frais, confirmer avec son code |     <img src="../../docs/design/validation-t20/04-demande.png" width="110">     | [`src/send`](src/send/README.md)               |
+| **Encaisser** (T22)            | Pour un commerçant : saisir un prix en FCFA, afficher le QR, voir la vente payée         |  <img src="../../docs/design/validation-t22/03-verification.png" width="110">   | [`src/collect`](src/collect/README.md)         |
+| **Historique** (T24)           | Toutes les opérations, filtres, reçus à partager, total du jour                          |      <img src="../../docs/design/validation-t24/03-recu.png" width="110">       | [`src/history`](src/history/README.md)         |
+| **Retirer en cash** (T25)      | Convertir vers Wave ou Orange Money (**simulé**)                                         |   <img src="../../docs/design/validation-t25/02-operateurs.png" width="110">    | [`src/withdraw`](src/withdraw/README.md)       |
+| **Alerte** (T27)               | Avant un envoi inhabituel, expliquer simplement pourquoi être prudent                    |     <img src="../../docs/design/validation-t27/03-alerte.png" width="110">      | [`src/risk`](src/risk/README.md)               |
+| **Attentes et reprises** (T28) | Réseau lent, coupure, réponse en retard : toujours dire ce qui se passe                  | <img src="../../docs/design/validation-t28/07-envoi-incertain.png" width="110"> | [`src/reliability`](src/reliability/README.md) |
 
-L’ouverture T14 propose un accueil illustré, le choix de langue et la préparation
-de la sauvegarde. **La création réelle n’est pas branchée** : l’entrée normale
-s’arrête avant le PIN avec une explication. Le bouton de développement
-« Essayer le parcours fictif » permet d’examiner le PIN, sa confirmation, la copie
-et sa vérification avec des jetons non Bitcoin et un état uniquement en mémoire.
-Il reste explicitement marqué comme aperçu et n’existe pas dans une version de
-production. Aucun portefeuille, clé ou paiement n’est créé par cet aperçu.
+Chaque écran a une galerie complète de captures (tous les états, petits écrans compris) dans [`docs/design`](../../docs/design/README.md).
 
-La [recherche T14](../../docs/design/onboarding-recherche.md) et la
-[direction](../../docs/design/onboarding-direction.md) motivent le parcours.
-Les [captures](../../docs/design/validation-t14/README.md) permettent de le relire.
-**PAN a confirmé les écrans le 9 novembre 2026 avant commit et PR.** Le branchement natif attend
-la reprise authentifiée de la sauvegarde et les essais convenus avec Salam :
-[ADR 0012](../../docs/decisions/0012-onboarding-protection-et-integration.md).
-Les dépendances du coffre ne sont pas ajoutées ici ; Expo Go sert à examiner l’UI,
-pas à prouver le fonctionnement d’un futur module wallet personnalisé.
+## Comment c'est organisé
 
-Pour revoir les vrais composants dans un navigateur :
-`npm run mobile:web -- --offline --port 8092`, puis ouvrir
-`http://localhost:8092`. Le Web est une cible de prévisualisation ; il ne valide
-pas les protections Android. La galerie T08 et la présentation du projet restent
-accessibles via « Découvrir le projet ». T16 ajoute l’accueil de lecture du wallet :
-depuis cette présentation, choisir « Voir l’accueil du portefeuille » pour l’entrée
-normale ou « Essayer l’accueil fictif » pour l’atelier de développement.
-L’entrée normale ne dispose pas encore du port natif et n’invente aucun solde.
-L’aperçu permet de vérifier le solde, le masquage, les opérations et les états de
-lecture avec des données fictives. Recevoir ouvre T18, Envoyer ouvre T20 et
-Encaisser ouvre T22. Ces routes ne branchent pas seules
-un wallet natif. Les tâches du [plan](../../docs/planning/roadmap.md) précisent
-les frontières d’intégration. Démonstration en regtest uniquement,
-cash-out Wave/Orange Money simulé.
+Les écrans ne parlent jamais directement au réseau Lightning. Ils passent par un **contrat** commun : une liste de fonctions (`balance`, `receive`, `send`…) avec des réponses toujours prévues. Les contrats communs et les ports propres à chaque écran préparent cet échange. Les ateliers utilisent des fournisseurs fictifs ; les adaptateurs et leur composition avec le wallet natif restent suivis dans le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120). Le schéma décrit cette architecture visée.
 
-Lire la [recherche T16](../../docs/design/accueil-recherche.md), la
-[direction](../../docs/design/accueil-direction.md), les
-[captures](../../docs/design/validation-t16/README.md) et la
-[décision 0013](../../docs/decisions/0013-accueil-lecture-wallet.md).
-PAN a confirmé les écrans T16 le 9 novembre 2026 avant commit et PR. La relecture
-de Salam et les vérifications d’intégration restent nécessaires.
+```mermaid
+flowchart TB
+    subgraph Ecrans["🖼️ Écrans (PAN)"]
+        direction LR
+        ON[Bienvenue] ~~~ HO[Accueil] ~~~ RE[Recevoir] ~~~ SE[Envoyer]
+        CO[Encaisser] ~~~ HI[Historique] ~~~ WI[Retirer]
+    end
+    Ecrans -->|"ports.ts de chaque écran"| K{{"🤝 Contrat Wallet<br/>@teranga-pay/contracts"}}
+    K -->|"pour dessiner et tester"| F["🧸 Faux wallet<br/>(atelier fictif)"]
+    K -->|"dans le vrai téléphone"| W["⚡ src/wallet (Salam)<br/>LDK Node"]
+    W --> N["🔒 modules/teranga-wallet<br/>code Android natif, coffre des clés"]
+    Ecrans -->|"taux, devis, alertes, retraits"| API["🖥️ API Teranga<br/>services/api"]
+```
 
-T08 fournit l’identité B « Le courant commun », les icônes originales, les polices
-locales et les composants. T09 fournit le contexte i18next et les ressources FR.
-Le français est actif et mémorisé ; le wolof est annoncé mais non sélectionnable
-avant traduction et relecture native T33. Tous les textes de l’UI viennent des
-[ressources de traduction](src/translations/README.md).
+Chaque écran suit le même découpage :
 
-T18 relie Recevoir à un écran dédié : QR fidèle à l’adresse, copie et partage avec
-retours accessibles. Depuis l’accueil fictif, choisir Recevoir pour examiner les
-scénarios. L’entrée normale attend son fournisseur d’adresse T19 ; elle n’invente
-aucune destination. PAN a confirmé les écrans le 9 novembre 2026 avant commit et
-PR ; la relecture de Salam reste attendue. Lire le [module](src/receive/README.md), la
-[recherche](../../docs/design/recevoir-recherche.md) et le
-[suivi T18](../../docs/planning/suivi-t18.md). `qrcode-generator` et `expo-clipboard`
-servent l’encodage et la copie ; `jsqr` vérifie le décodage dans les tests seulement.
+| Fichier         | Rôle                                                                         |
+| --------------- | ---------------------------------------------------------------------------- |
+| `XxxScreen.tsx` | Ce qu'on voit : mise en page, textes, boutons                                |
+| `controller.ts` | La logique de l'écran : étapes, attentes, erreurs, sans affichage            |
+| `ports.ts`      | La « prise » vers l'extérieur (wallet, API) : ce dont l'écran a besoin       |
+| `preview.ts`    | Les données fictives de l'**atelier**, pour essayer l'écran sans vrai argent |
 
-T20 relie Envoyer à la saisie ou au scan d’une demande, au montant FCFA si
-nécessaire, au récapitulatif et à l’autorisation PIN explicite. Depuis l’accueil
-fictif, choisir Envoyer pour l’atelier ; l’entrée normale explique l’absence de
-fournisseur T21. Le plafond de frais montré est transmis au wallet et une
-estimation FCFA inconnue bloque le PIN. Un timeout reste incertain et ne propose
-aucun nouvel envoi. Le bouton des formulaires reste hors du contenu défilant,
-dans le cadre adapté au clavier ; sa géométrie doit encore être vérifiée sur
-Android. PAN a confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR
-et autorisé la publication ; la relecture de Salam et la CI distante restent attendues.
-Lire le [module Envoyer](src/send/README.md), la
-[recherche](../../docs/design/envoyer-recherche.md) et le
-[suivi T20](../../docs/planning/suivi-t20.md).
+## Ce qu'il y a dans `src/`
 
-Le scanner ajoute `expo-camera@58.0.14`, compatible avec le SDK 58 conservé.
-L’accès est demandé depuis Scanner ; Coller reste une alternative. Le plugin
-configure la caméra sans microphone ni permission audio et lit l’explication
-système française dans les ressources T09. Une nouvelle construction native est
-nécessaire pour appliquer ces réglages ; l’aperçu Web et Expo Go ne prouvent pas
-le fonctionnement du wallet de Salam ni celui d’un APK construit pour le projet.
+| Dossier                                                                                          | Contenu                                                                  |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [`ui`](src/ui/README.md)                                                                         | Boutons, cartes, champs, icônes, couleurs et polices de la charte        |
+| [`translations`](src/translations/README.md)                                                     | Tous les textes de l'application (français ; wolof en préparation)       |
+| [`navigation`](src/navigation/README.md)                                                         | Le passage d'un écran à l'autre                                          |
+| [`screens`](src/screens/README.md)                                                               | Écrans simples : « À propos », galerie de la charte                      |
+| `wallet`                                                                                         | Le wallet LDK Node, le journal du téléphone, l'adresse Lightning (Salam) |
+| `onboarding`, `home`, `receive`, `send`, `collect`, `history`, `withdraw`, `risk`, `reliability` | Les écrans du tableau plus haut                                          |
 
-T22 relie Encaisser au prix de la vente, au devis figé cinq minutes, à sa demande
-QR et au suivi du règlement correspondant. La préparation du prix ne crée pas
-encore de facture ; Afficher le QR est une action explicite. Le QR, la copie et
-le partage conservent la même demande complète. À expiration, les moyens de payer
-ce code sont retirés sans prétendre annuler un règlement déjà engagé. La date du
-reçu « Vérifié le » décrit l’observation de la confirmation, pas une heure de
-règlement déduite de `Payment.createdAt`.
+## Essayer l'application
 
-Depuis l’accueil fictif, choisir Encaisser pour l’atelier séparé. L’entrée normale
-attend le complément natif liant chaque facture à son identifiant et respectant
-l’échéance du devis ; sans ce fournisseur, elle explique son indisponibilité.
-Les nouvelles ventes restent explicites et les anciennes demandes connues gardent
-leur suivi pendant la session. Aucun nouveau paquet n’est ajouté en T22. PAN a
-confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR et autorisé
-leur publication, en préparation ; la relecture de Salam et la CI distante restent
-attendues. Lire le
-[module Encaisser](src/collect/README.md), la
-[recherche](../../docs/design/encaisser-recherche.md) et le
-[suivi T22](../../docs/planning/suivi-t22.md). La
-[galerie de validation](../../docs/design/validation-t22/README.md) réunit 24
-captures inspectées, sans débordement ni erreur console détectés. Le QR de 326
-octets est décodé depuis le bitmap rendu à 390, 360 et 320 pixels ; les copies de
-326 et 2 048 octets sont relues à l’identique dans le navigateur. Ces preuves
-Web ne valident pas le clavier Android, le scan physique ou un paiement natif.
+Depuis la racine du dépôt :
 
-La vérification locale du 10 novembre 2026 passe avec 644 tests mobiles dans vingt
-suites, ainsi que les types et le lint. L’export Android de diagnostic
-`--no-bytecode` réussit avec 1 081 modules, un bundle de 1,8 Mo et 21 ressources ;
-il ne compile pas Hermes et ne construit pas d’APK.
+```sh
+npm ci
+npm run mobile                      # puis scanner le QR avec Expo Go (SDK 58)
+npm run mobile:web -- --port 8092   # ou dans le navigateur : http://localhost:8092
+```
 
-Commandes utiles : `npm run typecheck --workspace @teranga-pay/mobile` et
-`npm test --workspace @teranga-pay/mobile -- --ci`. Les tests utilisent
-`jest-expo` 58, Jest 30, le preset React Native 0.88 et un renderer React 19.3 aligné.
-Ces tests et les captures Web ne remplacent pas un essai clavier, texte agrandi,
-TalkBack, interruption et capture d’écran sur un téléphone Android.
+- L’entrée normale annonce les fournisseurs absents et s’arrête avant une création native non raccordée. Les ateliers fictifs sont accessibles par des actions explicites en développement ; leur bandeau indique « Aperçu fictif | aucun paiement réel ».
+- Le module wallet a besoin d’un build de développement Android et du réseau de test. Le [guide Lightning](../../docs/guides/demo-lightning.md) décrit l’essai WalletLab historique de Salam ; il ne prouve pas que les écrans métier sont raccordés.
+- Le Web sert à regarder les écrans. Il ne prouve ni les protections Android (captures bloquées pendant les 12 mots), ni le clavier, ni un vrai paiement.
 
-Sources : [migration Expo](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/),
-[tests Expo](https://docs.expo.dev/develop/unit-testing/),
-[navigation native](https://reactnavigation.org/docs/native-stack-navigator/).
+## Vérifier
 
-## Wallet Lightning (T15)
+```sh
+npm run typecheck --workspace @teranga-pay/mobile
+npm test --workspace @teranga-pay/mobile -- --ci
+```
 
-Le wallet tourne dans le téléphone grâce au module natif [teranga-wallet](modules/teranga-wallet/README.md) (LDK Node). Ce module **ne fonctionne pas dans Expo Go** : il faut un build de développement Android.
+Les parcours Maestro sur fixtures explicites sont décrits dans [`tests/e2e`](../../tests/e2e/README.md) et le [guide Maestro](../../docs/guides/tests-maestro.md).
 
-1. Démarrer le réseau regtest (T12), puis copier `.env.example` en `.env` et y renseigner la clé de `lnd-teranga`.
-2. `npx expo run:android` (JDK 17 et SDK Android requis), sur l'émulateur ou un téléphone.
-3. Ouvrir l'atelier : `adb shell am start -d terangapay://labo-wallet`. Cet écran de test n'existe qu'en développement.
+## Versions
 
-Sans module natif (Expo Go, tests Jest), l'atelier affiche un message d'indisponibilité. Les écrans peuvent alors utiliser le faux wallet de `@teranga-pay/contracts/fake`.
+Expo SDK 58, React 19.3, React Native 0.88, navigation React Navigation 7, textes avec i18next. Caméra (`expo-camera`) sans micro, QR avec `qrcode-generator`.
+
+## Pour aller plus loin
+
+| Tâche          | Recherche et choix                                                                 | Suivi et preuves                          |
+| -------------- | ---------------------------------------------------------------------------------- | ----------------------------------------- |
+| T14 Bienvenue  | [décision 0012](../../docs/decisions/0012-onboarding-protection-et-integration.md) | [suivi](../../docs/planning/suivi-t14.md) |
+| T16 Accueil    | [décision 0013](../../docs/decisions/0013-accueil-lecture-wallet.md)               | [suivi](../../docs/planning/suivi-t16.md) |
+| T18 Recevoir   | [décision 0014](../../docs/decisions/0014-recevoir-adresse-et-qr.md)               | [suivi](../../docs/planning/suivi-t18.md) |
+| T20 Envoyer    | [décision 0015](../../docs/decisions/0015-envoyer-confirmation-et-session.md)      | [suivi](../../docs/planning/suivi-t20.md) |
+| T22 Encaisser  | [décision 0016](../../docs/decisions/0016-encaisser-demande-et-recu.md)            | [suivi](../../docs/planning/suivi-t22.md) |
+| T24 Historique | [décision 0018](../../docs/decisions/0018-historique-et-totaux.md)                 | [suivi](../../docs/planning/suivi-t24.md) |
+| T25 Retirer    | [décision 0019](../../docs/decisions/0019-retrait-simule-et-reprise.md)            | [suivi](../../docs/planning/suivi-t25.md) |
+| T27 Alerte     | [décision 0020](../../docs/decisions/0020-alerte-et-consentement.md)               | [suivi](../../docs/planning/suivi-t27.md) |
+| T28 Attentes   | [décision 0021](../../docs/decisions/0021-attentes-et-reprises.md)                 | [suivi](../../docs/planning/suivi-t28.md) |
+| T30 Maestro    | [décision 0022](../../docs/decisions/0022-maestro-et-preuve-native.md)             | [suivi](../../docs/planning/suivi-t30.md) |

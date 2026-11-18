@@ -1,18 +1,37 @@
-# Documentation de Teranga Pay
+# 📚 Documentation
 
-Point d'entrée pour comprendre le produit, démarrer le dépôt et retrouver les décisions de l'équipe. PAN prépare cette organisation ; Salam relit et porte la documentation technique finale en T36.
+> Tout ce qu'il faut pour comprendre Teranga Pay : le besoin d'origine, l'architecture, les choix faits, le design, les guides pratiques et le suivi des tâches.
 
-| Dossier                                | Contenu                                                   |
-| -------------------------------------- | --------------------------------------------------------- |
-| [sources](sources/README.md)           | Les deux PDF d'origine, conservés intégralement.          |
-| [guides](guides/README.md)             | Installation locale et règles de collaboration.           |
-| [architecture](architecture/README.md) | Architecture prévue, responsabilités et limites du socle. |
-| [decisions](decisions/README.md)       | Notes expliquant les choix structurants.                  |
-| [planning](planning/README.md)         | État de T01 à T07 et feuille de route complète.           |
-| [design](design/README.md)             | Recherche, identité T08 proposée, règles et validation.   |
+```mermaid
+flowchart LR
+    S["📄 sources<br/>les 2 PDF d'origine"] --> A["🏗️ architecture<br/>comment c'est construit"]
+    S --> D["🎨 design<br/>recherche, charte, captures"]
+    A --> DE["⚖️ decisions<br/>pourquoi ce choix"]
+    D --> DE
+    DE --> G["🧭 guides<br/>comment faire"]
+    G --> P["📅 planning<br/>où on en est"]
+```
 
-Commencer par le [démarrage](guides/demarrage.md), puis consulter le [suivi T01 à T07](planning/suivi-t01-t07.md). Les dossiers de services, d'infrastructure et de livrables réservent les emplacements des prochaines tâches : leur présence ne signifie pas que ces fonctions sont réalisées.
+| Dossier                                   | Ce qu'on y trouve                                                   | Par où commencer                               |
+| ----------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------- |
+| 📄 [sources](sources/README.md)           | Le document de conception et le plan d'équipe, en PDF               | Le document de conception                      |
+| 🏗️ [architecture](architecture/README.md) | Les grandes briques et ce que chacune a le droit de faire           | [Vue d'ensemble](architecture/vue-ensemble.md) |
+| ⚖️ [decisions](decisions/README.md)       | Une note courte par choix important (SDK Lightning, API, design…)   | La liste numérotée                             |
+| 🎨 [design](design/README.md)             | Recherche, charte graphique, et une galerie de captures par écran   | [Charte](design/charte.md)                     |
+| 🧭 [guides](guides/README.md)             | Démarrer, faire la démo Lightning, travailler à deux, tests Maestro | [Démarrage](guides/demarrage.md)               |
+| 📅 [planning](planning/README.md)         | La roadmap T01 à T40 et le suivi détaillé de chaque tâche           | [Roadmap](planning/roadmap.md)                 |
 
-Le dépôt reste privé et le tableau GitHub Projects doit l'être dès sa création selon la [décision 0002](decisions/0002-visibilite-privee.md), qui remplace la visibilité publique prévue dans les PDF. Le [relevé GitHub](planning/publication-github.md) distingue les opérations confirmées des travaux en cours.
+<p align="center">
+  <img src="../assets/brand/exports/planche.png" alt="Planche de la charte graphique" width="600">
+</p>
 
-Les sources décrivent le produit cible. Les guides décrivent ce que le dépôt permet actuellement. Si une décision fait évoluer un PDF, expliquer le changement dans une note de décision et mettre à jour les documents concernés.
+## Les guides les plus utiles
+
+- [Démarrer sur le projet](guides/demarrage.md) : installer et lancer l'application.
+- [Démonstration Lightning de bout en bout](guides/demo-lightning.md) : procédure et essai WalletLab rapportés par Salam le 11 novembre, à distinguer du raccordement UI restant.
+- [Tests Maestro](guides/tests-maestro.md) : parcours sur fixtures explicites, sans preuve de paiement regtest natif.
+- [Collaboration](guides/collaboration.md) : une tâche = une issue = une branche = une PR.
+
+## Règle d'or
+
+Les PDF décrivent le produit **visé**. Les guides décrivent ce que le dépôt fait **aujourd'hui**. Si un choix change ce que dit un PDF, on l'explique dans une note de [décision](decisions/README.md).

@@ -1,5 +1,66 @@
 # 🖥️ API Teranga
 
+> Le serveur HTTP de Teranga Pay. Il donne le taux BTC/FCFA, fige les prix pendant 5 minutes, relaie l'adresse Lightning vers le téléphone, évalue les envois inhabituels, estime les économies et simule les retraits. **Il ne touche jamais aux clés ni aux fonds.**
+
+Node.js 24 et TypeScript lancé directement par Node, sans compilation. Le framework est Fastify ([décision 0007](../../docs/decisions/0007-squelette-api.md)). Salam porte l'API ; PAN porte les retraits simulés.
+
+## En un coup d'œil
+
+```mermaid
+flowchart LR
+    P["📱 Application"] --> API{{"🖥️ API Teranga<br/>:3000"}}
+    O["⚡ Wallet d'un payeur<br/>(n'importe quelle app)"] -->|"LNURL"| API
+    API --- R["💱 /v1/rate, /v1/quotes"]
+    API --- L["📮 /.well-known/lnurlp, /v1/lightning-addresses"]
+    API --- A["🛡️ /v1/alerts/payment-check"]
+    API --- S["📊 /v1/savings"]
+    API --- W["💵 /v1/withdrawal…<br/>(si la simulation est activée)"]
+```
+
+## Démarrer
+
+Depuis la racine du dépôt :
+
+```sh
+npm run api                                   # http://127.0.0.1:3000
+npm test --workspace @teranga-pay/api         # tests, sans réseau
+npm run typecheck --workspace @teranga-pay/api
+```
+
+Retraits simulés : `npm run bridge:setup` crée un jeton secret dans `services/api/.env.bridge-sim` (ignoré par Git), `npm run bridge:demo` démarre l'API avec la simulation, puis `npm run bridge:check` fait un retrait fictif par opérateur.
+
+## Toutes les routes
+
+|     | Méthode | Chemin                                    | Ce qu'elle fait                                                   |
+| --- | ------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| ❤️  | GET     | `/health`                                 | Le serveur répond-il ?                                            |
+| 💱  | GET     | `/v1/rate`                                | Taux BTC/FCFA et sa source                                        |
+| 💱  | POST    | `/v1/quotes`                              | Fige un prix en FCFA → sats pendant 5 minutes                     |
+| 💱  | GET     | `/v1/quotes/:id`                          | Relit un devis (`410` s'il a expiré)                              |
+| 📮  | POST    | `/v1/lightning-addresses`                 | Réserve `nom@teranga.example`, renvoie un jeton (montré une fois) |
+| 📮  | GET     | `/.well-known/lnurlp/:nom`                | Un payeur découvre l'adresse (standard LNURL)                     |
+| 📮  | GET     | `/v1/lnurlp/:nom/callback?amount=`        | Le payeur demande une facture ; elle vient du téléphone           |
+| 📮  | GET     | `/v1/lightning-addresses/me/requests`     | Le téléphone attend les demandes (jeton requis)                   |
+| 📮  | POST    | `/v1/lightning-addresses/me/requests/:id` | Le téléphone répond avec sa facture (jeton requis)                |
+| 🛡️  | POST    | `/v1/alerts/payment-check`                | Score d'alerte d'un envoi, avec ses raisons                       |
+| 📊  | GET     | `/v1/savings/assumptions`                 | Hypothèses de l'estimation et leurs sources                       |
+| 📊  | POST    | `/v1/savings/estimate`                    | Économie estimée pour 1 à 100 envois                              |
+| 💵  | GET     | `/v1/withdrawal-options`                  | Opérateurs, destinations de démo, frais fictifs                   |
+| 💵  | GET     | `/v1/withdrawal-balance`                  | Solde fictif disponible et réservé                                |
+| 💵  | POST    | `/v1/withdrawal-quotes`                   | Prépare un prix de retrait (5 minutes)                            |
+| 💵  | GET     | `/v1/withdrawal-quotes/:id`               | Relit ce prix                                                     |
+| 💵  | POST    | `/v1/withdrawals`                         | Confirme un retrait (`Idempotency-Key` : jamais deux fois)        |
+| 💵  | GET     | `/v1/withdrawals`                         | Journal des retraits, page par page                               |
+| 💵  | GET     | `/v1/withdrawals/:id`                     | Un retrait précis                                                 |
+| 💵  | POST    | `/v1/withdrawals/:id/reconcile`           | Relit le résultat chez l'opérateur simulé                         |
+| 💵  | POST    | `/v1/withdrawals/:id/retry`               | Reprend un retrait resté incertain, sans le doubler               |
+
+Les routes 💵 n'existent que si `BRIDGE_SIM_ENABLED=true` et demandent un jeton Bearer.
+
+Le diagramme présente les services disponibles. Leur composition avec les ports des écrans est suivie dans le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120). Les retraits restent fictifs et leur activation explicite ; voir la [décision 0017](../../docs/decisions/0017-passerelle-simulee-et-idempotence.md).
+
+## Référence technique des bases consolidées
+
 Squelette serveur introduit en **T13** par Salam ; PAN relit. Node.js 24 et TypeScript exécuté directement par Node (suppression des types), sans étape de compilation. Le framework est Fastify ; la [décision 0007](../../docs/decisions/0007-squelette-api.md) explique ce choix.
 
 ## Le trajet d'une requête
@@ -45,7 +106,7 @@ Depuis la racine du dépôt :
 | GET     | `/v1/savings/assumptions`                 | Hypothèses de l'estimation d'économies, formule et sources                                                                         |
 | POST    | `/v1/savings/estimate`                    | Estimation d'économies pour 1 à 100 envois, avec leur total                                                                        |
 
-## Estimation d'économies (T34)
+## Estimation d'économies | T34
 
 La [décision 0011](../../docs/decisions/0011-estimation-economies.md) détaille les choix. Une seule formule, renvoyée avec chaque réponse :
 
@@ -78,7 +139,7 @@ curl -s -X POST http://127.0.0.1:3000/v1/savings/estimate -H 'content-type: appl
 
 Ce sont des **ordres de grandeur indicatifs** : les tarifs des opérateurs changent souvent. Les hypothèses sont à relire avant la démo, puis à remplacer par les mesures du pilote. La requête ne contient ni nom, ni numéro, ni identifiant de paiement.
 
-## Taux et devis (T17)
+## Taux et devis | T17
 
 ```mermaid
 sequenceDiagram
@@ -109,7 +170,7 @@ sequenceDiagram
 - **Devis figé** : il garde son taux pendant `QUOTE_TTL_SECONDS` (300 s, soit 5 minutes) même si le marché bouge, puis il est déclaré expiré.
 - **Stockage des devis** : en mémoire, au plus 10 000 ; au-delà, le plus ancien est oublié. Les devis expirés restent consultables une heure, ce qui permet de répondre « expiré » plutôt que « inconnu ». Tout est perdu au redémarrage, ce qui est acceptable pour la démo. Aucune route ne touche aux clés ou aux fonds du wallet.
 
-## Adresse Lightning (T19)
+## Adresse Lightning | T19
 
 Le serveur **ne crée jamais de facture et ne touche jamais aux fonds** : il relaie la demande du payeur au téléphone du destinataire, qui fabrique la facture avec son propre wallet. Choix expliqué dans la [décision 0010](../../docs/decisions/0010-adresse-lightning.md).
 
@@ -145,7 +206,7 @@ sequenceDiagram
   - le hachage des métadonnées inscrit dans la facture n'est pas vérifié par le serveur : c'est le wallet du payeur qui le vérifie, comme l'impose LUD-06 ;
   - HTTP en démonstration locale ; HTTPS est requis hors démonstration.
 
-## Alerte fraude (T26)
+## Alerte fraude | T26
 
 `POST /v1/alerts/payment-check` évalue un envoi **avant** la confirmation. Le corps ne contient que des nombres : montant, nouveau destinataire ou non, derniers envois (montant et âge), montants habituels, heure locale et solde. Aucun nom, numéro, adresse ni facture : un champ inconnu est refusé. L'alerte **avertit sans jamais bloquer** ; l'affichage et la confirmation par PIN sont faits par l'application (T27).
 

@@ -1,4 +1,50 @@
-# Passerelle simulée | T23
+# 💵 Passerelle de retrait simulée | T23
+
+> Fait **semblant** d'être Wave ou Orange Money, pour montrer le retrait en cash pendant la démo. Aucun opérateur réel n'est appelé et aucun vrai argent ne bouge.
+
+PAN porte ce module ; Salam relit. Il est exposé par l’[API](../api/README.md) ; le branchement de l’écran T25 reste suivi dans le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120). Les captures et le diagramme présentent le parcours fictif prévu.
+
+<p align="center">
+  <img src="../../docs/design/validation-t25/02-operateurs.png" alt="Choix de l'opérateur" width="170">
+  <img src="../../docs/design/validation-t25/04-recapitulatif.png" alt="Récapitulatif avec frais" width="170">
+  <img src="../../docs/design/validation-t25/05-succes.png" alt="Retrait confirmé" width="170">
+</p>
+
+## Le parcours d'un retrait
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as 📱 Application
+    participant API as 🖥️ API
+    participant B as 💵 bridge-sim
+    participant DB as 🗄️ SQLite
+    A->>API: Prix pour 2 500 FCFA vers Wave
+    API->>B: Devis (taux T17 + 100 FCFA de frais fictifs)
+    B->>DB: Garde le devis 5 minutes
+    API-->>A: Total, frais, échéance
+    A->>API: Je confirme (clé d'idempotence)
+    API->>B: Réserve les fonds fictifs, soumet à l'opérateur simulé
+    B->>DB: Journal durable
+    API-->>A: Réussi, refusé ou incertain
+    Note over A,B: Même clé = même retrait : jamais deux fois,<br/>même après une coupure ou un redémarrage
+```
+
+## Les 4 scénarios de démo
+
+```mermaid
+stateDiagram-v2
+    [*] --> reserve: confirmation
+    reserve --> reussi: success
+    reserve --> refuse: declined (fonds libérés)
+    reserve --> incertain: unavailable / réponse perdue
+    incertain --> reussi: reconcile retrouve le succès
+    incertain --> incertain: reprise (même identifiant)
+```
+
+Le scénario se choisit avec `BRIDGE_SIM_SCENARIO`. Essayer : `npm run bridge:setup`, `npm run bridge:demo`, puis `npm run bridge:check`.
+
+## Détails
 
 Projet de Salam et PAN. PAN porte ce module et son intégration à l’API Fastify T13/T17 ; Salam relit. Il simule Wave et Orange Money avec des comptes fictifs, des frais visibles, des réservations et un journal durable. L’écran Retirer relève de T25 ; l’historique et les reçus mobiles de T24.
 

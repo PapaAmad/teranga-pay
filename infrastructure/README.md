@@ -41,7 +41,7 @@ sequenceDiagram
     D->>T: ⚡ Paiement de vérification
 ```
 
-Le fichier `compose.yaml` à la racine du dépôt inclut ces services. L'API, la passerelle simulée et le service d'alertes s'y ajouteront avec leurs tâches.
+Le fichier `compose.yaml` à la racine du dépôt inclut ces services. L’API, la passerelle simulée et les règles d’alerte existent ; elles restent hors de ce Compose. Aucun service IA séparé n’est exécuté.
 
 ```sh
 npm run regtest:up      # démarre bitcoind et les deux nœuds, attend qu'ils soient prêts

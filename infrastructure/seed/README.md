@@ -13,7 +13,7 @@ Introduite en **T12** par Salam ; PAN relit. `seed.mjs` prépare le réseau regt
 
 Une deuxième exécution ne crée ni bloc, ni envoi, ni canal : elle vérifie l'état et refait seulement le paiement de vérification. Si une exécution a été interrompue après un envoi de fonds, la suivante confirme ce virement (6 blocs) sans le renvoyer. Une réponse de nœud coupée en cours de route fait échouer le seed avec un message, au lieu de le laisser bloqué.
 
-## Test d'intégration (T29)
+## Test d'intégration | T29
 
 `npm run regtest:integration` lance `integration.mjs` après le seed. Ce script fait de vrais paiements sur le réseau regtest et sort en erreur au premier écart :
 
@@ -38,4 +38,4 @@ Les soldes sont relus jusqu'à 15 secondes après un succès : le payeur reçoit
 - `clients.mjs` : clients JSON-RPC de bitcoind et REST de LND, sans dépendance. `clients.test.mjs` vérifie le rejet d'une réponse tronquée avec un vrai serveur HTTP local.
 - `integration.mjs` : paiements réels du test d'intégration T29 (`runIntegration`). `integration.test.mjs` vérifie sur un faux canal que chaque écart (refus, montant inexact, facture non réglée, double paiement, paiement trop gros accepté) fait bien échouer le test.
 - `seed.test.mjs` : tests sur un faux réseau en mémoire (relance sans doublon, canal en attente, réessais, refus définitif, délai dépassé). Lancés par `npm run test:tooling`, sans Docker.
-- `demo-data.json` : Awa, Mame Diarra et Ousmane, repris du document de conception. Les numéros utilisent le préfixe inexistant `+221 00` et ne désignent personne. Le taux BTC/FCFA viendra avec T17.
+- `demo-data.json` : Awa, Mame Diarra et Ousmane, repris du document de conception. Les numéros utilisent le préfixe inexistant `+221 00` et ne désignent personne. Le taux BTC/FCFA T17 est fourni par l’API, hors de ce seed.

@@ -1,4 +1,20 @@
-# Parcours Maestro Android | T30
+# ✅ Parcours Maestro Android | T30
+
+> Maestro pilote un émulateur Android comme un vrai utilisateur : il tape sur les boutons, saisit du texte et vérifie ce qui s'affiche.
+
+| Parcours                                                              | Ce qu'il vérifie                                           |
+| --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [`01-onboarding-fictif`](flows/01-onboarding-fictif.yaml)             | Bienvenue, code à 6 chiffres, 12 mots et leur vérification |
+| [`02-parcours-nominal-fictif`](flows/02-parcours-nominal-fictif.yaml) | Recevoir, Envoyer, Encaisser, Retirer et Historique        |
+| [`03-envoi-resultat-tardif`](flows/03-envoi-resultat-tardif.yaml)     | Un envoi dont la réponse arrive en retard                  |
+| [`04-retrait-resultat-tardif`](flows/04-retrait-resultat-tardif.yaml) | Un retrait simulé dont la réponse arrive en retard         |
+
+```mermaid
+flowchart LR
+    B["npm run e2e:build:android<br/>APK de test isolé"] --> I["Installation<br/>sur l'émulateur"] --> R["npm run e2e:android<br/>4 parcours"] --> Rap["Rapport<br/>.tmp/e2e"]
+```
+
+## Détails
 
 PAN maintient les parcours dans [flows](flows/README.md) ; Salam relit. Les
 quatre fichiers contrôlent l’onboarding fictif, les écrans Recevoir, Envoyer,

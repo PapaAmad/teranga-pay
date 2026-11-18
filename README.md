@@ -1,96 +1,131 @@
-# Teranga Pay
+<p align="center">
+  <img src="assets/brand/exports/couverture.png" alt="Teranga Pay : la valeur circule, le lien reste" width="760">
+</p>
 
-Application mobile Bitcoin/Lightning pour recevoir, payer et encaisser avec des montants affichés d'abord en FCFA. Projet de Salam (**Alioune Abdou Salam Kane**, [@AliouneKane](https://github.com/AliouneKane)) et PAN (**Papa Amadou Niang**, [@PapaAmad](https://github.com/PapaAmad)), pour le hackathon Dakar Bitcoin Trust.
+<h1 align="center">Teranga Pay</h1>
 
-Le dépôt [PapaAmad/teranga-pay](https://github.com/PapaAmad/teranga-pay) est **privé**, conformément au choix de PAN du 2 novembre 2026. Le tableau GitHub Projects doit également rester privé. Le fichier de licence MIT est conservé ; l'accès GitHub reste limité aux personnes autorisées. Cette décision remplace la visibilité publique initialement prévue dans les PDF ; voir la [décision 0002](docs/decisions/0002-visibilite-privee.md).
+<p align="center">
+  <b>Recevoir, payer et encaisser en Bitcoin Lightning, avec des montants affichés d'abord en FCFA.</b><br>
+  Projet de Salam (<a href="https://github.com/AliouneKane">@AliouneKane</a>) et PAN (<a href="https://github.com/PapaAmad">@PapaAmad</a>) pour le hackathon Dakar Bitcoin Trust.
+</p>
 
-Le **socle initial T01 à T07** regroupe l’application Expo navigable, les outils communs, la documentation, les modèles GitHub, le backlog et la CI. T08 et T09 ajoutent les fondations graphiques et la traduction décrites plus bas. Les fonctions de portefeuille, de paiement et de retrait viennent dans les tâches suivantes. La démonstration visera regtest ; les retraits Wave et Orange Money seront simulés.
+> **Bases consolidées | Démonstration uniquement.** Les écrans, le wallet natif, l’API et la passerelle simulée sont réunis dans le dépôt. Le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120) des ports UI au wallet et à l’API reste à terminer. Le réseau prévu est regtest ; les retraits Wave et Orange Money sont **simulés**. Aucun APK signé n’est publié par cette consolidation.
 
-## Démarrer
+## L'application en images
 
-Prérequis : **Node.js 24** (version fixée dans `.nvmrc`), **npm 12**, Git, puis Expo Go compatible SDK57 sur Android ou un émulateur Android. Le simulateur iOS nécessite macOS.
+|                                         Bienvenue                                          |                                                Accueil                                                |                                                 Recevoir                                                  |                                        Envoyer                                        |
+| :----------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+| <img src="docs/design/validation-t14/01-accueil.png" alt="Écran de bienvenue" width="180"> | <img src="docs/design/validation-t16/02-accueil.png" alt="Accueil avec le solde en FCFA" width="180"> | <img src="docs/design/validation-t18/02-recevoir.png" alt="QR code et adresse pour recevoir" width="180"> | <img src="docs/design/validation-t20/07-reussite.png" alt="Envoi réussi" width="180"> |
+|                              Langue et sauvegarde des 12 mots                              |                                  Solde en FCFA, actions principales                                   |                                       QR code et adresse Lightning                                        |                       Scanner, vérifier, confirmer avec le code                       |
 
-```sh
-npm ci
-npm run mobile
-```
+|                                      Encaisser                                       |                                   Historique et reçus                                   |                                           Alerte avant envoi                                            |                                             Retirer en cash                                              |
+| :----------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
+| <img src="docs/design/validation-t22/07-paye.png" alt="Vente encaissée" width="180"> | <img src="docs/design/validation-t24/03-recu.png" alt="Reçu d'un paiement" width="180"> | <img src="docs/design/validation-t27/03-alerte.png" alt="Alerte avant un envoi inhabituel" width="180"> | <img src="docs/design/validation-t25/04-recapitulatif.png" alt="Récapitulatif d'un retrait" width="180"> |
+|                             Prix en FCFA figé 5 minutes                              |                               Opérations, filtres, reçus                                |                                 Signes inhabituels expliqués simplement                                 |                                    Vers Wave ou Orange Money (simulé)                                    |
 
-Scanner le QR Expo avec le téléphone sur le même réseau, ou lancer `npm run mobile:android`. L'application propose un accueil de préparation et une page de présentation. Aucun compte, secret ou serveur n'est nécessaire pour ce socle.
+Les captures présentent les ateliers fictifs validés visuellement par PAN. Elles ne prouvent pas un paiement natif. Toutes les captures, état par état, sont dans les [galeries de validation](docs/design/README.md).
 
-Expo et React Native utilisent les versions du template officiel SDK57, compatibles avec Expo Go à l'initialisation. Les dépendances résolues sont verrouillées dans `package-lock.json`. Voir les [instructions officielles Expo](https://docs.expo.dev/get-started/create-a-project/) et le [guide local](docs/guides/demarrage.md).
+## L'idée en 30 secondes
 
-## Organisation
-
-| Dossier                                               | Rôle                                                          | Responsable                        |
-| ----------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------- |
-| [`apps/mobile/`](apps/mobile/README.md)               | Application Expo et navigation TypeScript                     | PAN ; Salam pour la logique wallet |
-| [`services/`](services/README.md)                     | Emplacements pour l'API, la passerelle simulée et les alertes | Salam ; PAN pour `bridge-sim`      |
-| [`packages/contracts/`](packages/contracts/README.md) | Emplacement des types et contrats communs à définir en T11    | Les deux                           |
-| [`infrastructure/`](infrastructure/README.md)         | Préparation du réseau regtest et du jeu de démonstration T12  | Salam                              |
-| [`tests/e2e/`](tests/e2e/README.md)                   | Futurs parcours mobiles Maestro T30                           | PAN                                |
-| [`assets/`](assets/README.md)                         | Charte et visuels de soumission à produire                    | PAN                                |
-| [`docs/`](docs/README.md)                             | Sources PDF, architecture, décisions, guides et suivi         | Les deux                           |
-| [`.github/`](.github/GUIDE.md)                        | CI, modèles, propriétaires, labels et règles préparées        | PAN                                |
-| [`scripts/`](scripts/README.md)                       | Vérifications du dépôt et préparation GitHub                  | PAN                                |
-| [`.husky/`](.husky/README.md)                         | Vérifications avant commit                                    | PAN                                |
-
-Chaque dossier maintenu contient un petit README. Le dossier réservé `.github` utilise [GUIDE.md](.github/GUIDE.md) pour laisser GitHub afficher ce README du projet à l'accueil. Les emplacements des futurs services contiennent uniquement leur documentation : ils ne démarrent aucun service. npm n'enregistre comme workspace que les dossiers possédant un `package.json`.
-
-## Architecture cible
+Ousmane vit à Milan. Il veut envoyer 25 000 FCFA à sa sœur Mame Diarra, à Dakar. Un transfert classique coûte cher et prend du temps. Le parcours cible de Teranga Pay :
 
 ```mermaid
 flowchart LR
-    Mobile["Application mobile<br/>Interface, wallet et coffre local"]
-    Lightning["Réseau Lightning"]
-    API["API Teranga<br/>Taux, adresses et alertes"]
-    Bridge["Passerelle cash-out<br/>Wave / Orange Money simulés"]
-
-    Mobile <-->|Paiements directs| Lightning
-    Mobile <-->|Services auxiliaires| API
-    API -->|Retrait simulé| Bridge
+    O["🧑🏾 Ousmane<br/>Milan"] -->|"⚡ paiement Lightning<br/>quelques secondes"| M["📱 Mame Diarra<br/>Dakar"]
+    M -->|"🏪 paie au marché"| A["👩🏾‍🍳 Awa<br/>commerçante"]
+    M -->|"💵 retrait cash (simulé)"| W["Wave / Orange Money"]
 ```
 
-Ce schéma présente la cible après T07. Seuls les écrans de préparation et leur navigation sont disponibles aujourd'hui. Les clés doivent rester dans le coffre sécurisé du téléphone ; le choix du SDK Lightning appartient à T10. La [vue détaillée](docs/architecture/vue-ensemble.md) décrit les frontières du système et le futur réseau regtest.
+1. **Recevoir** : Mame Diarra montre un QR code ou donne son adresse `mame@teranga.example`.
+2. **Voir en FCFA** : l'application convertit les « sats » (la plus petite unité du bitcoin) en FCFA, au taux affiché avec sa source.
+3. **Payer ou encaisser** : elle paie Awa en scannant un QR. Awa peut aussi créer une demande au prix fixé en FCFA.
+4. **Retirer** : elle convertit vers Wave ou Orange Money (simulé pour la démo).
 
-Les schémas sont écrits en [Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams) dans le Markdown et rendus directement par GitHub. Ils restent modifiables comme le reste de la documentation.
+**L’architecture vise des clés gardées dans le téléphone.** Le module natif et les contrats sont présents ; le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120) des écrans et les essais de sauvegarde restent à confirmer. Le serveur ne reçoit pas les clés du wallet.
 
-## Vérifier le socle
+## Comment le projet est construit
+
+Le schéma décrit l’architecture visée. Les composants sont présents ; les flèches entre les écrans, le wallet et l’API nécessitent encore la composition suivie dans #120.
+
+```mermaid
+flowchart TB
+    subgraph Phone["📱 Téléphone : apps/mobile"]
+        UI["Écrans<br/>accueil, recevoir, envoyer,<br/>encaisser, historique, retirer"]
+        C{{"🤝 Contrat Wallet<br/>packages/contracts"}}
+        W["⚡ Wallet LDK Node<br/>clés dans le coffre du téléphone"]
+        UI --> C --> W
+    end
+    subgraph Server["🖥️ Serveur : services"]
+        API["API Teranga<br/>taux, devis, adresses, alertes"]
+        BR["Passerelle simulée<br/>Wave / Orange Money"]
+        API --> BR
+    end
+    LN(("⚡ Réseau<br/>Lightning"))
+    W <==>|"paiements directs"| LN
+    UI <-->|"services d'aide<br/>(jamais les fonds)"| API
+```
+
+| Dossier                                                  | Ce qu'on y trouve                                                                   | Responsable                  |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------- |
+| 📱 [`apps/mobile/`](apps/mobile/README.md)               | L'application Android (React Native + Expo) : écrans et wallet                      | PAN (écrans), Salam (wallet) |
+| 🤝 [`packages/contracts/`](packages/contracts/README.md) | Le « contrat » entre les écrans et le wallet, plus un faux wallet pour les tests    | Les deux                     |
+| 🖥️ [`services/`](services/README.md)                     | L'API (taux, devis, adresse Lightning, alertes) et la passerelle de retrait simulée | Salam, PAN                   |
+| 🧪 [`infrastructure/`](infrastructure/README.md)         | Le réseau Bitcoin et Lightning de test, lancé avec Docker                           | Salam                        |
+| 🎨 [`assets/`](assets/README.md)                         | Logo, icônes, couleurs, polices, illustrations                                      | PAN                          |
+| 📚 [`docs/`](docs/README.md)                             | Architecture, décisions, guides, design, planning                                   | Les deux                     |
+| ✅ [`tests/`](tests/README.md)                           | Parcours de bout en bout sur Android (Maestro)                                      | PAN                          |
+| 🛠️ [`scripts/`](scripts/README.md)                       | Vérifications du dépôt, préparation GitHub, release de l'APK                        | PAN, Salam                   |
+| ⚙️ [`.github/`](.github/GUIDE.md)                        | CI, modèles d'issues et de PR                                                       | PAN                          |
+
+Chaque dossier a son propre README, qui explique à quoi il sert et comment il fonctionne.
+
+## Démarrer
+
+Il faut **Node.js 24** (voir `.nvmrc`), **npm**, Git, et un téléphone Android ou un émulateur.
 
 ```sh
-npm run format:check
-npm run lint
-npm run typecheck
+npm ci            # installe les dépendances
+npm run mobile    # ouvre les écrans ; le module wallet exige un build Android natif
+npm run api       # dans un autre terminal : l'API sur http://127.0.0.1:3000
+```
+
+Le réseau Lightning local peut être préparé séparément avec Docker. Le démarrer ne raccorde pas automatiquement les écrans :
+
+```sh
+npm run regtest:up     # démarre Bitcoin et deux nœuds Lightning
+npm run regtest:seed   # fonds de test, canal et paiement de vérification
+```
+
+Le [guide de la démonstration Lightning](docs/guides/demo-lightning.md) rapporte l’essai WalletLab de Salam du 11 novembre ; il ne constitue pas une nouvelle validation de l’arbre consolidé. Pour débuter sur le projet, lire le [guide de démarrage](docs/guides/demarrage.md).
+
+## Petit lexique
+
+| Mot                   | En clair                                                                                           |
+| --------------------- | -------------------------------------------------------------------------------------------------- |
+| **Lightning**         | Un réseau construit au-dessus de Bitcoin pour des paiements instantanés et presque gratuits.       |
+| **sat**               | La plus petite unité du bitcoin : 1 BTC = 100 000 000 sats.                                        |
+| **Facture**           | Une demande de paiement d'un montant précis, souvent montrée en QR code.                           |
+| **Adresse Lightning** | Une adresse lisible comme `mame@teranga.example`, qui remplace la facture.                         |
+| **Canal**             | Un « tuyau » de paiement entre deux nœuds Lightning.                                               |
+| **Nœud**              | Un programme qui envoie et reçoit des paiements Lightning. Ici, il tourne dans le téléphone.       |
+| **regtest**           | Un réseau Bitcoin privé de test : les blocs sont créés à la demande et l'argent n'a pas de valeur. |
+| **Non custodial**     | Personne d'autre que l'utilisateur ne détient ses fonds ni ses clés.                               |
+
+## Vérifier le code
+
+```sh
+npm run format:check && npm run lint && npm run typecheck
 npm test -- --ci
 npm run test:tooling
 npm run repo:check
 ```
 
-La CI reprend les contrôles de format, lint, types, tests, titre de PR et secrets. Husky et lint-staged vérifient les fichiers indexés ; commitlint contrôle les messages. Le ruleset de `main` prévu dans les fichiers n'est pas actif : GitHub refuse cette fonction pour ce dépôt privé avec l'offre actuelle. L'analyse native des secrets et la protection au push ne sont pas activées ; le contrôle Gitleaks de la CI est distinct. La règle d'équipe reste une PR verte et relue par l'autre membre.
+La CI GitHub relance les contrôles de qualité et la recherche de secrets. Le workflow T29 de paiement regtest et le workflow Maestro sont présents et distincts : leur résultat doit être vérifié sur le SHA concerné. Les fixtures Maestro ne prouvent pas un paiement Lightning ni le raccordement natif des écrans.
 
-L'installation par lockfile, les contrôles de code, les tests locaux et l'export Android ont été vérifiés. Les hooks ont contrôlé les fichiers indexés lors du premier commit. Après le déverrouillage du compte par le support GitHub, la [CI distante sur `main`](https://github.com/PapaAmad/teranga-pay/actions/runs/41490101961) est verte, y compris les tests et Gitleaks. Avant les correctifs de revue, les six contrôles ont aussi réussi [sur la PR #38](https://github.com/PapaAmad/teranga-pay/actions/runs/41497845298), avec vérification réelle de son titre. L'audit npm signale encore des alertes transitives dans l'outillage, dont deux élevées ; les résultats et les limites sont consignés dans le [rapport de validation](docs/guides/validation-du-socle.md).
+## Travailler à deux
 
-La preuve CI citée pour la PR #38 couvre précisément le commit `e0124c184052d5529dc306f184bc764ef7ac0f8b`, avant les correctifs de revue. Elle ne valide pas les commits suivants. Pour la version courante, consulter les [contrôles de la PR #38](https://github.com/PapaAmad/teranga-pay/pull/38/checks) et vérifier leur SHA.
+La [décision 0023](docs/decisions/0023-consolidation-des-bases.md) consigne l’autorisation de PAN du 17 novembre et les suivis qui restent ouverts.
 
-## Travail d'équipe et GitHub
+Une tâche = une issue = une branche = une PR, relue par l'autre membre, avec une CI verte avant la fusion. Les messages suivent `type(zone): description`. Tout est dans [CONTRIBUTING.md](CONTRIBUTING.md) et [AGENTS.md](AGENTS.md). Les choix techniques sont expliqués dans les [décisions](docs/decisions/README.md), et le suivi des tâches T01 à T40 dans la [roadmap](docs/planning/roadmap.md).
 
-Une tâche = une issue = une branche = une PR. Les commits et titres suivent `type(zone): description`, avec 72 caractères au maximum. La PR contient une explication « En clair », les vérifications et la référence à l'issue. Voir [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Le socle est livré sur `main` par la [PR #36](https://github.com/PapaAmad/teranga-pay/pull/36). PAN a autorisé cette première fusion squash comme [exception d’initialisation](docs/decisions/0003-initialisation-main.md), malgré le refus de démarrage de la CI distante et sans inventer une approbation de Salam. Les règles de relecture restent applicables aux tâches suivantes ; Salam dispose d'un accès en écriture au dépôt et au [Project privé #3](https://github.com/users/PapaAmad/projects/3). Le tableau suit les 35 tâches T06 à T40 et leurs responsables. Le champ natif `Status` porte les quatre états français ; les colonnes du [tableau](https://github.com/users/PapaAmad/projects/3/views/2) sont regroupées par ce champ, ce qui a été vérifié par l’API. Consulter le tableau pour les statuts courants.
-
-Squash seul, suppression des branches fusionnées, permissions Actions en lecture, Dependabot, 16 labels et 35 issues avec leurs affectations ont été vérifiés. Consulter le [relevé GitHub vérifié](docs/planning/publication-github.md) et le [suivi T01 à T07](docs/planning/suivi-t01-t07.md) pour les preuves et les points ouverts.
-
-Le [guide du dépôt distant](docs/guides/depot-distant.md) est la procédure de référence pour publier et configurer ce dépôt privé. Les [scripts GitHub](scripts/github/README.md) préparent les réglages et le backlog ; leurs fichiers seuls ne prouvent pas qu'une opération distante a abouti.
-
-Codex et Claude Code partagent [AGENTS.md](AGENTS.md) via [CLAUDE.md](CLAUDE.md). Les choix techniques sont consignés dans [docs/decisions](docs/decisions/README.md).
-
-## Suite du projet
-
-Les fondations graphiques T08 et le moteur de traduction T09 préparent les parcours de l’application. Les textes français sont embarqués ; le catalogue wolof préparé se replie sur le français jusqu’à sa traduction relue en T33. Le choix de langue de l’onboarding et sa persistance restent T14. Voir le [suivi T09](docs/planning/suivi-t09.md).
-
-T10 valide le SDK Lightning ; T11 fixe le contrat entre les écrans et la logique. Le réseau de démonstration arrive en T12, l’API en T13 et les premiers parcours wallet en T14 à T16. Consulter la [roadmap](docs/planning/roadmap.md) et la [vue d’architecture](docs/architecture/vue-ensemble.md).
-
-Les jalons du plan sont le 8 novembre 2026 pour le premier paiement de test, le 15 pour le parcours complet, le 19 à midi pour le gel du code et le 20 au matin pour la soumission. L'heure officielle de clôture reste à vérifier par l'équipe.
-
-Les clés du wallet doivent rester dans le coffre sécurisé du téléphone. Le SDK et les compromis éventuels ne sont pas encore décidés ; le repli LND côté serveur devra expliquer la garde des clés. Voir [SECURITY.md](SECURITY.md). Le socle n'a pas encore été validé sur un téléphone physique et aucun APK signé n'est fourni à ce stade.
-
-Licence [MIT](LICENSE).
+**Sécurité** : voir [SECURITY.md](SECURITY.md). Le dépôt est privé ([décision 0002](docs/decisions/0002-visibilite-privee.md)). Licence [MIT](LICENSE).

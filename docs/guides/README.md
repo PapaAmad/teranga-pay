@@ -12,3 +12,5 @@ Actualiser un guide dès qu'une commande ou une règle de travail change. Les va
 
 - [Autoreview de la PR #38](autoreview-pr38.md) : risques supplémentaires reproduits, correctifs et limites de validation.
 - [Seconde revue de la PR #38](revue-pr38-2026-11-03.md) : traitement des dix remarques du 3 novembre et vérifications supplémentaires.
+
+- [Démonstration Lightning](demo-lightning.md) : procédure et essai WalletLab rapportés par Salam le 11 novembre ; raccordement UI et nouvelle validation native encore ouverts.

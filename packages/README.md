@@ -1,5 +1,18 @@
-# Packages partagés
+# 🤝 Packages partagés
 
-Emplacement des modules réutilisables entre l'application et les futurs services. PAN et Salam valident ensemble les interfaces communes.
+> Du code utilisé à la fois par l'application et par d'autres parties du projet.
 
-Le premier module est [contracts](contracts/README.md), introduit en T11 : interface `Wallet`, types, conversions de montants et faux wallet pour les écrans. Un dossier n'entre dans les workspaces npm qu'après l'ajout de son `package.json` et de sa configuration de vérification.
+| Dossier                          | Ce que c'est                                                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [contracts](contracts/README.md) | Le **contrat Wallet** : la liste des fonctions que les écrans peuvent appeler, les erreurs possibles, les conversions FCFA ↔ sats et un faux wallet pour les tests |
+
+```mermaid
+flowchart LR
+    E["📱 Écrans (PAN)"] --> K{{"🤝 contracts"}}
+    K --> F["🧸 Faux wallet"]
+    K --> W["⚡ Vrai wallet (Salam)"]
+```
+
+Grâce au contrat, PAN a pu construire tous les écrans avec le faux wallet pendant que Salam construisait le vrai. Les deux exposent un contrat commun ; les ports UI nécessitent encore leurs adaptateurs.
+
+PAN et Salam valident ensemble les interfaces communes. Un package devient un workspace après ajout de son manifeste et des vérifications correspondantes. Les interfaces préparent les échanges ; les adaptateurs et leur composition restent suivis dans le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120).
