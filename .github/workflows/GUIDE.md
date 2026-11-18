@@ -105,6 +105,14 @@ Actions, avec **Run workflow**, ou via l'API. GitHub exige que le fichier soit
 présent sur la branche par défaut pour ce déclenchement. Voir la
 [documentation officielle](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow).
 
-Le test Lightning Docker viendra avec T29 ; aucun faux test de paiement n'est
-présent dans ce socle. Les résultats et les éventuels refus de démarrage sont
+`integration.yml` (T29) lance le vrai réseau regtest dans Docker, prépare les
+fonds et le canal avec le seed, puis exécute
+[`integration.mjs`](../../infrastructure/seed/integration.mjs) : paiement dans
+les deux sens, refus d'un double paiement et d'un paiement trop gros. Tout écart
+fait échouer le job ; les journaux des services sont alors affichés, et le
+réseau est toujours arrêté puis effacé, même en cas d'échec. Ce job n'est pas
+encore dans la liste des contrôles obligatoires de `main-ruleset.json` : l'y
+ajouter est une décision commune, à prendre après quelques passages stables.
+
+Les résultats et les éventuels refus de démarrage sont
 consignés dans le [relevé de publication](../../docs/planning/publication-github.md).

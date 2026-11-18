@@ -1,0 +1,41 @@
+name: Intégration Lightning
+
+# T29 : vrai réseau regtest dans Docker (bitcoind, deux nœuds LND, electrs),
+# seed puis paiements réels. Aucun secret : cookie RPC et macaroons restent
+# dans les volumes Docker détruits à la fin du job.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regtest:
+    name: Paiement regtest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Démarrer le réseau regtest
+        run: docker compose up -d --wait --wait-timeout 300
+      - name: Préparer fonds et canal (seed)
+        run: docker compose run --rm seed
+      - name: Payer et vérifier (test d'intégration)
+        run: docker compose run --rm seed node integration.mjs
+      - name: Journaux des services en cas d'échec
+        if: failure()
+        run: docker compose --profile seed logs --no-color --tail 200
+      - name: Arrêter et effacer le réseau
+        if: always()
+        run: docker compose --profile seed down -v --remove-orphans
