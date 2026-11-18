@@ -59,4 +59,11 @@ PAN a confirmé les écrans le 12 novembre 2026 avant commit et PR. Les
 [27 captures](validation-t25/README.md) et le suivi décrivent les contrôles
 exécutés ; la composition native et la relecture de Salam restent distinctes.
 
+T27 prépare l’alerte avant envoi : [recherche](alerte-recherche.md),
+[direction et états](alerte-direction.md), [décision](../decisions/0020-alerte-et-consentement.md),
+[preuves visuelles](validation-t27/README.md) et [suivi](../planning/suivi-t27.md).
+Les motifs T26 sont traduits avant le PIN ; une analyse indisponible demande un
+choix explicite. PAN a confirmé les écrans le 12 novembre 2026 avant commit ou PR T27.
+La relecture de Salam reste attendue.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

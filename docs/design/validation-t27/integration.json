@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-12",
+  "serverPr": 57,
+  "serverSha": "fe055c5e3dba9a4f31eba0cf3385d117105c2feb",
+  "transport": "HTTP loopback | vrais contrôleur, port T27 et route T26",
+  "wallet": "Fictif isolé, sans clé ni réseau Lightning",
+  "nativeDeviceExecuted": false,
+  "hashes": [
+    {
+      "file": "apps/mobile/src/send/controller.ts",
+      "sha256": "7d9073e99e292e9bb638ce056fef2fec27fdc24974f6e03aef3755863949b6e2"
+    },
+    {
+      "file": "apps/mobile/src/send/preview.ts",
+      "sha256": "be5151aa86dd1ed6ff6ccb6c6ecdd58d1676ccc90aebed3dca8bdbe4e41fede4"
+    },
+    {
+      "file": "apps/mobile/src/receive/controller.ts",
+      "sha256": "1cff63af030ecb10866aa2a635ce03290bd5723945139cd2db40e00ff033534d"
+    },
+    {
+      "file": "apps/mobile/src/risk/assessment.ts",
+      "sha256": "9322a5a15b2168c1db70bc59d08439206d688568511aba3adb85af43ea49114f"
+    }
+  ],
+  "cases": [
+    {
+      "scenario": "success",
+      "assessmentScore": 30,
+      "phaseBeforeDecision": "pin",
+      "decisionRequired": false,
+      "trace": [
+        {
+          "method": "POST",
+          "endpoint": "/v1/alerts/payment-check",
+          "status": 200
+        }
+      ],
+      "sendsBeforeFinalButton": 0,
+      "sendsAfterFinalButton": 1,
+      "result": "success",
+      "realWalletUsed": false
+    },
+    {
+      "scenario": "riskWarning",
+      "assessmentScore": 50,
+      "phaseBeforeDecision": "riskWarning",
+      "decisionRequired": true,
+      "trace": [
+        {
+          "method": "POST",
+          "endpoint": "/v1/alerts/payment-check",
+          "status": 200
+        }
+      ],
+      "sendsBeforeFinalButton": 0,
+      "sendsAfterFinalButton": 1,
+      "result": "success",
+      "realWalletUsed": false
+    },
+    {
+      "scenario": "riskHigh",
+      "assessmentScore": 95,
+      "phaseBeforeDecision": "riskWarning",
+      "decisionRequired": true,
+      "trace": [
+        {
+          "method": "POST",
+          "endpoint": "/v1/alerts/payment-check",
+          "status": 200
+        }
+      ],
+      "sendsBeforeFinalButton": 0,
+      "sendsAfterFinalButton": 1,
+      "result": "success",
+      "realWalletUsed": false
+    },
+    {
+      "scenario": "riskUnavailable",
+      "assessmentScore": null,
+      "phaseBeforeDecision": "riskUnavailable",
+      "decisionRequired": true,
+      "trace": [],
+      "sendsBeforeFinalButton": 0,
+      "sendsAfterFinalButton": 1,
+      "result": "success",
+      "realWalletUsed": false
+    }
+  ]
+}

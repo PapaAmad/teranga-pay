@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Alerte T27</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T27</p>
+      <h1>Prenez un instant.<br />Gardez le choix.</h1>
+      <p>
+        Écrans confirmés par PAN le 12 novembre 2026 avant commit et PR. Avertissement explicable
+        avant le PIN ; aucun paiement réel, aucun essai Android annoncé.
+      </p>
+      <p>
+        Rendus des vrais composants avec des réponses fictives T26. L’analyse HTTP contre le vrai
+        serveur est documentée séparément.
+      </p>
+      <p>
+        <a href="README.md">Preuves et limites</a> | <a href="mesures.json">Mesures</a> |
+        <a href="integration.json">Parcours HTTP T26</a>
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-recapitulatif.png"
+          ><img
+            src="01-recapitulatif.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Relire le montant avant l’analyse"
+        /></a>
+        <figcaption>
+          <strong>Relire le montant avant l’analyse</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-sans-alerte-pin.png"
+          ><img
+            src="02-sans-alerte-pin.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Absence d’alerte | aucun avis de paiement sûr"
+        /></a>
+        <figcaption>
+          <strong>Absence d’alerte | aucun avis de paiement sûr</strong>
+          <p>
+            Le serveur fictif ne demande pas d’accord supplémentaire. Le PIN et le bouton final
+            restent nécessaires.
+          </p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-alerte.png"
+          ><img
+            src="03-alerte.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Alerte | deux faits à vérifier"
+        /></a>
+        <figcaption>
+          <strong>Alerte | deux faits à vérifier</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-alerte-recapitulatif.png"
+          ><img
+            src="04-alerte-recapitulatif.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Alerte | montant, frais et destinataire restent consultables"
+        /></a>
+        <figcaption>
+          <strong>Alerte | montant, frais et destinataire restent consultables</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-pin-apres-alerte.png"
+          ><img
+            src="05-pin-apres-alerte.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Accord sur l’alerte | le paiement attend encore le PIN"
+        /></a>
+        <figcaption>
+          <strong>Accord sur l’alerte | le paiement attend encore le PIN</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-resultat-fictif.png"
+          ><img
+            src="06-resultat-fictif.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Résultat | une simulation explicitement nommée"
+        /></a>
+        <figcaption>
+          <strong>Résultat | une simulation explicitement nommée</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-plusieurs-raisons.png"
+          ><img
+            src="07-plusieurs-raisons.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Plusieurs signaux | pas de pourcentage de fraude"
+        /></a>
+        <figcaption>
+          <strong>Plusieurs signaux | pas de pourcentage de fraude</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-alerte-320.png"
+          ><img
+            src="08-alerte-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | motifs et annulation accessibles"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | motifs et annulation accessibles</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-espace-reduit.png"
+          ><img
+            src="09-espace-reduit.png"
+            width="360"
+            height="460"
+            loading="lazy"
+            alt="360 × 460 | choix maintenus dans le cadre"
+        /></a>
+        <figcaption>
+          <strong>360 × 460 | choix maintenus dans le cadre</strong>
+          <p>Fenêtre réduite, sans prétendre mesurer le clavier Android.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-indisponible.png"
+          ><img
+            src="10-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Analyse indisponible | pas de conclusion rassurante"
+        /></a>
+        <figcaption>
+          <strong>Analyse indisponible | pas de conclusion rassurante</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-indisponible-reprise.png"
+          ><img
+            src="11-indisponible-reprise.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Réessayer ou relire le détail, sans envoi automatique"
+        /></a>
+        <figcaption>
+          <strong>Réessayer ou relire le détail, sans envoi automatique</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-pin-sans-analyse.png"
+          ><img
+            src="12-pin-sans-analyse.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Choix explicite sans analyse | PIN et confirmation conservés"
+        /></a>
+        <figcaption>
+          <strong>Choix explicite sans analyse | PIN et confirmation conservés</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-analyse-en-cours.png"
+          ><img
+            src="13-analyse-en-cours.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Analyse lente | annulation disponible"
+        /></a>
+        <figcaption>
+          <strong>Analyse lente | annulation disponible</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-delai-depasse.png"
+          ><img
+            src="14-delai-depasse.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Après le délai | décision toujours attendue"
+        /></a>
+        <figcaption>
+          <strong>Après le délai | décision toujours attendue</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-apres-annulation.png"
+          ><img
+            src="15-apres-annulation.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Nouvelle entrée | demande précédente effacée"
+        /></a>
+        <figcaption>
+          <strong>Nouvelle entrée | demande précédente effacée</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>12 novembre 2026 | écrans confirmés par PAN ; relecture de Salam attendue.</footer>
+  </body>
+</html>

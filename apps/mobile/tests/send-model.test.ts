@@ -116,7 +116,19 @@ function harness(initialState: HomeWalletState = 'pret') {
   const rates: jest.Mocked<SendRatePort> = {
     quote: jest.fn(async (amountXof) => ok(makeQuote(amountXof))),
   };
-  const services: SendServices = { mode: 'native', wallet, rates };
+  const services: SendServices = {
+    mode: 'native',
+    wallet,
+    rates,
+    risk: {
+      check: jest.fn(async () => ({
+        score: 0,
+        level: 'faible',
+        confirmationRequired: false,
+        reasons: [],
+      })),
+    },
+  };
   const controller = createSendController(services, { now: () => time });
   return {
     controller,
@@ -148,7 +160,7 @@ async function review(test: ReturnType<typeof harness>) {
 
 async function pin(test: ReturnType<typeof harness>) {
   await review(test);
-  test.controller.requestPin();
+  await test.controller.requestPin();
   expect(test.controller.getSnapshot().phase).toBe('pin');
 }
 
@@ -327,7 +339,7 @@ describe('envoyer | lecture et devis', () => {
     test.wallet.balance.mockResolvedValue(ok({ ...test.balance, spendableSats: 10_099 }));
     await test.controller.start();
     await test.controller.inspect(invoice);
-    test.controller.requestPin();
+    await test.controller.requestPin();
     await test.controller.confirm(testPin);
     expect(test.controller.getSnapshot()).toMatchObject({
       error: { code: 'INSUFFICIENT_FUNDS' },
@@ -369,7 +381,7 @@ describe('envoyer | lecture et devis', () => {
       const test = harness();
       test.wallet.preview.mockResolvedValue(ok({ ...test.preview, ...patch }));
       await review(test);
-      test.controller.requestPin();
+      await test.controller.requestPin();
       expect(test.controller.getSnapshot()).toMatchObject({
         phase: 'review',
         error: { code: 'RATE_UNAVAILABLE' },
@@ -518,7 +530,7 @@ describe('envoyer | confirmation explicite et PIN', () => {
     await test.controller.confirm(testPin);
     test.controller.setDestination(invoice);
     await test.controller.inspect();
-    test.controller.requestPin();
+    await test.controller.requestPin();
     expect(test.controller.getSnapshot()).toMatchObject({
       phase: 'review',
       error: { code: 'PIN_LOCKED' },
@@ -528,11 +540,11 @@ describe('envoyer | confirmation explicite et PIN', () => {
     const reopened = createSendController(test.services, { now: test.now });
     await reopened.start();
     await reopened.inspect(invoice);
-    reopened.requestPin();
+    await reopened.requestPin();
     await reopened.confirm(testPin);
     expect(test.wallet.send).toHaveBeenCalledTimes(1);
     test.advance(30_000);
-    reopened.requestPin();
+    await reopened.requestPin();
     await reopened.confirm(testPin);
     expect(test.wallet.send).toHaveBeenCalledTimes(2);
   });
@@ -540,7 +552,7 @@ describe('envoyer | confirmation explicite et PIN', () => {
     const test = harness();
     await review(test);
     test.advance(300_000);
-    test.controller.requestPin();
+    await test.controller.requestPin();
     expect(test.controller.getSnapshot()).toMatchObject({
       phase: 'review',
       error: { code: 'QUOTE_EXPIRED' },
@@ -599,7 +611,7 @@ describe('envoyer | issue inconnue et protection de session', () => {
     test.controller.suspend();
     await test.controller.resume();
     await test.controller.inspect(invoice);
-    test.controller.requestPin();
+    await test.controller.requestPin();
     await test.controller.confirm(testPin);
     expect(test.controller.getSnapshot()).toMatchObject({
       phase: 'success',
@@ -626,7 +638,7 @@ describe('envoyer | issue inconnue et protection de session', () => {
       const reopened = createSendController({ ...test.services }, { now: test.now });
       await reopened.start();
       await reopened.inspect(invoice);
-      reopened.requestPin();
+      await reopened.requestPin();
       await reopened.confirm(testPin);
       expect(reopened.getSnapshot()).toMatchObject({
         phase: 'unknown',
@@ -634,6 +646,8 @@ describe('envoyer | issue inconnue et protection de session', () => {
         canRefreshPayment: false,
       });
       expect(test.wallet.send).toHaveBeenCalledTimes(1);
+      // L'historique a servi à l'analyse T27 avant le PIN, sans lancer de paiement.
+      test.wallet.history.mockClear();
       await reopened.refreshPayment();
       expect(test.wallet.history).not.toHaveBeenCalled();
     },
@@ -655,7 +669,7 @@ describe('envoyer | issue inconnue et protection de session', () => {
     await pin(test);
     await other.start();
     await other.inspect(invoice);
-    other.requestPin();
+    await other.requestPin();
     const firstState = deferred<HomeWalletState>();
     const secondState = deferred<HomeWalletState>();
     const result = deferred<HomeResult<HomePayment>>();
@@ -721,7 +735,7 @@ describe('envoyer | issue inconnue et protection de session', () => {
         retryAt: failure === 'PIN_LOCKED' ? instant + 30_000 : null,
       });
       await reopened.inspect(invoice);
-      reopened.requestPin();
+      await reopened.requestPin();
       expect(reopened.getSnapshot().phase).toBe(failure === 'PIN_LOCKED' ? 'review' : 'pin');
       expect(test.wallet.send).toHaveBeenCalledTimes(1);
     },
@@ -845,12 +859,20 @@ describe('envoyer | suivi du même paiement', () => {
 });
 
 describe('envoyer | atelier strictement fictif', () => {
+  it('date le devis avec une seule lecture d’horloge, même si le temps avance entre deux appels', async () => {
+    let time = instant;
+    const services = createSendPreviewServices('success', { now: () => time++ });
+    const result = await services.rates!.quote(4500);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error('Devis fictif absent');
+    expect(Date.parse(result.value.expiresAt) - Date.parse(result.value.createdAt)).toBe(300_000);
+  });
   it('simule un succès sans réseau ni SDK et avec des identifiants de démonstration explicites', async () => {
     const services = createSendPreviewServices('success', { now: () => instant });
     const controller = createSendController(services, { now: () => instant });
     await controller.start();
     await controller.inspect(invoice);
-    controller.requestPin();
+    await controller.requestPin();
     await controller.confirm(testPin);
     expect(controller.getSnapshot()).toMatchObject({
       mode: 'preview',
@@ -863,7 +885,7 @@ describe('envoyer | atelier strictement fictif', () => {
     const controller = createSendController(services, { now: () => instant });
     await controller.start();
     await controller.inspect(invoice);
-    controller.requestPin();
+    await controller.requestPin();
     await controller.confirm(testPin);
     await controller.refreshPayment();
     expect(controller.getSnapshot()).toMatchObject({

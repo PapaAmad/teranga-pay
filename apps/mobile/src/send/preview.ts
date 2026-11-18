@@ -13,7 +13,11 @@ export type SendPreviewScenario =
   | 'error'
   | 'feesUnavailable'
   | 'amountRequested'
-  | 'invalid';
+  | 'invalid'
+  | 'riskWarning'
+  | 'riskHigh'
+  | 'riskUnavailable'
+  | 'riskChecking';
 
 /** Cette chaîne n'est pas une facture BOLT11 valide et ne peut jamais être payée. */
 export const sendPreviewInvoice = 'lnbcrt1exemplefictifnonpayable';
@@ -44,7 +48,13 @@ export function createSendPreviewServices(
       if (scenario === 'invalid') return fail('DESTINATION_INVALID');
       if (scenario === 'expired') return fail('INVOICE_EXPIRED');
       if (scenario === 'error') return fail('READ_FAILED');
-      const amount = amountSats ?? (scenario === 'amountRequested' ? null : 10_000);
+      const amount =
+        amountSats ??
+        (scenario === 'amountRequested'
+          ? null
+          : scenario === 'riskWarning' || scenario === 'riskHigh'
+            ? 90_000
+            : 10_000);
       const fee = amount === null ? 10 : Math.max(10, Math.ceil(amount / 100));
       const value: SendPaymentPreview = {
         kind: destination.includes('@') ? 'adresse_lightning' : 'facture',
@@ -86,7 +96,24 @@ export function createSendPreviewServices(
       });
       return { ok: true, value: payment };
     },
-    history: async () => ({ ok: true, value: payment ? [payment] : [] }),
+    history: async () => ({
+      ok: true,
+      value: payment
+        ? [payment]
+        : scenario === 'riskHigh'
+          ? [1, 2, 3].map((index) => ({
+              id: `historique-fictif-${index}`,
+              direction: 'envoye' as const,
+              status: 'reussi' as const,
+              amountSats: 1000,
+              feeSats: 10,
+              amountXof: 450,
+              memo: null,
+              failure: null,
+              createdAt: iso(now() - index * 3_600_000),
+            }))
+          : [],
+    }),
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
@@ -95,19 +122,46 @@ export function createSendPreviewServices(
   return {
     mode: 'preview',
     wallet,
+    risk: {
+      async check() {
+        if (scenario === 'riskUnavailable') throw new Error('RISK_UNAVAILABLE');
+        if (scenario === 'riskChecking') return new Promise(() => {});
+        // Réponses fictives du contrat T26 ; aucun algorithme serveur dupliqué ici.
+        return scenario === 'riskWarning' || scenario === 'riskHigh'
+          ? {
+              score: scenario === 'riskHigh' ? 95 : 50,
+              level: scenario === 'riskHigh' ? 'eleve' : 'moyen',
+              confirmationRequired: true,
+              reasons: [
+                ...(scenario === 'riskHigh'
+                  ? [{ code: 'MONTANT_TRES_INHABITUEL', points: 45 }]
+                  : []),
+                { code: 'NOUVEAU_DESTINATAIRE', points: 30 },
+                { code: 'PRESQUE_TOUT_LE_SOLDE', points: 20 },
+              ],
+            }
+          : {
+              score: 30,
+              level: 'moyen',
+              confirmationRequired: false,
+              reasons: [{ code: 'NOUVEAU_DESTINATAIRE', points: 30 }],
+            };
+      },
+    },
     rates: {
       async quote(amountXof) {
         if (scenario === 'error' || scenario === 'feesUnavailable') return fail('RATE_UNAVAILABLE');
         const rate = 45_000_000n;
         const amountSats = Number((BigInt(amountXof) * 100_000_000n + rate - 1n) / rate);
+        const issuedAt = now();
         const value: SendQuote = {
           id: 'apercu-devis-fictif',
           amountXof,
           amountSats,
           xofPerBtc: Number(rate),
           source: 'fixe',
-          createdAt: iso(now()),
-          expiresAt: iso(now() + 300_000),
+          createdAt: iso(issuedAt),
+          expiresAt: iso(issuedAt + 300_000),
         };
         return { ok: true, value };
       },

@@ -452,6 +452,7 @@ describe('envoyer T20 | saisie et consentement explicites', () => {
     const history = jest.spyOn(services.wallet!, 'history');
     const { i18n } = renderSend(services);
     await enterPin();
+    history.mockClear();
     fireEvent.changeText(screen.getByLabelText(fr.send.pinLabel), '000000');
     fireEvent.press(
       screen.getByRole('button', {
@@ -472,6 +473,7 @@ describe('envoyer T20 | saisie et consentement explicites', () => {
     const history = jest.spyOn(services.wallet!, 'history');
     const { i18n, onBack } = renderSend(services);
     await enterPin();
+    history.mockClear();
     fireEvent.changeText(screen.getByLabelText(fr.send.pinLabel), '000000');
     fireEvent.press(
       screen.getByRole('button', {

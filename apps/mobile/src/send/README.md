@@ -14,4 +14,17 @@ Le passage en arrière-plan ou le verrouillage purge les données visibles. La b
 
 `preview.ts` est un atelier sans réseau, sans clé et sans paiement réel. La chaîne de démonstration n'est pas une facture BOLT11 valide ; les adresses utilisent le domaine réservé `.example`. Les scénarios couvrent succès fictif, attente, résultat inconnu, refus, PIN incorrect, expiration, solde insuffisant, hors connexion, erreur de lecture, frais FCFA indisponibles et montant libre. Changer d'atelier utilise un nouveau wallet fictif ; cela n'efface aucune barrière d'un wallet natif.
 
+T27 ajoute `SendServices.risk`, port numérique du serveur T26, avant l’accès au
+PIN. La confirmation du destinataire lit au maximum 50 opérations puis l’analyse,
+avec un délai global de huit secondes. Un avertissement exige un accord distinct ;
+une analyse manquante ou invalide permet une reprise, une annulation ou une
+continuation explicitement choisie sans analyse. Aucun résultat ne soumet d’envoi.
+Les motifs, la demande et l’accord sont invalidés lors d’une modification,
+annulation, suspension ou fermeture. Les réponses tardives sont ignorées.
+Voir la [décision 0020](../../../../docs/decisions/0020-alerte-et-consentement.md).
+
+L’atelier ajoute les situations d’alerte, d’analyse indisponible et d’analyse lente.
+Ce sont des réponses fictives du contrat, sans calcul local du score. Le transport
+authentifié et la composition native restent à relier avec Salam.
+
 Commande utile depuis la racine : `npm test --workspace @teranga-pay/mobile -- --runTestsByPath tests/send-model.test.ts --ci`.

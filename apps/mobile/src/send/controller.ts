@@ -6,6 +6,8 @@ import type {
   HomeWalletState,
 } from '../home/ports';
 import { isReceiveAddress } from '../receive/controller';
+import { buildRiskCheck, readRiskAssessment } from '../risk/assessment';
+import type { RiskAssessment } from '../risk/ports';
 import type { SendPaymentPreview, SendQuote, SendServices, SendWalletPort } from './ports';
 
 export type SendPhase =
@@ -15,6 +17,9 @@ export type SendPhase =
   | 'amount'
   | 'quoting'
   | 'review'
+  | 'riskChecking'
+  | 'riskWarning'
+  | 'riskUnavailable'
   | 'pin'
   | 'sending'
   | 'success'
@@ -45,6 +50,7 @@ export type SendSnapshot = Readonly<{
   totalMaxXof: number | null;
   retryAt: number | null;
   canRefreshPayment: boolean;
+  risk: RiskAssessment | null;
 }>;
 
 export interface SendController {
@@ -55,7 +61,9 @@ export interface SendController {
   setDestination(input: string): void;
   inspect(input?: string): Promise<void>;
   quoteAmount(input: string): Promise<void>;
-  requestPin(): void;
+  requestPin(): Promise<void>;
+  acknowledgeRisk(): void;
+  cancelRisk(): void;
   confirm(pin: string): Promise<void>;
   edit(): void;
   refreshPayment(): Promise<void>;
@@ -309,11 +317,14 @@ export function createSendController(
     totalMaxXof: null,
     retryAt: null,
     canRefreshPayment: false,
+    risk: null,
   });
   let disposed = false;
   let suspended = false;
   let started = false;
   let revision = 0;
+  let riskPermit = false;
+  let cancelRiskWait: (() => void) | null = null;
   let release: (() => void) | null = null;
   const session = sessionFor(services.wallet);
   const listeners = new Set<() => void>();
@@ -326,6 +337,7 @@ export function createSendController(
   }
   function clear(phase: SendPhase, state: HomeWalletState | null = snapshot.walletState) {
     revision += 1;
+    invalidateRisk();
     update({
       phase,
       walletState: state,
@@ -342,6 +354,7 @@ export function createSendController(
       totalMaxXof: null,
       retryAt: null,
       canRefreshPayment: false,
+      risk: null,
     });
   }
   function phaseFor(state: HomeWalletState): SendPhase {
@@ -367,6 +380,12 @@ export function createSendController(
         void initialise();
       }
       return;
+    }
+    // Un autre écran du même wallet peut soumettre pendant notre analyse.
+    // Sa remise d'envoi devient prioritaire sur toute réponse de précontrôle.
+    if (cancelRiskWait) {
+      revision += 1;
+      invalidateRisk();
     }
     update({
       phase: operation.phase,
@@ -487,7 +506,69 @@ export function createSendController(
   function expired() {
     return !snapshot.validUntil || Date.parse(snapshot.validUntil) <= now();
   }
+  function invalidateRisk() {
+    riskPermit = false;
+    cancelRiskWait?.();
+    cancelRiskWait = null;
+  }
+  function pinReady() {
+    if (expired()) {
+      update({ phase: 'review', busy: false, error: code('QUOTE_EXPIRED') });
+      return false;
+    }
+    if (
+      snapshot.preview?.amountXof == null ||
+      snapshot.preview?.maxFeeXof == null ||
+      snapshot.totalMaxXof === null
+    ) {
+      update({ phase: 'review', busy: false, error: code('RATE_UNAVAILABLE') });
+      return false;
+    }
+    if (session.retryAt !== null && now() < session.retryAt) {
+      update({ error: code('PIN_LOCKED'), retryAt: session.retryAt });
+      return false;
+    }
+    return true;
+  }
+  async function analyseRisk(token: number): Promise<RiskAssessment> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let settled = false;
+    let cancel!: () => void;
+    const stopped = new Promise<never>((_, reject) => {
+      cancel = () => reject(new Error('RISK_CANCELLED'));
+      cancelRiskWait = cancel;
+      timer = setTimeout(() => reject(new Error('RISK_TIMEOUT')), 8000);
+    });
+    try {
+      return await Promise.race([
+        (async () => {
+          if (!services.risk || !snapshot.preview || !snapshot.balance)
+            throw new Error('RISK_UNAVAILABLE');
+          const history: unknown = await services.wallet!.history({ limit: 50 });
+          if (settled || !current(token) || session.operation) throw new Error('RISK_CANCELLED');
+          if (!record(history) || history.ok !== true || !Array.isArray(history.value))
+            throw new Error('RISK_UNAVAILABLE');
+          const check = buildRiskCheck({
+            preview: snapshot.preview,
+            balance: snapshot.balance,
+            history: history.value,
+            now: now(),
+          });
+          if (!check) throw new Error('RISK_INVALID_INPUT');
+          const assessment = readRiskAssessment(await services.risk.check(check));
+          if (!assessment) throw new Error('RISK_INVALID_RESPONSE');
+          return assessment;
+        })(),
+        stopped,
+      ]);
+    } finally {
+      settled = true;
+      clearTimeout(timer);
+      if (cancelRiskWait === cancel) cancelRiskWait = null;
+    }
+  }
   function review(preview: SendPaymentPreview, quote: SendQuote | null) {
+    invalidateRisk();
     if (preview.expiresAt !== null && Date.parse(preview.expiresAt) <= now()) {
       update({
         phase: 'destination',
@@ -562,6 +643,7 @@ export function createSendController(
       validUntil: new Date(deadline).toISOString(),
       totalMaxSats: total,
       totalMaxXof: totalXof,
+      risk: null,
     });
   }
 
@@ -595,6 +677,7 @@ export function createSendController(
     setDestination(input) {
       if (!available()) return;
       revision += 1;
+      invalidateRisk();
       const safe = typeof input === 'string' ? input.slice(0, 8192) : '';
       update({
         destination: safe,
@@ -607,6 +690,7 @@ export function createSendController(
         totalMaxSats: null,
         totalMaxXof: null,
         retryAt: session.retryAt,
+        risk: null,
       });
     },
     async inspect(input = snapshot.destination) {
@@ -624,6 +708,7 @@ export function createSendController(
         return;
       }
       const token = ++revision;
+      invalidateRisk();
       update({
         destination,
         preview: null,
@@ -632,6 +717,7 @@ export function createSendController(
         validUntil: null,
         totalMaxSats: null,
         totalMaxXof: null,
+        risk: null,
       });
       if (destination.includes('@')) {
         update({ phase: 'amount', busy: false });
@@ -698,28 +784,57 @@ export function createSendController(
         if (current(token)) update({ phase: 'amount', busy: false, error: code('READ_FAILED') });
       }
     },
-    requestPin() {
-      if (!available() || snapshot.phase !== 'review') return;
-      if (expired()) {
-        update({ error: code('QUOTE_EXPIRED') });
-        return;
+    async requestPin() {
+      if (!available() || !['review', 'riskUnavailable'].includes(snapshot.phase)) return;
+      invalidateRisk();
+      if (!pinReady()) return;
+      const token = ++revision;
+      update({ phase: 'riskChecking', busy: true, error: null, risk: null });
+      try {
+        const risk = await analyseRisk(token);
+        if (!current(token)) return;
+        if (session.operation) {
+          showOperation();
+          return;
+        }
+        update({ busy: false });
+        if (!pinReady()) return;
+        riskPermit = !risk.confirmationRequired;
+        update({ phase: risk.confirmationRequired ? 'riskWarning' : 'pin', risk });
+      } catch {
+        if (!current(token)) return;
+        if (session.operation) {
+          showOperation();
+          return;
+        }
+        update({ busy: false });
+        if (pinReady()) update({ phase: 'riskUnavailable', risk: null });
       }
+    },
+    acknowledgeRisk() {
       if (
-        snapshot.preview?.amountXof === null ||
-        snapshot.preview?.maxFeeXof === null ||
-        snapshot.totalMaxXof === null
-      ) {
-        update({ error: code('RATE_UNAVAILABLE') });
+        !available() ||
+        !['riskWarning', 'riskUnavailable'].includes(snapshot.phase) ||
+        !pinReady()
+      )
         return;
-      }
-      if (session.retryAt !== null && now() < session.retryAt) {
-        update({ error: code('PIN_LOCKED'), retryAt: session.retryAt });
-        return;
-      }
+      riskPermit = true;
       update({ phase: 'pin', error: null });
     },
+    cancelRisk() {
+      if (
+        !active() ||
+        session.operation ||
+        !['riskChecking', 'riskWarning', 'riskUnavailable'].includes(snapshot.phase)
+      )
+        return;
+      const balance = snapshot.balance;
+      clear('destination', snapshot.walletState);
+      update({ balance });
+    },
     async confirm(pin) {
-      if (!available() || snapshot.phase !== 'pin' || !snapshot.preview?.amountSats) return;
+      if (!available() || !riskPermit || snapshot.phase !== 'pin' || !snapshot.preview?.amountSats)
+        return;
       if (!/^\d{6}$/.test(pin)) {
         update({ error: code('PIN_FORMAT') });
         return;
@@ -842,6 +957,7 @@ export function createSendController(
     edit() {
       if (!available()) return;
       revision += 1;
+      invalidateRisk();
       update({
         phase: 'destination',
         preview: null,
@@ -850,6 +966,7 @@ export function createSendController(
         validUntil: null,
         totalMaxSats: null,
         totalMaxXof: null,
+        risk: null,
       });
     },
     async refreshPayment() {
