@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { describe, it } from 'node:test';
-import { send } from './clients.mjs';
+import { payOutcome, send } from './clients.mjs';
 
 function server(handler) {
   return new Promise((resolve) => {
@@ -37,5 +37,31 @@ describe('transport HTTP du seed', () => {
     const result = await send(http, { host: '127.0.0.1', port, method: 'GET', path: '/' });
     instance.close();
     assert.deepEqual(result, { status: 200, text: '{"result":42}' });
+  });
+});
+
+describe('résultat d’un paiement LND', () => {
+  it('traduit « facture déjà payée » en refus terminal', async () => {
+    const outcome = await payOutcome(async () => {
+      throw new Error('diaspora POST /v2/router/send : invoice is already paid');
+    });
+    assert.deepEqual(outcome, { status: 'FAILED', reason: 'ALREADY_PAID' });
+  });
+
+  it('propage une coupure au lieu de la compter comme un refus', async () => {
+    await assert.rejects(
+      payOutcome(async () => {
+        throw new Error('socket hang up');
+      }),
+      /socket hang up/u,
+    );
+  });
+
+  it('garde le statut et la raison renvoyés par LND', async () => {
+    const outcome = await payOutcome(async () => ({
+      status: 'FAILED',
+      failure_reason: 'FAILURE_REASON_INSUFFICIENT_BALANCE',
+    }));
+    assert.deepEqual(outcome, { status: 'FAILED', reason: 'FAILURE_REASON_INSUFFICIENT_BALANCE' });
   });
 });

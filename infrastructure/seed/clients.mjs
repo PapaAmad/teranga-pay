@@ -84,6 +84,24 @@ export function bitcoinClient({ host, port = 18443, cookieFile, wallet }) {
   };
 }
 
+/**
+ * Résultat d'un paiement LND. Le seul refus que LND renvoie sous forme d'erreur,
+ * « facture déjà payée », devient un refus terminal `FAILED / ALREADY_PAID`.
+ * Toute autre erreur (coupure, TLS, réponse illisible) est propagée : elle ne
+ * prouve pas que le paiement a été refusé.
+ */
+export async function payOutcome(send) {
+  try {
+    const result = await send();
+    return { status: result.status, reason: result.failure_reason };
+  } catch (error) {
+    if (/invoice is already paid/iu.test(error.message)) {
+      return { status: 'FAILED', reason: 'ALREADY_PAID' };
+    }
+    throw error;
+  }
+}
+
 /** Client REST d'un nœud LND : certificat TLS et macaroon lus dans son volume. */
 export async function lndClient({ name, host, port = 8080, dir }) {
   const ca = await readFile(`${dir}/tls.cert`);
@@ -160,15 +178,33 @@ export async function lndClient({ name, host, port = 8080, dir }) {
         private: isPrivate,
       }),
     async addInvoice(sats, memo) {
-      return (await call('POST', '/v1/invoices', { value: String(sats), memo })).payment_request;
+      return (await this.createInvoice(sats, memo)).paymentRequest;
+    },
+    async createInvoice(sats, memo) {
+      const invoice = await call('POST', '/v1/invoices', { value: String(sats), memo });
+      return {
+        paymentRequest: invoice.payment_request,
+        hash: Buffer.from(invoice.r_hash, 'base64').toString('hex'),
+      };
+    },
+    async lookupInvoice(hashHex) {
+      if (!/^[0-9a-f]{64}$/u.test(hashHex))
+        throw new Error(`${name} : empreinte de facture invalide`);
+      const invoice = await call('GET', `/v1/invoice/${hashHex}`);
+      return { state: invoice.state, paidSats: Number(invoice.amt_paid_sat ?? 0) };
+    },
+    async channelSats() {
+      const balance = await call('GET', '/v1/balance/channels');
+      return Number(balance.local_balance?.sat ?? 0);
     },
     async pay(paymentRequest) {
-      const result = await call('POST', '/v2/router/send', {
-        payment_request: paymentRequest,
-        timeout_seconds: 30,
-        fee_limit_sat: '100',
-      });
-      return { status: result.status, reason: result.failure_reason };
+      return payOutcome(() =>
+        call('POST', '/v2/router/send', {
+          payment_request: paymentRequest,
+          timeout_seconds: 30,
+          fee_limit_sat: '100',
+        }),
+      );
     },
   };
 }

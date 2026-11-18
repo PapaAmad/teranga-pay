@@ -28,6 +28,7 @@
     "regtest:up": "docker compose up -d --wait",
     "regtest:seed": "docker compose run --rm seed",
     "regtest:phone": "docker compose run --rm seed node phone.mjs",
+    "regtest:integration": "docker compose run --rm seed node integration.mjs",
     "regtest:down": "docker compose down",
     "regtest:reset": "docker compose --profile seed down -v",
     "bridge:setup": "npm run bridge:setup --workspace @teranga-pay/api",

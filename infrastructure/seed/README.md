@@ -13,10 +13,29 @@ Introduite en **T12** par Salam ; PAN relit. `seed.mjs` prépare le réseau regt
 
 Une deuxième exécution ne crée ni bloc, ni envoi, ni canal : elle vérifie l'état et refait seulement le paiement de vérification. Si une exécution a été interrompue après un envoi de fonds, la suivante confirme ce virement (6 blocs) sans le renvoyer. Une réponse de nœud coupée en cours de route fait échouer le seed avec un message, au lieu de le laisser bloqué.
 
+## Test d'intégration (T29)
+
+`npm run regtest:integration` lance `integration.mjs` après le seed. Ce script fait de vrais paiements sur le réseau regtest et sort en erreur au premier écart :
+
+```mermaid
+sequenceDiagram
+    participant D as lnd-diaspora (Ousmane)
+    participant T as lnd-teranga (Mame Diarra)
+    T->>D: facture de 2 500 sats
+    D->>T: paiement → facture SETTLED, soldes +2 500 / −2 500
+    D-xT: même facture une 2e fois → refusée, solde inchangé
+    D->>T: facture de 1 200 sats
+    T->>D: paiement → soldes vérifiés dans l'autre sens
+    T-xD: facture de 6 000 000 sats (plus que le canal) → refusée, soldes inchangés
+```
+
+Les soldes sont relus jusqu'à 15 secondes après un succès : le payeur reçoit la preuve de paiement un instant avant que les deux nœuds aient fini de mettre à jour le canal. La CI GitHub exécute le même enchaînement dans [`integration.yml`](../../.github/workflows/integration.yml), puis efface toujours le réseau.
+
 ## Fichiers
 
 - `seed.mjs` : enchaînement des étapes (`runSeed`) et point d'entrée du conteneur.
 - `phone.mjs` : canal privé de `lnd-teranga` vers le wallet du téléphone (relançable, refuse si le téléphone n'est pas connecté) et paiement d'une facture du téléphone par `lnd-diaspora`. Testé par `phone.test.mjs`.
 - `clients.mjs` : clients JSON-RPC de bitcoind et REST de LND, sans dépendance. `clients.test.mjs` vérifie le rejet d'une réponse tronquée avec un vrai serveur HTTP local.
+- `integration.mjs` : paiements réels du test d'intégration T29 (`runIntegration`). `integration.test.mjs` vérifie sur un faux canal que chaque écart (refus, montant inexact, facture non réglée, double paiement, paiement trop gros accepté) fait bien échouer le test.
 - `seed.test.mjs` : tests sur un faux réseau en mémoire (relance sans doublon, canal en attente, réessais, refus définitif, délai dépassé). Lancés par `npm run test:tooling`, sans Docker.
 - `demo-data.json` : Awa, Mame Diarra et Ousmane, repris du document de conception. Les numéros utilisent le préfixe inexistant `+221 00` et ne désignent personne. Le taux BTC/FCFA viendra avec T17.
