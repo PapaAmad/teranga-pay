@@ -17,7 +17,9 @@ export type SendPreviewScenario =
   | 'riskWarning'
   | 'riskHigh'
   | 'riskUnavailable'
-  | 'riskChecking';
+  | 'riskChecking'
+  | 'slowRead'
+  | 'slowSend';
 
 /** Cette chaîne n'est pas une facture BOLT11 valide et ne peut jamais être payée. */
 export const sendPreviewInvoice = 'lnbcrt1exemplefictifnonpayable';
@@ -27,10 +29,11 @@ export const sendPreviewAddress = 'exemple@teranga.example';
 export function createSendPreviewServices(
   initialScenario: SendPreviewScenario = 'success',
   { now = Date.now }: { now?: () => number } = {},
-): SendServices & { setScenario(scenario: SendPreviewScenario): void } {
+): SendServices & { setScenario(scenario: SendPreviewScenario): void; completeSlowSend(): void } {
   let scenario = initialScenario;
   const listeners = new Set<(event: HomeWalletEvent) => void>();
   let payment: HomePayment | null = null;
+  let completeSlowSend: (() => void) | null = null;
   const iso = (ms: number) => new Date(ms).toISOString();
   const fail = <T>(value: string): HomeResult<T> => ({ ok: false, error: { code: value } });
   const balance = (): HomeBalance => ({
@@ -45,6 +48,7 @@ export function createSendPreviewServices(
     balance: async () =>
       scenario === 'error' ? fail('READ_FAILED') : { ok: true, value: balance() },
     async preview(destination, amountSats) {
+      if (scenario === 'slowRead') return new Promise<never>(() => {});
       if (scenario === 'invalid') return fail('DESTINATION_INVALID');
       if (scenario === 'expired') return fail('INVOICE_EXPIRED');
       if (scenario === 'error') return fail('READ_FAILED');
@@ -94,7 +98,12 @@ export function createSendPreviewServices(
         createdAt: iso(now()),
         failure: null,
       });
-      return { ok: true, value: payment };
+      const result = { ok: true as const, value: payment };
+      if (scenario === 'slowSend')
+        return new Promise((resolve) => {
+          completeSlowSend = () => resolve(result);
+        });
+      return result;
     },
     history: async () => ({
       ok: true,
@@ -121,6 +130,10 @@ export function createSendPreviewServices(
   };
   return {
     mode: 'preview',
+    completeSlowSend() {
+      completeSlowSend?.();
+      completeSlowSend = null;
+    },
     wallet,
     risk: {
       async check() {

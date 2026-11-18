@@ -8,6 +8,7 @@ import type {
 import { isReceiveAddress } from '../receive/controller';
 import { buildRiskCheck, readRiskAssessment } from '../risk/assessment';
 import type { RiskAssessment } from '../risk/ports';
+import { readWithDeadline, readFailure, startPendingWatch } from '../reliability/read';
 import type { SendPaymentPreview, SendQuote, SendServices, SendWalletPort } from './ports';
 
 export type SendPhase =
@@ -458,7 +459,7 @@ export function createSendController(
         if (typeof subscription !== 'function') throw new Error('SUBSCRIPTION_FAILED');
         release = subscription;
       }
-      const state: unknown = await services.wallet.state();
+      const state: unknown = await readWithDeadline(() => services.wallet!.state());
       if (!current(token)) return;
       if (!isState(state)) {
         clear('error', null);
@@ -474,7 +475,7 @@ export function createSendController(
         showOperation();
         return;
       }
-      const result: unknown = await services.wallet.balance();
+      const result: unknown = await readWithDeadline(() => services.wallet!.balance());
       if (!current(token)) return;
       const balance = readBalance(result);
       if (!balance) {
@@ -489,8 +490,8 @@ export function createSendController(
         committed: false,
         retryAt: session.retryAt,
       });
-    } catch {
-      if (current(token)) update({ phase: 'error', busy: false, error: code('READ_FAILED') });
+    } catch (cause) {
+      if (current(token)) update({ phase: 'error', busy: false, error: code(readFailure(cause)) });
     }
   }
   function available() {
@@ -725,7 +726,7 @@ export function createSendController(
       }
       update({ phase: 'loading', busy: true });
       try {
-        const result: unknown = await services.wallet!.preview(destination);
+        const result: unknown = await readWithDeadline(() => services.wallet!.preview(destination));
         if (!current(token)) return;
         const preview = readPreview(result, destination);
         if (!preview) {
@@ -737,9 +738,9 @@ export function createSendController(
           return;
         }
         review(preview, null);
-      } catch {
+      } catch (cause) {
         if (current(token))
-          update({ phase: 'destination', busy: false, error: code('READ_FAILED') });
+          update({ phase: 'destination', busy: false, error: code(readFailure(cause)) });
       }
     },
     async quoteAmount(input) {
@@ -757,7 +758,7 @@ export function createSendController(
       const destination = snapshot.destination;
       update({ phase: 'quoting', busy: true, error: null, preview: null, quote: null });
       try {
-        const result: unknown = await services.rates.quote(amountXof);
+        const result: unknown = await readWithDeadline(() => services.rates!.quote(amountXof));
         if (!current(token)) return;
         const quote = readQuote(result, amountXof, now());
         if (!quote) {
@@ -768,7 +769,9 @@ export function createSendController(
           });
           return;
         }
-        const decoded: unknown = await services.wallet!.preview(destination, quote.amountSats);
+        const decoded: unknown = await readWithDeadline(() =>
+          services.wallet!.preview(destination, quote.amountSats),
+        );
         if (!current(token)) return;
         const preview = readPreview(decoded, destination, quote.amountSats);
         if (!preview) {
@@ -780,8 +783,9 @@ export function createSendController(
           return;
         }
         review(preview, quote);
-      } catch {
-        if (current(token)) update({ phase: 'amount', busy: false, error: code('READ_FAILED') });
+      } catch (cause) {
+        if (current(token))
+          update({ phase: 'amount', busy: false, error: code(readFailure(cause)) });
       }
     },
     async requestPin() {
@@ -852,7 +856,7 @@ export function createSendController(
       const amountSats = preview.amountSats!;
       update({ busy: true, error: null });
       try {
-        const state: unknown = await services.wallet!.state();
+        const state: unknown = await readWithDeadline(() => services.wallet!.state());
         if (!current(token)) return;
         if (state !== 'pret') {
           clear(isState(state) ? phaseFor(state) : 'error', isState(state) ? state : null);
@@ -862,8 +866,8 @@ export function createSendController(
           update({ phase: 'review', busy: false, error: code('QUOTE_EXPIRED') });
           return;
         }
-      } catch {
-        if (current(token)) update({ phase: 'pin', busy: false, error: code('READ_FAILED') });
+      } catch (cause) {
+        if (current(token)) update({ phase: 'pin', busy: false, error: code(readFailure(cause)) });
         return;
       }
       // Un autre écran a pu soumettre pendant l'attente de state().
@@ -884,6 +888,12 @@ export function createSendController(
         maxFeeSats: preview.maxFeeSats,
       };
       session.operation = operation;
+      const stopWaiting = startPendingWatch(() => {
+        if (session.operation !== operation || operation.phase !== 'sending') return;
+        operation.phase = 'unknown';
+        operation.error = code('PAYMENT_TIMEOUT');
+        notifyOperation();
+      });
       let result: unknown;
       try {
         const pending = services.wallet!.send({
@@ -902,6 +912,8 @@ export function createSendController(
           notifyOperation();
         }
         return;
+      } finally {
+        stopWaiting();
       }
       // Même un écran détruit doit enregistrer le résultat dans la barrière de session.
       if (session.operation !== operation) return;
@@ -984,15 +996,20 @@ export function createSendController(
       const token = revision;
       update({ busy: true });
       try {
-        const result: unknown = await services.wallet.history({ limit: 50 });
+        const result: unknown = await readWithDeadline(() =>
+          services.wallet!.history({ limit: 50 }),
+        );
         if (!current(token)) return;
         if (record(result) && result.ok === true && Array.isArray(result.value)) {
           const values = result.value.map(readPayment);
           const payment = values.find((value) => value?.id === id);
           if (payment) applyPayment(payment);
         }
-      } catch {
-        /* Un échec de lecture ne transforme pas une issue inconnue en échec du paiement. */
+      } catch (cause) {
+        if (current(token) && session.operation === operation) {
+          operation.error = code(readFailure(cause));
+          notifyOperation();
+        }
       } finally {
         if (current(token)) update({ busy: false });
       }

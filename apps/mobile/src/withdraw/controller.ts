@@ -1,4 +1,5 @@
 import { isHomeIsoDate } from '../home/format';
+import { readWithDeadline, readFailure, startPendingWatch } from '../reliability/read';
 import type {
   WithdrawBalance,
   WithdrawBridgePort,
@@ -424,7 +425,7 @@ export function createWithdrawController(
     if (session.loading) return session.loading;
     const promise = (async () => {
       try {
-        const result: unknown = await services.journal!.load();
+        const result: unknown = await readWithDeadline(() => services.journal!.load());
         const intent = readIntent(result);
         if (intent === undefined) return error(result, 'JOURNAL_READ_FAILED');
         if (intent && !session.current)
@@ -437,8 +438,8 @@ export function createWithdrawController(
             saved: true,
           };
         return null;
-      } catch {
-        return code('JOURNAL_READ_FAILED');
+      } catch (cause) {
+        return code(readFailure(cause) === 'READ_TIMEOUT' ? 'READ_TIMEOUT' : 'JOURNAL_READ_FAILED');
       }
     })();
     session.loading = promise;
@@ -477,8 +478,8 @@ export function createWithdrawController(
       }
       try {
         const [rawOptions, rawBalance] = await Promise.all([
-          services.bridge!.options(),
-          services.bridge!.balance(),
+          readWithDeadline(() => services.bridge!.options()),
+          readWithDeadline(() => services.bridge!.balance()),
         ]);
         if (!current(token)) return;
         if (session.current) {
@@ -508,8 +509,9 @@ export function createWithdrawController(
           canRetry: false,
           canNewRequest: false,
         });
-      } catch {
-        if (current(token)) update({ phase: 'error', busy: false, error: code('READ_FAILED') });
+      } catch (cause) {
+        if (current(token))
+          update({ phase: 'error', busy: false, error: code(readFailure(cause)) });
       }
     })().finally(() => {
       if (initialization === promise) initialization = null;
@@ -529,11 +531,16 @@ export function createWithdrawController(
   }
   async function saveId(attempt: Attempt, operation: WithdrawOperation) {
     attempt.intent = Object.freeze({ ...attempt.intent, withdrawalId: operation.id });
+    const previousError = attempt.error;
+    const stopWaiting = watchAttempt(attempt, undefined, true);
     try {
       const saved: unknown = await services.journal!.save(attempt.intent);
       if (!voidSuccess(saved)) attempt.error = code('JOURNAL_WRITE_FAILED');
+      else if (attempt.error?.code === 'JOURNAL_SLOW') attempt.error = previousError;
     } catch {
       attempt.error = code('JOURNAL_WRITE_FAILED');
+    } finally {
+      stopWaiting();
     }
   }
   async function apply(attempt: Attempt, raw: unknown, mayRejectBeforeReservation = false) {
@@ -569,7 +576,9 @@ export function createWithdrawController(
       ['QUOTE_ALREADY_USED', 'IDEMPOTENCY_CONFLICT'].includes(failure.code)
     ) {
       try {
-        const retrieved: unknown = await services.bridge!.get(failure.withdrawalId);
+        const retrieved: unknown = await readWithDeadline(() =>
+          services.bridge!.get(failure.withdrawalId!),
+        );
         const known = readOperation(retrieved, attempt.intent);
         if (known) {
           await apply(attempt, retrieved);
@@ -590,27 +599,40 @@ export function createWithdrawController(
     if (!active() || !attempt || session.busy || terminal(attempt)) return;
     if (kind === 'retry' && !attempt.intent.withdrawalId) return;
     session.busy = true;
+    const id = attempt.intent.withdrawalId;
+    const stopWaiting = kind === 'retry' || !id ? watchAttempt(attempt) : () => {};
     notify();
     try {
-      const id = attempt.intent.withdrawalId;
       const raw: unknown = id
         ? await (kind === 'retry'
             ? services.bridge!.retry(id)
             : kind === 'get'
-              ? services.bridge!.get(id)
-              : services.bridge!.reconcile(id))
+              ? readWithDeadline(() => services.bridge!.get(id))
+              : readWithDeadline(() => services.bridge!.reconcile(id)))
         : await services.bridge!.confirm({
             quoteId: attempt.intent.quote.id,
             key: attempt.intent.key,
           });
+      stopWaiting();
       await apply(attempt, raw, !id);
-    } catch {
+    } catch (cause) {
       if (!terminal(attempt)) attempt.phase = 'unknown';
-      attempt.error = code('READ_FAILED');
+      attempt.error = code(readFailure(cause));
     } finally {
+      stopWaiting();
       session.busy = false;
       notify();
     }
+  }
+  function watchAttempt(attempt: Attempt, onSlow?: () => void, journalOnly = false) {
+    return startPendingWatch(() => {
+      if (session.current !== attempt || !session.busy) return;
+      onSlow?.();
+      if (!journalOnly && !terminal(attempt)) attempt.phase = 'unknown';
+      attempt.error = code(journalOnly || terminal(attempt) ? 'JOURNAL_SLOW' : 'OPERATION_SLOW');
+      // La mutation n'est pas annulée : conserver la barrière jusqu'à son résultat.
+      notify();
+    });
   }
   return {
     getSnapshot: () => snapshot,
@@ -670,12 +692,14 @@ export function createWithdrawController(
       update({ phase: 'quoting', quote: null, error: null, amountError: null, busy: true });
       try {
         const [raw, rawBalance] = await Promise.all([
-          services.bridge.quote({
-            operator: selected,
-            recipientId: recipient(selected),
-            amountXof,
-          }),
-          services.bridge.balance(),
+          readWithDeadline(() =>
+            services.bridge!.quote({
+              operator: selected,
+              recipientId: recipient(selected),
+              amountXof,
+            }),
+          ),
+          readWithDeadline(() => services.bridge!.balance()),
         ]);
         if (!current(token)) return;
         if (session.current) {
@@ -713,8 +737,9 @@ export function createWithdrawController(
           error: null,
           remainingSeconds: seconds(quote),
         });
-      } catch {
-        if (current(token)) update({ phase: 'amount', busy: false, error: code('READ_FAILED') });
+      } catch (cause) {
+        if (current(token))
+          update({ phase: 'amount', busy: false, error: code(readFailure(cause)) });
       }
     },
     async confirm(expectedQuoteId) {
@@ -752,6 +777,10 @@ export function createWithdrawController(
       session.current = attempt;
       session.busy = true;
       revision++;
+      let slow = false;
+      const stopWaiting = watchAttempt(attempt, () => {
+        slow = true;
+      });
       notify();
       try {
         const saved: unknown = await services.journal!.save(attempt.intent);
@@ -762,6 +791,11 @@ export function createWithdrawController(
           return;
         }
         attempt.saved = true;
+        if (slow) {
+          attempt.phase = 'unknown';
+          attempt.error = code('OPERATION_SLOW');
+          return;
+        }
         // L’écriture peut avoir pris du temps ; un prix expiré n’est jamais soumis pour la première fois.
         if (Date.parse(quote.expiresAt) <= now()) {
           attempt.phase = 'failed';
@@ -773,12 +807,14 @@ export function createWithdrawController(
           quoteId: quote.id,
           key: attempt.intent.key,
         });
+        stopWaiting();
         await apply(attempt, raw, true);
       } catch {
         attempt.phase = attempt.saved ? 'unknown' : 'failed';
         attempt.safeRejected = !attempt.saved;
         attempt.error = code(attempt.saved ? 'READ_FAILED' : 'JOURNAL_WRITE_FAILED');
       } finally {
+        stopWaiting();
         session.busy = false;
         notify();
       }
@@ -802,7 +838,7 @@ export function createWithdrawController(
         session.busy = true;
         notify();
         try {
-          const loaded: unknown = await services.journal!.load();
+          const loaded: unknown = await readWithDeadline(() => services.journal!.load());
           const intent = readIntent(loaded);
           if (intent === undefined) attempt.error = code('JOURNAL_READ_FAILED');
           else if (intent)
@@ -814,8 +850,10 @@ export function createWithdrawController(
               safeRejected: false,
               saved: true,
             };
-        } catch {
-          attempt.error = code('JOURNAL_READ_FAILED');
+        } catch (cause) {
+          attempt.error = code(
+            readFailure(cause) === 'READ_TIMEOUT' ? 'READ_TIMEOUT' : 'JOURNAL_READ_FAILED',
+          );
         } finally {
           session.busy = false;
           notify();
@@ -836,12 +874,13 @@ export function createWithdrawController(
       const attempt = session.current;
       if (!active() || !attempt || session.busy || !terminal(attempt)) return;
       session.busy = true;
+      const stopWaiting = watchAttempt(attempt);
       notify();
       try {
         // Une écriture non acquittée peut cacher l’intention d’un autre écran.
         // Même une collision de clé ne permet pas de l’effacer par supposition.
         if (!attempt.saved) {
-          const loaded: unknown = await services.journal!.load();
+          const loaded: unknown = await readWithDeadline(() => services.journal!.load());
           const existing = readIntent(loaded);
           if (existing === undefined) {
             attempt.error = code('JOURNAL_READ_FAILED');
@@ -865,9 +904,12 @@ export function createWithdrawController(
           return;
         }
         if (session.current === attempt) session.current = null;
-      } catch {
-        attempt.error = code('JOURNAL_CLEAR_FAILED');
+      } catch (cause) {
+        attempt.error = code(
+          readFailure(cause) === 'READ_TIMEOUT' ? 'READ_TIMEOUT' : 'JOURNAL_CLEAR_FAILED',
+        );
       } finally {
+        stopWaiting();
         session.busy = false;
         notify();
       }

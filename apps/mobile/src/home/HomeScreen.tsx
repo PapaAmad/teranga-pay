@@ -14,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import { BrandIcon, BrandMark, Button, tokens, useBrandFonts, type BrandIconName } from '../ui';
 import { createHomeController } from './controller';
 import {
@@ -493,6 +494,10 @@ export function HomeScreen({
               )}
             </>
           )}
+          {foreground &&
+            [state.error, state.balance.error, state.history.error].some(
+              (error) => error?.code === 'READ_TIMEOUT',
+            ) && <RecoveryNotice code="READ_TIMEOUT" />}
           {state.status === 'ready' &&
             !balance &&
             state.balance.status === 'error' &&

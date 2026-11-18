@@ -1,4 +1,5 @@
 import { isHomeIsoDate } from './format';
+import { readFailure, readWithDeadline } from '../reliability/read';
 import type {
   HomeBalance,
   HomeError,
@@ -339,9 +340,9 @@ export function createHomeController(services: HomeServices): HomeController {
     });
     let state: unknown;
     try {
-      state = await wallet.state();
-    } catch {
-      if (current(token, task)) failState('READ_FAILED');
+      state = await readWithDeadline(() => wallet.state());
+    } catch (error) {
+      if (current(token, task)) failState(readFailure(error));
       return;
     }
     if (!current(token, task)) return;
@@ -370,9 +371,9 @@ export function createHomeController(services: HomeServices): HomeController {
       if (!current(token, task)) return;
       let result: HomeResult<HomeBalance>;
       try {
-        result = readResult(await wallet.balance(), readBalance);
-      } catch {
-        result = { ok: false, error: failure('READ_FAILED') };
+        result = readResult(await readWithDeadline(() => wallet.balance()), readBalance);
+      } catch (error) {
+        result = { ok: false, error: failure(readFailure(error)) };
       }
       if (current(token, task)) applyResult('balance', result);
     };
@@ -380,9 +381,12 @@ export function createHomeController(services: HomeServices): HomeController {
       if (!current(token, task)) return;
       let result: HomeResult<readonly HomePayment[]>;
       try {
-        result = readResult(await wallet.history({ limit: 3 }), readHistory);
-      } catch {
-        result = { ok: false, error: failure('READ_FAILED') };
+        result = readResult(
+          await readWithDeadline(() => wallet.history({ limit: 3 })),
+          readHistory,
+        );
+      } catch (error) {
+        result = { ok: false, error: failure(readFailure(error)) };
       }
       if (current(token, task)) applyResult('history', result);
     };

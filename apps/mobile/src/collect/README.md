@@ -17,3 +17,18 @@ Le verrouillage et le passage en arrière-plan effacent les données du snapshot
 `preview.ts` fournit un atelier sans réseau ni facture payable. `now`, `advanceTime` et `confirmPayment` permettent de vérifier explicitement attente, expiration, confirmation, règlement tardif et correspondance incorrecte, sans minuterie de faux succès. Les scénarios payés restent clairement fictifs.
 
 Commande utile depuis la racine : `npm test --workspace @teranga-pay/mobile -- --runTestsByPath tests/collect-model.test.ts --ci`.
+
+T28 borne chaque lecture d'état, de devis et de facture à dix secondes. Le suivi
+de la demande courante et des vingt archives au maximum s'effectue en parallèle
+pour ne pas additionner leurs délais. Une lecture trop lente laisse la demande
+exacte engagée avec `READ_TIMEOUT`, sans créer de reçu ni de facture de remplacement.
+Un événement déjà confirmé reste prioritaire sur une lecture arrivée ensuite.
+
+La création n'est pas interrompue par une course de promesses : après dix secondes,
+l'interface présente `unknown` et `CREATION_UNKNOWN`, retire l'état occupé et
+conserve la barrière. L'appel fournisseur original reste suivi ; sa réponse tardive
+peut retrouver la facture exacte, y compris après remontage ou interruption.
+Un événement précoce reste sans attribution jusqu'à connaissance de cette identité.
+Ni l'expiration du délai d'interface ni un retour au premier plan ne recréent
+automatiquement une facture. Les régressions se trouvent dans
+`tests/t28-collect-history.test.ts`.

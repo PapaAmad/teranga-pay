@@ -30,4 +30,10 @@ Expo. L’écoute loopback T23 demande une composition dédiée pour le téléph
 L’[ADR 0019](../../../../docs/decisions/0019-retrait-simule-et-reprise.md) explique
 les garanties, limites et écarts au PDF. PAN a confirmé les écrans le 12 novembre 2026 avant commit et PR.
 
+T28 borne les lectures, notamment le journal et les prix. Une confirmation ou
+une écriture locale lente conserve sa barrière ; elle reste suivie et permet de
+quitter l’écran sans recommencer. Un acquittement tardif du journal initial
+ne déclenche pas automatiquement le premier POST : une reprise explicite garde
+la même intention. Aucun délai ne rejette une mutation en prétendant l’annuler.
+
 Commande : `npm test -- --ci --runTestsByPath tests/withdraw-model.test.ts tests/withdraw-journal.test.ts tests/withdraw-preview.test.ts tests/withdraw-screen.test.tsx`.

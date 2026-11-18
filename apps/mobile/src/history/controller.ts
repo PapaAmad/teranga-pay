@@ -1,5 +1,6 @@
 import { isHomeIsoDate } from '../home/format';
 import type { HomeError, HomePayment, HomeWalletEvent, HomeWalletState } from '../home/ports';
+import { readFailure, readWithDeadline } from '../reliability/read';
 import type { HistoryEntry, HistoryServices, HistoryWithdrawal } from './ports';
 import {
   historyDayKey,
@@ -387,11 +388,15 @@ export function createHistoryController(
     try {
       const result: unknown =
         source === 'wallet'
-          ? await services.wallet!.history({ limit: PAGE_SIZE, ...(before ? { before } : {}) })
-          : await services.withdrawals!.history({
-              limit: PAGE_SIZE,
-              ...(before ? { before } : {}),
-            });
+          ? await readWithDeadline(() =>
+              services.wallet!.history({ limit: PAGE_SIZE, ...(before ? { before } : {}) }),
+            )
+          : await readWithDeadline(() =>
+              services.withdrawals!.history({
+                limit: PAGE_SIZE,
+                ...(before ? { before } : {}),
+              }),
+            );
       if (!current(token)) return;
       if (!record(result) || result.ok !== true) {
         fail(
@@ -442,8 +447,8 @@ export function createHistoryController(
       else withdrawals = next as HistoryResource<HistoryWithdrawal>;
       status = 'ready';
       publish();
-    } catch {
-      if (current(token)) fail(source, code('READ_FAILED'));
+    } catch (failure) {
+      if (current(token)) fail(source, code(readFailure(failure)));
     }
   }
   async function cycle(task: Run) {
@@ -479,9 +484,9 @@ export function createHistoryController(
     publish();
     let state: unknown;
     try {
-      state = await services.wallet.state();
-    } catch {
-      if (current(token)) clear('error', null, code('READ_FAILED'));
+      state = await readWithDeadline(() => services.wallet!.state());
+    } catch (failure) {
+      if (current(token)) clear('error', null, code(readFailure(failure)));
       return;
     }
     if (!current(token) || task.cancelled) return;
@@ -564,7 +569,9 @@ export function createHistoryController(
       if (paging[source]) return paging[source]!;
       const old = source === 'wallet' ? payments : withdrawals;
       const retryPage =
-        old.status === 'error' && old.error?.code === 'READ_FAILED' && cursors[source] !== null;
+        old.status === 'error' &&
+        ['READ_FAILED', 'READ_TIMEOUT'].includes(old.error?.code ?? '') &&
+        cursors[source] !== null;
       if (
         (old.status !== 'ready' && !retryPage) ||
         !old.hasMore ||

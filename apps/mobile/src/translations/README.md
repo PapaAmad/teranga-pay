@@ -63,4 +63,8 @@ Aucun texte distant n’est affiché. Le score n’est pas présenté comme une
 probabilité de fraude et l’indisponibilité ne produit aucun avis rassurant.
 La ressource wolof reste vide jusqu’à T33 et sa relecture native.
 
+`reliability.ts` fournit les messages T28. Un délai de lecture n’est pas appelé
+« hors ligne » sans preuve ; une soumission lente ne devient pas un échec ou un
+reçu réussi. Les textes d’atelier distinguent également lecture et confirmation.
+
 PAN réalise T09, Salam relit. Commandes : `npm run typecheck`, `npm test -- --ci` ; les tests `i18n.test.tsx` couvrent le repli, l’isolation, les paramètres et le changement de langue au cours du parcours existant. Le titre natif est contrôlé via la prop du composant remplacé par Jest ; son rendu sur Android reste à vérifier. Les essais Android réels et la relecture wolof restent distincts.

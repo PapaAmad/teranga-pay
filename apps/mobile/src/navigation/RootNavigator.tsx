@@ -318,6 +318,8 @@ function SendPreviewRoute({
   const { t } = useTranslation();
   const fonts = useBrandFonts();
   const names: SendPreviewScenario[] = [
+    'slowRead',
+    'slowSend',
     'riskWarning',
     'riskHigh',
     'riskUnavailable',
@@ -347,6 +349,13 @@ function SendPreviewRoute({
       previewAddress={sendPreviewAddress}
       previewControls={
         <View style={previewStyles.panel}>
+          {scenario === 'slowSend' && (
+            <Button
+              label={t('reliability.complete')}
+              variant="secondary"
+              onPress={services.completeSlowSend}
+            />
+          )}
           <Text
             accessibilityRole="header"
             style={{
@@ -441,6 +450,8 @@ function CollectPreviewRoute({
   const fonts = useBrandFonts();
   const active = useIsFocused();
   const names: CollectWorkshopScenario[] = [
+    'slowRead',
+    'slowCreate',
     'waiting',
     'paid',
     'late',
@@ -568,6 +579,7 @@ function HistoryPreviewRoute({
   const fonts = useBrandFonts();
   const active = useIsFocused();
   const names: HistoryWorkshopScenario[] = [
+    'slowRead',
     'ready',
     'empty',
     'partial',
@@ -663,6 +675,8 @@ function WithdrawPreviewRoute({
   const { t } = useTranslation();
   const fonts = useBrandFonts();
   const scenarios = [
+    'slowRead',
+    'slowConfirm',
     'ready',
     'pending',
     'lostResponse',
@@ -729,6 +743,13 @@ function WithdrawPreviewRoute({
             variant="secondary"
             onPress={services.expireQuote}
           />
+          {scenario === 'slowConfirm' && (
+            <Button
+              label={t('reliability.complete')}
+              variant="secondary"
+              onPress={services.completeSlowConfirm}
+            />
+          )}
           <Button
             label={t('withdraw.scenarios.complete')}
             variant="secondary"

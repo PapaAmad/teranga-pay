@@ -122,6 +122,7 @@ export const historyText = {
   shareSimulationNotice: 'Données fictives de démonstration. Aucun opérateur réel n’a été payé.',
   scenarios: {
     title: 'Atelier | situations fictives',
+    slowRead: 'Lecture trop lente',
     ready: 'Journal complet',
     empty: 'Aucune opération',
     partial: 'Plusieurs pages',

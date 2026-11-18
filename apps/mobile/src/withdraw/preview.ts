@@ -17,7 +17,9 @@ export type WithdrawPreviewScenario =
   | 'emptyBalance'
   | 'quoteFailure'
   | 'offline'
-  | 'journalFailure';
+  | 'journalFailure'
+  | 'slowRead'
+  | 'slowConfirm';
 const ok = <T>(value: T): WithdrawResult<T> => ({ ok: true, value });
 const failure = (code: string, withdrawalId?: string): WithdrawResult<never> => ({
   ok: false,
@@ -33,8 +35,10 @@ export function createWithdrawPreviewServices(
   expireQuote(): void;
   completePending(): void;
   restoreProvider(): void;
+  completeSlowConfirm(): void;
   inspect(): { reservations: number; effects: number };
 } {
+  let completeSlowConfirm: (() => void) | null = null;
   let offset = 0,
     sequence = 0,
     availableSats = scenario === 'emptyBalance' ? 0 : 2_000_000,
@@ -81,18 +85,20 @@ export function createWithdrawPreviewServices(
   }
   const bridge: WithdrawBridgePort = {
     options: async () =>
-      scenario === 'offline'
-        ? failure('NETWORK_OFFLINE')
-        : ok({
-            simulation: true,
-            currency: 'XOF',
-            feeXof: 100,
-            maxAmountXof: 5_000_000,
-            operators: [
-              { operator: 'wave', recipientId: 'wave-demo-001' },
-              { operator: 'orange_money', recipientId: 'orange-demo-001' },
-            ],
-          }),
+      scenario === 'slowRead'
+        ? new Promise<never>(() => {})
+        : scenario === 'offline'
+          ? failure('NETWORK_OFFLINE')
+          : ok({
+              simulation: true,
+              currency: 'XOF',
+              feeXof: 100,
+              maxAmountXof: 5_000_000,
+              operators: [
+                { operator: 'wave', recipientId: 'wave-demo-001' },
+                { operator: 'orange_money', recipientId: 'orange-demo-001' },
+              ],
+            }),
     balance: async () => ok(balance()),
     async quote(input) {
       if (scenario === 'quoteFailure') return failure('RATE_UNAVAILABLE');
@@ -161,6 +167,10 @@ export function createWithdrawPreviewServices(
         lost = false;
         throw new Error('DEMO_RESPONSE_LOST');
       }
+      if (scenario === 'slowConfirm')
+        return new Promise<WithdrawResult<WithdrawOperation>>((resolve) => {
+          completeSlowConfirm = () => resolve(ok(clone(result)));
+        });
       return ok(clone(result));
     },
     async get(id) {
@@ -181,6 +191,10 @@ export function createWithdrawPreviewServices(
   };
   return {
     mode: 'preview',
+    completeSlowConfirm() {
+      completeSlowConfirm?.();
+      completeSlowConfirm = null;
+    },
     bridge,
     journal,
     createKey: uuid,

@@ -7,6 +7,10 @@ Le parcours `send/` demande une décision avant le PIN, conserve les délais
 et ne confond pas une analyse absente avec une absence de risque.
 Voir le [README](risk/README.md).
 
+`reliability/` contient les attentes bornées et le message commun T28. Les
+contrôleurs conservent leurs gardes de session et leur décision de reprise.
+Voir son [README](reliability/README.md).
+
 Ajouter les futurs dossiers de composants, de services et de fonctions lorsqu’ils auront une première implémentation. Chaque dossier source conserve un README court.
 
 `onboarding/` contient les écrans T14, leur contrôleur et les adaptateurs de

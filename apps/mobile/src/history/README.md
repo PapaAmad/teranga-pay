@@ -17,3 +17,13 @@ Commande utile depuis la racine :
 `npm test -- --ci --runTestsByPath tests/history-model.test.ts tests/history-preview.test.ts tests/history-screen.test.tsx`.
 La [galerie de validation](../../../../docs/design/validation-t24/README.md)
 documente les captures et leurs limites. PAN a confirmé les nouveaux écrans T24 le 11 novembre 2026 avant commit et PR.
+
+T28 borne à dix secondes les lectures d'état et les pages des deux sources.
+Une page trop lente produit `READ_TIMEOUT` et conserve les opérations déjà lues
+comme anciennes, avec une couverture incomplète. Le réessai manuel de pagination
+reprend le même curseur ; une ancienne réponse ne remplace ni la reprise ni une
+autre page. La source qui répond reste consultable indépendamment de l'autre.
+Si l'état du wallet ne peut plus être vérifié, les données sont retirées plutôt
+que de conserver un affichage dont l'autorisation est inconnue. Les verrous et
+les interruptions continuent à purger les deux sources. Voir les régressions
+`tests/t28-collect-history.test.ts`.

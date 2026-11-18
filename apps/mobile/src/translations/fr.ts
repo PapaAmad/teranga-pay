@@ -4,6 +4,7 @@ import { collectText } from './collect';
 import { historyText } from './history';
 import { withdrawText } from './withdraw';
 import { riskText } from './risk';
+import { reliabilityText } from './reliability';
 
 export const fr = {
   native: nativeText,
@@ -12,6 +13,7 @@ export const fr = {
   history: historyText,
   withdraw: withdrawText,
   risk: riskText,
+  reliability: reliabilityText,
   appName: 'Teranga Pay',
   fonts: {
     loading: 'Préparation de {{appName}}…',

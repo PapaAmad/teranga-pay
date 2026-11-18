@@ -15,6 +15,7 @@ import { historyDate } from '../history/format';
 import { formatHomeNumber } from '../home/format';
 import { FormFrame } from '../send/FormFrame';
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import {
   BrandIcon,
   BrandMark,
@@ -276,9 +277,13 @@ export function WithdrawScreen({
           <Text accessibilityRole="header" style={title}>
             {t('withdraw.errorTitle')}
           </Text>
-          <Text accessibilityRole="alert" style={body}>
-            {t(errorKey(state.error ?? { code: 'READ_FAILED' }))}
-          </Text>
+          {state.error?.code === 'READ_TIMEOUT' ? (
+            <RecoveryNotice code="READ_TIMEOUT" />
+          ) : (
+            <Text accessibilityRole="alert" style={body}>
+              {t(errorKey(state.error ?? { code: 'READ_FAILED' }))}
+            </Text>
+          )}
         </>
       );
     if (showOperators)
@@ -377,9 +382,12 @@ export function WithdrawScreen({
           )}
           {state.error && !state.amountError && (
             <View style={styles.notice}>
-              <Text accessibilityRole="alert" style={body}>
-                {t(errorKey(state.error))}
-              </Text>
+              <RecoveryNotice code={state.error.code} committed={state.committed} />
+              {!['READ_TIMEOUT', 'OPERATION_SLOW', 'JOURNAL_SLOW'].includes(state.error.code) && (
+                <Text accessibilityRole="alert" style={body}>
+                  {t(errorKey(state.error))}
+                </Text>
+              )}
             </View>
           )}
           {state.balance && (
@@ -462,21 +470,27 @@ export function WithdrawScreen({
         </Text>
         <Text accessibilityRole="status" style={body}>
           {t(
-            succeeded
-              ? 'withdraw.successDescription'
-              : failed
-                ? 'withdraw.failedDescription'
-                : submitting
-                  ? 'withdraw.submittingDescription'
-                  : state.phase === 'pending'
-                    ? 'withdraw.pendingDescription'
-                    : 'withdraw.unknownDescription',
+            state.error?.code === 'OPERATION_SLOW'
+              ? 'reliability.operationDescription'
+              : succeeded
+                ? 'withdraw.successDescription'
+                : failed
+                  ? 'withdraw.failedDescription'
+                  : submitting
+                    ? 'withdraw.submittingDescription'
+                    : state.phase === 'pending'
+                      ? 'withdraw.pendingDescription'
+                      : 'withdraw.unknownDescription',
             {
               operator: operator ? t(operatorKey(operator)) : '',
               amount: amount === undefined ? '' : money(amount),
             },
           )}
         </Text>
+        <RecoveryNotice
+          code={state.error?.code === 'OPERATION_SLOW' ? undefined : state.error?.code}
+          committed
+        />
         {amount !== undefined && largeAmount(amount)}
         {priceBreakdown()}
         {operation && (
@@ -500,13 +514,14 @@ export function WithdrawScreen({
             </Text>
           </View>
         )}
-        {state.error && (
-          <View style={styles.notice}>
-            <Text accessibilityRole="alert" style={body}>
-              {t(errorKey(state.error))}
-            </Text>
-          </View>
-        )}
+        {state.error &&
+          !['READ_TIMEOUT', 'OPERATION_SLOW', 'JOURNAL_SLOW'].includes(state.error.code) && (
+            <View style={styles.notice}>
+              <Text accessibilityRole="alert" style={body}>
+                {t(errorKey(state.error))}
+              </Text>
+            </View>
+          )}
         {!succeeded && !failed && (
           <Text style={[...body, styles.muted]}>{t('withdraw.leaveHint')}</Text>
         )}
