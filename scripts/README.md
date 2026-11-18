@@ -101,3 +101,7 @@ npm run brand:motion -- --browser "chemin/Chromium" --puppeteer-module "chemin/p
 ```
 
 `--help` décrit les options, dont `--output` pour une sortie distincte. Le document produit PNG, PDF et un relevé `validation.json` lié au SHA-256 du HTML ; il vérifie les erreurs navigateur, la composition imprimée et l’absence de débordement à 390 px. Document et motion exigent les faces attendues dans l'état `loaded` et refusent une ressource indisponible avant les exports ; un repli disponible ne suffit pas. Le rendu motion vérifie aussi la géométrie finale, le format et le décodage de la vidéo. Une génération documentaire ne valide ni le clavier natif, ni TalkBack, ni un paiement réel.
+
+`release/` prépare les consignes et la somme de contrôle publiées avec l'APK signé (T35).
+
+Les outils de release décrivent une configuration préparée. Aucun APK n’a été compilé, signé ou publié pendant la consolidation.

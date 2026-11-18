@@ -39,7 +39,7 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspace @teranga-pay/bridge-sim && npm run test --workspace @teranga-pay/api && npm run test --workspace @teranga-pay/contracts && npm run test --workspace @teranga-pay/mobile --",
-    "test:tooling": "node --test scripts/*.test.mjs scripts/github/*.test.mjs infrastructure/seed/*.test.mjs",
+    "test:tooling": "node --test scripts/*.test.mjs scripts/github/*.test.mjs infrastructure/seed/*.test.mjs scripts/release/*.test.mjs",
     "repo:check": "node scripts/check-repository.mjs && node scripts/check-mobile-translations.mjs",
     "prepare": "husky",
     "mobile:web": "npm run web --workspace @teranga-pay/mobile --",

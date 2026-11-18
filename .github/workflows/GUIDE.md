@@ -100,6 +100,11 @@ versions dans le titre. La limite de 72 caractères s'applique à tous. Si un ti
 reste trop long, le raccourcir dans la PR avant la fusion, par exemple
 `chore(deps): met à jour native-stack`. Seul le contrôle du titre sera exécuté.
 
+`release.yml` (T35) compile l'APK Android signé et le publie dans une GitHub
+Release avec sa somme SHA-256, à chaque tag `v*` ou à la main (Release
+brouillon). Il exige quatre secrets de signature créés par un humain : voir le
+[guide de publication](../../docs/guides/release-apk.md).
+
 Le déclencheur `workflow_dispatch` permet aussi un lancement manuel depuis
 Actions, avec **Run workflow**, ou via l'API. GitHub exige que le fichier soit
 présent sur la branche par défaut pour ce déclenchement. Voir la

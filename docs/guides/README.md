@@ -5,6 +5,7 @@ Guides pratiques maintenus par PAN pour le socle, puis par le responsable de cha
 - [Démarrage local](demarrage.md) : prérequis, installation, vérifications et limites actuelles.
 - [Collaboration](collaboration.md) : responsables, branches, PR, relecture et outils communs.
 - [Dépôt distant et premier commit](depot-distant.md) : procédure de référence pour le dépôt privé, son accès, la CI, les protections, les issues et le Project privé.
+- [Publier l'APK signé](release-apk.md) : clé de signature, secrets, Release GitHub et vérification de la somme de contrôle (T35).
 - [Validation du socle](validation-du-socle.md) : preuves locales, limites des vérifications et état des dépendances.
 - [Tests Maestro T30](tests-maestro.md) : APK Android isolé, prérequis, quatre parcours fictifs, rapports et limites de la preuve native.
 
