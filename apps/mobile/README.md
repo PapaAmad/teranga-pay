@@ -1,5 +1,14 @@
 # Application mobile | Teranga Pay
 
+T25 ajoute « Retirer en cash » sous les actions principales. Le parcours
+strictement simulé choisit l’opérateur, prépare un prix avec frais, demande une
+confirmation explicite puis suit la même référence après une panne. Le journal
+doit être enregistré avant la première soumission ; aucune donnée wallet ou
+aucun PIN n’est demandé. Lire le [module](src/withdraw/README.md), la
+[décision 0019](../../docs/decisions/0019-retrait-simule-et-reprise.md) et la
+[galerie de validation](../../docs/design/validation-t25/README.md).
+PAN a confirmé les nouveaux écrans le 12 novembre 2026 avant commit et PR.
+
 T24 ajoute l’historique en lecture seule depuis « Tout voir » près des dernières
 opérations : filtres, détails, reçus et cumul du jour à Dakar. L’atelier fictif
 est accessible depuis l’accueil fictif et reste distinct de l’entrée normale.

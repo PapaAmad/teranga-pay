@@ -1,5 +1,10 @@
 # Accueil | T16
 
+T25 ajoute une entrée distincte « Retirer en cash », marquée Simulation, sous les
+trois actions principales. `onWithdraw` ouvre le fournisseur de retrait injecté
+ou explique son absence ; depuis l’accueil fictif, il ouvre un atelier isolé.
+Le solde personnel de l’accueil n’alimente pas le compte fictif du retrait.
+
 T24 ajoute « Tout voir » près des dernières opérations. Le callback `onHistory`
 ouvre le journal complet en lecture seule ; depuis l’atelier, il ouvre un
 historique fictif isolé. Le [suivi T24](../../../../docs/planning/suivi-t24.md)

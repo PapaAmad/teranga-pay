@@ -1,5 +1,15 @@
 # Tests mobiles
 
+T25 ajoute les suites `withdraw-model`, `withdraw-journal`, `withdraw-preview`
+et `withdraw-screen`, avec quatre parcours de navigation. Elles vérifient le
+prix avant effet, l’écriture acquittée du journal, les références conservées,
+le refus d’écraser une intention, les reprises, le masquage et les callbacks
+périmés. Le test d’écran à 320 pixels et facteur 2 garde l’action hors du
+défilement ; il ne mesure pas le clavier ou TalkBack d’un téléphone.
+Une régression de l’atelier T22 vérifie aussi qu’un prix capture l’horloge une
+seule fois : deux lectures pouvaient produire 300 001 ms et être refusées.
+Les contrôles des fichiers de logos appartiennent à `test:tooling`.
+
 T24 ajoute `history-model.test.ts`, `history-preview.test.ts` et
 `history-screen.test.tsx` : validation des deux sources, pagination, cumul de
 Dakar, FCFA inconnus, dépassement numérique, reprise, masquage et partage

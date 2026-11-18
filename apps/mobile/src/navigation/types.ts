@@ -11,6 +11,8 @@ export type RootStackParamList = {
   CollectPreview: undefined;
   History: undefined;
   HistoryPreview: undefined;
+  Withdraw: undefined;
+  WithdrawPreview: undefined;
   About: undefined;
   DesignSystem: undefined;
   /** Écran de test du wallet, build de développement uniquement (T15). */

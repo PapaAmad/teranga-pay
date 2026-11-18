@@ -16,9 +16,127 @@ import { createReceivePreviewServices } from '../src/receive/preview';
 import { createSendPreviewServices, sendPreviewInvoice } from '../src/send/preview';
 import { createCollectPreviewServices } from '../src/collect/preview';
 import { createHistoryPreviewServices } from '../src/history/preview';
+import { createWithdrawPreviewServices } from '../src/withdraw/preview';
 
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 jest.mock('../src/send/QrScanner', () => ({ QrScanner: () => null }));
+
+describe('navigation Retirer T25', () => {
+  let original: PropertyDescriptor | undefined;
+  beforeEach(() => {
+    original = Object.getOwnPropertyDescriptor(AppState, 'currentState');
+    Object.defineProperty(AppState, 'currentState', {
+      configurable: true,
+      writable: true,
+      value: 'active',
+    });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (original) Object.defineProperty(AppState, 'currentState', original);
+  });
+  async function prepare() {
+    await fireEventAsync.press(await screen.findByRole('button', { name: 'Choisir Wave' }));
+    await screen.findByRole('header', { name: fr.withdraw.amountTitle });
+    await fireEventAsync.changeText(screen.getByLabelText(fr.withdraw.amountLabel), '2500');
+    await waitFor(() => {
+      expect(screen.getByLabelText(fr.withdraw.amountLabel)).toHaveProp('value', '2500');
+      expect(screen.getByRole('button', { name: fr.withdraw.prepare })).toBeEnabled();
+    });
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.prepare }));
+    await screen.findByRole('header', { name: fr.withdraw.reviewTitle });
+  }
+  it('relie l’entrée séparée de l’accueil au service de simulation injecté', async () => {
+    const fixture = createWithdrawPreviewServices(),
+      confirm = jest.spyOn(fixture.bridge!, 'confirm');
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        withdrawServices={{ ...fixture, mode: 'simulation' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.open }));
+    await prepare();
+    expect(confirm).not.toHaveBeenCalled();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.confirm }));
+    expect(await screen.findByRole('header', { name: fr.withdraw.successTitle })).toBeOnTheScreen();
+    expect(confirm).toHaveBeenCalledTimes(1);
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.done }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+  });
+  it('garde l’atelier du retrait séparé des fournisseurs du contexte normal', async () => {
+    const fixture = createWithdrawPreviewServices(),
+      options = jest.spyOn(fixture.bridge!, 'options'),
+      confirm = jest.spyOn(fixture.bridge!, 'confirm');
+    render(
+      <App
+        initialRoute="HomePreview"
+        withdrawServices={{ ...fixture, mode: 'simulation' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.open }));
+    await prepare();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.confirm }));
+    await screen.findByRole('header', { name: fr.withdraw.successTitle });
+    expect(options).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(screen.getByText(fr.withdraw.simulationNotice)).toBeOnTheScreen();
+  });
+  it('explique le fournisseur absent sans inventer d’opérateur disponible ou de solde', async () => {
+    const fixture = createWithdrawPreviewServices(),
+      read = jest.spyOn(fixture.bridge!, 'options');
+    render(
+      <App
+        initialRoute="Withdraw"
+        withdrawServices={{ ...fixture, mode: 'unavailable' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    expect(
+      await screen.findByRole('header', { name: fr.withdraw.unavailableTitle }),
+    ).toBeOnTheScreen();
+    expect(screen.queryByLabelText(fr.withdraw.amountLabel)).toBeNull();
+    expect(screen.queryByRole('button', { name: fr.withdraw.confirm })).toBeNull();
+    expect(read).not.toHaveBeenCalled();
+  });
+  it('retrouve la même demande incertaine après retour à l’accueil et réouverture', async () => {
+    const fixture = createWithdrawPreviewServices('lostResponse'),
+      confirm = jest.spyOn(fixture.bridge!, 'confirm');
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        withdrawServices={{ ...fixture, mode: 'simulation' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.open }));
+    await prepare();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.confirm }));
+    await screen.findByRole('header', { name: fr.withdraw.unknownTitle });
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.back }));
+    await screen.findByRole('header', { name: fr.dashboard.recent });
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.open }));
+    await screen.findByRole('header', { name: fr.withdraw.unknownTitle });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(screen.queryByLabelText(fr.withdraw.amountLabel)).toBeNull();
+    await fireEventAsync.press(screen.getByRole('button', { name: fr.withdraw.recover }));
+    await screen.findByRole('header', { name: fr.withdraw.successTitle });
+    expect(confirm).toHaveBeenCalledTimes(2);
+    expect(confirm.mock.calls[1]).toEqual(confirm.mock.calls[0]);
+    expect(fixture.inspect()).toEqual({ reservations: 1, effects: 1 });
+  });
+});
 
 describe('navigation Historique T24', () => {
   let original: PropertyDescriptor | undefined;

@@ -2,12 +2,14 @@ import nativeText from './native.json';
 import { sendText } from './send';
 import { collectText } from './collect';
 import { historyText } from './history';
+import { withdrawText } from './withdraw';
 
 export const fr = {
   native: nativeText,
   send: sendText,
   collect: collectText,
   history: historyText,
+  withdraw: withdrawText,
   appName: 'Teranga Pay',
   fonts: {
     loading: 'Préparation de {{appName}}…',

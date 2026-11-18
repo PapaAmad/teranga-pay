@@ -51,4 +51,12 @@ les FCFA inconnus, les pages restantes et les retraits simulés. PAN a confirmé
 [25 captures](validation-t24/README.md) et le suivi documentent les preuves Web ;
 les essais Android et la relecture de Salam restent distincts.
 
+T25 prépare Retirer en cash : [recherche](retirer-recherche.md),
+[direction et états](retirer-direction.md) et [suivi](../planning/suivi-t25.md).
+Le parcours prévoit opérateur, montant FCFA, devis avec frais fictifs et
+confirmation explicite, puis reprise de la même demande en cas d’incertitude.
+PAN a confirmé les écrans le 12 novembre 2026 avant commit et PR. Les
+[27 captures](validation-t25/README.md) et le suivi décrivent les contrôles
+exécutés ; la composition native et la relecture de Salam restent distinctes.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

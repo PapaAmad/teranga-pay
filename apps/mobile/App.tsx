@@ -14,6 +14,7 @@ import type { ReceiveServices } from './src/receive/ports';
 import type { SendServices } from './src/send/ports';
 import type { CollectServices } from './src/collect/ports';
 import type { HistoryServices } from './src/history/ports';
+import type { WithdrawServices } from './src/withdraw/ports';
 import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
@@ -33,6 +34,7 @@ type AppProps = {
   sendServices?: SendServices;
   collectServices?: CollectServices;
   historyServices?: HistoryServices;
+  withdrawServices?: WithdrawServices;
 };
 
 export default function App({
@@ -44,6 +46,7 @@ export default function App({
   sendServices,
   collectServices,
   historyServices,
+  withdrawServices,
 }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
@@ -55,6 +58,7 @@ export default function App({
         sendServices={sendServices}
         collectServices={collectServices}
         historyServices={historyServices}
+        withdrawServices={withdrawServices}
       />
     </TranslationProvider>
   );
@@ -68,6 +72,7 @@ function AppContent({
   sendServices,
   collectServices,
   historyServices,
+  withdrawServices,
 }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
@@ -111,6 +116,7 @@ function AppContent({
               sendServices={sendServices}
               collectServices={collectServices}
               historyServices={historyServices}
+              withdrawServices={withdrawServices}
             />
           </View>
         </BrandTypographyProvider>
