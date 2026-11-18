@@ -6,8 +6,10 @@ import { createAppI18n } from '../src/translations';
 import { fr } from '../src/translations/fr';
 import { createHomePreviewServices } from '../src/home/preview';
 import { createReceivePreviewServices } from '../src/receive/preview';
+import { createSendPreviewServices, sendPreviewInvoice } from '../src/send/preview';
 
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
+jest.mock('../src/send/QrScanner', () => ({ QrScanner: () => null }));
 
 describe('navigation du socle mobile', () => {
   it('ouvre les informations du projet puis revient à l’accueil', async () => {
@@ -58,6 +60,131 @@ describe('navigation du socle mobile', () => {
     await waitFor(() => {
       expect(screen.getByRole('header', { name: fr.appName })).toBeOnTheScreen();
     });
+  });
+});
+
+describe('navigation Envoyer T20', () => {
+  let original: PropertyDescriptor | undefined;
+  beforeEach(() => {
+    original = Object.getOwnPropertyDescriptor(AppState, 'currentState');
+    Object.defineProperty(AppState, 'currentState', {
+      configurable: true,
+      writable: true,
+      value: 'active',
+    });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (original) Object.defineProperty(AppState, 'currentState', original);
+  });
+
+  async function reviewAndConfirm(i18n: ReturnType<typeof createAppI18n>) {
+    await screen.findByLabelText(fr.send.destination);
+    fireEvent.changeText(screen.getByLabelText(fr.send.destination), sendPreviewInvoice);
+    fireEvent.press(screen.getByRole('button', { name: fr.send.continue }));
+    await screen.findByRole('header', { name: fr.send.reviewTitle });
+    fireEvent.press(screen.getByRole('button', { name: fr.send.confirm }));
+    fireEvent.changeText(await screen.findByLabelText(fr.send.pinLabel), '000000');
+    await act(async () => {
+      fireEvent.press(
+        screen.getByRole('button', {
+          name: i18n.t('send.pay', { amount: '4\u00a0500\u00a0FCFA' }),
+        }),
+      );
+    });
+  }
+
+  it('relie Envoyer au fournisseur injecté et revient à l’accueil après confirmation', async () => {
+    const fixture = createSendPreviewServices();
+    const send = jest.spyOn(fixture.wallet!, 'send');
+    const i18n = createAppI18n();
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        sendServices={{ ...fixture, mode: 'native' }}
+        i18n={i18n}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.send }));
+    expect(await screen.findByRole('header', { name: fr.send.title })).toBeOnTheScreen();
+    expect(screen.queryByText(fr.send.preview)).toBeNull();
+    expect(screen.queryByText(fr.dashboard.actionUnavailable)).toBeNull();
+    await reviewAndConfirm(i18n);
+    expect(await screen.findByRole('header', { name: fr.send.successTitle })).toBeOnTheScreen();
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send).toHaveBeenCalledWith({
+      destination: sendPreviewInvoice,
+      amountSats: 10_000,
+      maxFeeSats: 100,
+      pin: '000000',
+    });
+    fireEvent.press(screen.getByRole('button', { name: fr.send.home }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+    expect(screen.queryByLabelText(fr.send.pinLabel)).toBeNull();
+  });
+
+  it('ouvre un atelier séparé sans solliciter le wallet du contexte normal', async () => {
+    const normal = createSendPreviewServices();
+    const preview = jest.spyOn(normal.wallet!, 'preview');
+    const send = jest.spyOn(normal.wallet!, 'send');
+    render(
+      <App
+        initialRoute="HomePreview"
+        sendServices={{ ...normal, mode: 'native' }}
+        i18n={createAppI18n()}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.send }));
+    expect(await screen.findByRole('header', { name: fr.send.title })).toBeOnTheScreen();
+    expect(screen.getByText(fr.send.preview)).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: fr.send.previewFill }));
+    expect(await screen.findByRole('header', { name: fr.send.reviewTitle })).toBeOnTheScreen();
+    expect(preview).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByRole('button', { name: fr.send.back }));
+    expect(await screen.findByRole('header', { name: fr.dashboard.recent })).toBeOnTheScreen();
+  });
+
+  it('ne remplace pas le fournisseur absent par des données fictives', async () => {
+    render(<App initialRoute="Send" i18n={createAppI18n()} />);
+    await act(async () => {});
+    expect(await screen.findByRole('header', { name: fr.send.unavailableTitle })).toBeOnTheScreen();
+    expect(screen.queryByText(sendPreviewInvoice)).toBeNull();
+    expect(screen.queryByText(fr.send.preview)).toBeNull();
+    expect(screen.queryByLabelText(fr.send.destination)).toBeNull();
+    expect(screen.queryByLabelText(fr.send.pinLabel)).toBeNull();
+  });
+
+  it('conserve l’incertitude après retour à l’accueil puis réouverture', async () => {
+    const fixture = createSendPreviewServices('unknown');
+    const send = jest.spyOn(fixture.wallet!, 'send');
+    const i18n = createAppI18n();
+    render(
+      <App
+        initialRoute="Home"
+        homeServices={{ ...createHomePreviewServices(), mode: 'native' }}
+        sendServices={{ ...fixture, mode: 'native' }}
+        i18n={i18n}
+      />,
+    );
+    await act(async () => {});
+    await screen.findByLabelText('45\u00a0000 FCFA');
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.send }));
+    await reviewAndConfirm(i18n);
+    expect(await screen.findByRole('header', { name: fr.send.unknownTitle })).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: fr.send.home }));
+    await screen.findByRole('header', { name: fr.dashboard.recent });
+    fireEvent.press(screen.getByRole('button', { name: fr.dashboard.actions.send }));
+    expect(await screen.findByRole('header', { name: fr.send.unknownTitle })).toBeOnTheScreen();
+    expect(screen.queryByLabelText(fr.send.destination)).toBeNull();
+    expect(screen.queryByLabelText(fr.send.pinLabel)).toBeNull();
+    expect(screen.queryByRole('button', { name: fr.send.checkPayment })).toBeNull();
+    expect(send).toHaveBeenCalledTimes(1);
   });
 });
 

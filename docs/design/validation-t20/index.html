@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Envoyer T20</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T20</p>
+      <h1>Envoyer, avec chaque étape vérifiable.</h1>
+      <p>
+        Écrans confirmés par PAN le 10 novembre 2026 avant commit et PR ; publication autorisée. La
+        relecture de Salam et la CI distante restent attendues. Les vrais composants sont rendus sur
+        le Web avec des données et résultats fictifs. Aucun paiement réel, clavier Android ou scan
+        physique n’est montré.
+      </p>
+      <p>
+        Les boutons Scanner et Coller restent sur une ligne et ont la même hauteur à 320, 360 et 390
+        pixels. Le bandeau d’action reste hors du défilement.
+      </p>
+      <p>
+        <a href="README.md">Vérifications et limites</a> |
+        <a href="mesures.json">Mesures du parcours</a>
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-destination.png"
+          ><img
+            src="01-destination.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Destinataire | Scanner et Coller sur une ligne"
+        /></a>
+        <figcaption>
+          <strong>Destinataire | Scanner et Coller sur une ligne</strong>
+          <p>Deux boutons de même hauteur, libellés courts.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-camera-permission.png"
+          ><img
+            src="02-camera-permission.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Scanner | permission à la demande"
+        /></a>
+        <figcaption>
+          <strong>Scanner | permission à la demande</strong>
+          <p>La capture ne demande aucun accès à une caméra physique.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-verification.png"
+          ><img
+            src="03-verification.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Vérification | montant, frais et total"
+        /></a>
+        <figcaption>
+          <strong>Vérification | montant, frais et total</strong>
+          <p>Plafond exact transmis au wallet lors de la confirmation.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-demande.png"
+          ><img
+            src="04-demande.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Vérification | nouveau destinataire et validité"
+        /></a>
+        <figcaption>
+          <strong>Vérification | nouveau destinataire et validité</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-demande-complete.png"
+          ><img
+            src="05-demande-complete.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Demande consultable sans troncature"
+        /></a>
+        <figcaption>
+          <strong>Demande consultable sans troncature</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-code.png"
+          ><img
+            src="06-code.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Code | saisie masquée et confirmation explicite"
+        /></a>
+        <figcaption>
+          <strong>Code | saisie masquée et confirmation explicite</strong>
+          <p>Aucun envoi au sixième chiffre.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-reussite.png"
+          ><img
+            src="07-reussite.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Réussite fictive | aucun transfert"
+        /></a>
+        <figcaption>
+          <strong>Réussite fictive | aucun transfert</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-attente.png"
+          ><img
+            src="08-attente.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Attente | vérification sans renvoi"
+        /></a>
+        <figcaption>
+          <strong>Attente | vérification sans renvoi</strong>
+          <p>Résultat commandé par le simulateur, sans réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-incertain.png"
+          ><img
+            src="09-incertain.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Délai dépassé | aucun renvoi proposé"
+        /></a>
+        <figcaption>
+          <strong>Délai dépassé | aucun renvoi proposé</strong>
+          <p>Résultat commandé par le simulateur, sans réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-echec.png"
+          ><img
+            src="10-echec.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Échec signalé par le wallet fictif"
+        /></a>
+        <figcaption>
+          <strong>Échec signalé par le wallet fictif</strong>
+          <p>Résultat commandé par le simulateur, sans réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-code-refuse.png"
+          ><img
+            src="11-code-refuse.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Code refusé | saisie effacée"
+        /></a>
+        <figcaption>
+          <strong>Code refusé | saisie effacée</strong>
+          <p>Résultat commandé par le simulateur, sans réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-fcfa-indisponibles.png"
+          ><img
+            src="12-fcfa-indisponibles.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="FCFA inconnus | accès au code bloqué"
+        /></a>
+        <figcaption>
+          <strong>FCFA inconnus | accès au code bloqué</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-expiree.png"
+          ><img
+            src="13-expiree.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Demande expirée | autre demande nécessaire"
+        /></a>
+        <figcaption>
+          <strong>Demande expirée | autre demande nécessaire</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-solde-insuffisant.png"
+          ><img
+            src="14-solde-insuffisant.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Facture fixe | solde insuffisant"
+        /></a>
+        <figcaption>
+          <strong>Facture fixe | solde insuffisant</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-invalide.png"
+          ><img
+            src="15-invalide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Demande invalide | erreur utile"
+        /></a>
+        <figcaption>
+          <strong>Demande invalide | erreur utile</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="16-hors-connexion.png"
+          ><img
+            src="16-hors-connexion.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Hors connexion | aucun envoi automatique"
+        /></a>
+        <figcaption>
+          <strong>Hors connexion | aucun envoi automatique</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="17-lecture.png"
+          ><img
+            src="17-lecture.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Erreur de lecture | reprise explicite"
+        /></a>
+        <figcaption>
+          <strong>Erreur de lecture | reprise explicite</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="18-montant-invalide.png"
+          ><img
+            src="18-montant-invalide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Montant hors limite | erreur près du champ"
+        /></a>
+        <figcaption>
+          <strong>Montant hors limite | erreur près du champ</strong>
+          <p>Continuer reste bloqué tant que la saisie est invalide.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="19-montant.png"
+          ><img
+            src="19-montant.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Montant libre | FCFA en premier"
+        /></a>
+        <figcaption>
+          <strong>Montant libre | FCFA en premier</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="20-espace-reduit.png"
+          ><img
+            src="20-espace-reduit.png"
+            width="360"
+            height="460"
+            loading="lazy"
+            alt="Saisie accessible | espace vertical réduit"
+        /></a>
+        <figcaption>
+          <strong>Saisie accessible | espace vertical réduit</strong>
+          <p>
+            Contenu défilé jusqu’au champ dans une fenêtre Web réduite ; pas un clavier Android.
+          </p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="21-adresse-verification.png"
+          ><img
+            src="21-adresse-verification.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Adresse Lightning | devis et plafond"
+        /></a>
+        <figcaption>
+          <strong>Adresse Lightning | devis et plafond</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="22-etroit-attente.png"
+          ><img
+            src="22-etroit-attente.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | attente et actions accessibles"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | attente et actions accessibles</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="23-destination-320.png"
+          ><img
+            src="23-destination-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | deux boutons symétriques"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | deux boutons symétriques</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="24-destination-360.png"
+          ><img
+            src="24-destination-360.png"
+            width="360"
+            height="780"
+            loading="lazy"
+            alt="360 pixels | libellés sur une ligne"
+        /></a>
+        <figcaption>
+          <strong>360 pixels | libellés sur une ligne</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>Captures du 10 novembre 2026 | aucune validation native déduite des images.</footer>
+  </body>
+</html>

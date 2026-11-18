@@ -38,9 +38,10 @@ depuis cette présentation, choisir « Voir l’accueil du portefeuille » pour 
 normale ou « Essayer l’accueil fictif » pour l’atelier de développement.
 L’entrée normale ne dispose pas encore du port natif et n’invente aucun solde.
 L’aperçu permet de vérifier le solde, le masquage, les opérations et les états de
-lecture avec des données fictives. Les trois actions expliquent leur limite ;
-les paiements, la réception et les retraits restent leurs tâches du
-[plan](../../docs/planning/roadmap.md). Démonstration en regtest uniquement,
+lecture avec des données fictives. Recevoir ouvre T18 et Envoyer ouvre T20 ;
+Encaisser conserve une explication jusqu’à T22. Ces routes ne branchent pas seules
+un wallet natif. Les tâches du [plan](../../docs/planning/roadmap.md) précisent
+les frontières d’intégration. Démonstration en regtest uniquement,
 cash-out Wave/Orange Money simulé.
 
 Lire la [recherche T16](../../docs/design/accueil-recherche.md), la
@@ -64,6 +65,26 @@ PR ; la relecture de Salam reste attendue. Lire le [module](src/receive/README.m
 [recherche](../../docs/design/recevoir-recherche.md) et le
 [suivi T18](../../docs/planning/suivi-t18.md). `qrcode-generator` et `expo-clipboard`
 servent l’encodage et la copie ; `jsqr` vérifie le décodage dans les tests seulement.
+
+T20 relie Envoyer à la saisie ou au scan d’une demande, au montant FCFA si
+nécessaire, au récapitulatif et à l’autorisation PIN explicite. Depuis l’accueil
+fictif, choisir Envoyer pour l’atelier ; l’entrée normale explique l’absence de
+fournisseur T21. Le plafond de frais montré est transmis au wallet et une
+estimation FCFA inconnue bloque le PIN. Un timeout reste incertain et ne propose
+aucun nouvel envoi. Le bouton des formulaires reste hors du contenu défilant,
+dans le cadre adapté au clavier ; sa géométrie doit encore être vérifiée sur
+Android. PAN a confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR
+et autorisé la publication ; la relecture de Salam et la CI distante restent attendues.
+Lire le [module Envoyer](src/send/README.md), la
+[recherche](../../docs/design/envoyer-recherche.md) et le
+[suivi T20](../../docs/planning/suivi-t20.md).
+
+Le scanner ajoute `expo-camera@58.0.14`, compatible avec le SDK 58 conservé.
+L’accès est demandé depuis Scanner ; Coller reste une alternative. Le plugin
+configure la caméra sans microphone ni permission audio et lit l’explication
+système française dans les ressources T09. Une nouvelle construction native est
+nécessaire pour appliquer ces réglages ; l’aperçu Web et Expo Go ne prouvent pas
+le fonctionnement du wallet de Salam ni celui d’un APK construit pour le projet.
 
 Commandes utiles : `npm run typecheck --workspace @teranga-pay/mobile` et
 `npm test --workspace @teranga-pay/mobile -- --ci`. Les tests utilisent

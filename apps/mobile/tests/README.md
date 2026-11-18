@@ -34,3 +34,25 @@ et Web ; `receive-screen.test.tsx` couvre copie, partage, confidentialité, gran
 texte et anciens callbacks après verrouillage. `navigation.test.tsx` vérifie le
 trajet depuis Recevoir et la séparation de l’aperçu. Les destinations sont toutes
 fictives. Consulter la [validation T18](../../../docs/design/validation-t18/README.md).
+
+T20 ajoute `send-model.test.ts` pour la préparation liée au devis, le plafond de
+frais, l’expiration, les réponses tardives et la barrière de soumission partagée
+par wallet. Les cas de double appui, deux contrôleurs et remontage après résultat
+incertain doivent rester sûrs sans stocker de PIN. `send-platform.test.ts` vérifie
+la lecture volontaire du presse-papiers et ses erreurs, sans modifier le texte.
+
+`send-form-frame.test.tsx` vérifie le cadre du formulaire, les marges du clavier
+et le scanner réel avec primitives caméra remplacées : autorisation à la demande,
+refus, erreur, interruption et première détection unique. `send-screen.test.tsx`
+exerce le parcours avec les traductions réelles et un scanner remplacé pour
+isoler l’orchestration : collage tardif, montant invalide corrigible, frais FCFA
+inconnus, PIN effacé et jamais soumis au sixième chiffre, attente et timeout sans
+fausse confirmation. Le grand texte garde Scanner et Coller lisibles et utilisables.
+
+Les parcours de navigation T20 vérifient l’injection du fournisseur normal, la
+séparation de l’atelier et la conservation de l’incertitude après retour à
+l’accueil puis réouverture. Tous les résultats de paiement sont contrôlés et
+fictifs. Au 10 novembre 2026, la suite mobile complète compte **487 tests réussis
+dans seize suites**. Cette preuve locale ne valide ni permission système réelle,
+ni scan physique, TalkBack, clavier Android ou paiement regtest. Le
+[suivi T20](../../../docs/planning/suivi-t20.md) conserve les preuves et les limites.

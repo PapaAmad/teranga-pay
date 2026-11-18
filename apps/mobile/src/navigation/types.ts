@@ -5,6 +5,8 @@ export type RootStackParamList = {
   HomePreview: undefined;
   Receive: undefined;
   ReceivePreview: undefined;
+  Send: undefined;
+  SendPreview: undefined;
   About: undefined;
   DesignSystem: undefined;
   /** Écran de test du wallet, build de développement uniquement (T15). */

@@ -28,4 +28,11 @@ T18 prépare Recevoir : [recherche](recevoir-recherche.md),
 et [suivi](../planning/suivi-t18.md). PAN a confirmé les écrans T18 le 9 novembre
 2026 avant commit et PR ; aucune réception réelle n’est déduite de l’aperçu.
 
+T20 prépare Envoyer : [recherche](envoyer-recherche.md),
+[direction et parcours](envoyer-direction.md), [décision](../decisions/0015-envoyer-confirmation-et-session.md)
+et [captures confirmées par PAN](validation-t20/README.md), avec le [suivi](../planning/suivi-t20.md).
+PAN a confirmé les nouveaux écrans le 10 novembre 2026 avant commit et PR et
+autorisé la publication. La relecture de Salam et la CI distante restent attendues ;
+le branchement natif et les essais sur Android restent distincts de l’atelier fictif.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

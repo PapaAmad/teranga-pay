@@ -1,9 +1,9 @@
-import { NavigationContainer, useIsFocused, type LinkingOptions } from '@react-navigation/native';
+import { NavigationContainer, type LinkingOptions, useIsFocused } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreen } from '../onboarding/OnboardingScreen';
@@ -17,6 +17,14 @@ import { ReceiveScreen } from '../receive/ReceiveScreen';
 import type { ReceiveServices } from '../receive/ports';
 import { createReceivePreviewServices, type ReceivePreviewScenario } from '../receive/preview';
 import { receivePlatform, type ReceivePlatformPort } from '../receive/platform';
+import { SendScreen } from '../send/SendScreen';
+import type { SendServices } from '../send/ports';
+import {
+  createSendPreviewServices,
+  sendPreviewAddress,
+  sendPreviewInvoice,
+  type SendPreviewScenario,
+} from '../send/preview';
 import { tokens, useBrandFonts } from '../ui';
 
 import { WalletLabScreen } from '../screens/WalletLabScreen';
@@ -29,6 +37,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Services = createContext<OnboardingServices | null>(null);
 const HomeContext = createContext<HomeServices>({ mode: 'unavailable' });
 const ReceiveContext = createContext<ReceiveServices>({ mode: 'unavailable' });
+const SendContext = createContext<SendServices>({ mode: 'unavailable' });
 
 function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const services = useContext(HomeContext);
@@ -39,6 +48,7 @@ function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'H
       onDesign={() => navigation.navigate('DesignSystem')}
       onRequireUnlock={() => navigation.replace('Onboarding')}
       onReceive={() => navigation.navigate('Receive')}
+      onSend={() => navigation.navigate('Send')}
       onPreview={__DEV__ ? () => navigation.navigate('HomePreview') : undefined}
     />
   );
@@ -67,6 +77,7 @@ function HomePreviewRoute({
       onDesign={() => navigation.navigate('DesignSystem')}
       onRequireUnlock={() => navigation.navigate('Onboarding')}
       onReceive={() => navigation.navigate('ReceivePreview')}
+      onSend={() => navigation.navigate('SendPreview')}
       onExitPreview={() => navigation.goBack()}
       previewControls={
         <View style={previewStyles.panel}>
@@ -265,6 +276,97 @@ const previewStyles = StyleSheet.create({
   pressed: { opacity: 0.7 },
 });
 
+function SendRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Send'>) {
+  const services = useContext(SendContext);
+  const active = useIsFocused();
+  return (
+    <SendScreen
+      services={services}
+      active={active}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onPreview={__DEV__ ? () => navigation.navigate('SendPreview') : undefined}
+    />
+  );
+}
+
+function SendPreviewRoute({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, 'SendPreview'>) {
+  const [scenario, setScenario] = useState<SendPreviewScenario>('success');
+  const services = useMemo(() => createSendPreviewServices(scenario), [scenario]);
+  const active = useIsFocused();
+  const { t } = useTranslation();
+  const fonts = useBrandFonts();
+  const names: SendPreviewScenario[] = [
+    'success',
+    'pending',
+    'unknown',
+    'failed',
+    'PIN_INVALID',
+    'expired',
+    'insufficient',
+    'offline',
+    'error',
+    'feesUnavailable',
+    'amountRequested',
+    'invalid',
+  ];
+  return (
+    <SendScreen
+      key={scenario}
+      services={services}
+      active={active}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onExitPreview={() => navigation.goBack()}
+      previewDestination={sendPreviewInvoice}
+      previewAddress={sendPreviewAddress}
+      previewControls={
+        <View style={previewStyles.panel}>
+          <Text
+            accessibilityRole="header"
+            style={{
+              ...tokens.typography.label,
+              color: tokens.colors.ink,
+              fontFamily: fonts.title,
+            }}
+          >
+            {t('send.scenarios.title')}
+          </Text>
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t('send.scenarios.title')}
+            style={previewStyles.choices}
+          >
+            {names.map((key) => (
+              <Pressable
+                key={key}
+                accessibilityRole="radio"
+                accessibilityLabel={t(`send.scenarios.${key}`)}
+                accessibilityState={{ checked: scenario === key }}
+                aria-checked={scenario === key}
+                onPress={() => setScenario(key)}
+                style={[previewStyles.choice, scenario === key && previewStyles.selected]}
+              >
+                <Text
+                  style={{
+                    ...tokens.typography.label,
+                    fontFamily: fonts.label,
+                    color: scenario === key ? tokens.colors.onPrimary : tokens.colors.ink,
+                  }}
+                >
+                  {t(`send.scenarios.${key}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      }
+    />
+  );
+}
+
 function OnboardingRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Onboarding'>) {
   const services = useContext(Services);
   if (!services) throw new Error('Onboarding services unavailable');
@@ -302,81 +404,98 @@ export function RootNavigator({
   onboardingServices,
   homeServices,
   receiveServices,
+  sendServices,
 }: {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
   homeServices?: HomeServices;
   receiveServices?: ReceiveServices;
+  sendServices?: SendServices;
 }) {
   const { t } = useTranslation();
   const [services] = useState(() => onboardingServices ?? createPlatformServices());
   const [dashboard] = useState<HomeServices>(() => homeServices ?? { mode: 'unavailable' });
   const [receiving] = useState<ReceiveServices>(() => receiveServices ?? { mode: 'unavailable' });
+  const [sending] = useState<SendServices>(() => sendServices ?? { mode: 'unavailable' });
 
   return (
     <Services.Provider value={services}>
       <HomeContext.Provider value={dashboard}>
         <ReceiveContext.Provider value={receiving}>
-          <NavigationContainer linking={linking}>
-            <Stack.Navigator
-              initialRouteName={initialRoute}
-              screenOptions={{ headerBackTitle: t('navigation.back') }}
-            >
-              <Stack.Screen
-                name="Onboarding"
-                component={OnboardingRoute}
-                options={{ headerShown: false, title: t('appName') }}
-              />
-              {__DEV__ && (
+          <SendContext.Provider value={sending}>
+            <NavigationContainer linking={linking}>
+              <Stack.Navigator
+                initialRouteName={initialRoute}
+                screenOptions={{ headerBackTitle: t('navigation.back') }}
+              >
                 <Stack.Screen
-                  name="OnboardingPreview"
-                  component={PreviewRoute}
+                  name="Onboarding"
+                  component={OnboardingRoute}
                   options={{ headerShown: false, title: t('appName') }}
                 />
-              )}
-              <Stack.Screen
-                name="Home"
-                component={HomeRoute}
-                options={{ headerShown: false, title: t('appName') }}
-              />
-              {__DEV__ && (
+                {__DEV__ && (
+                  <Stack.Screen
+                    name="OnboardingPreview"
+                    component={PreviewRoute}
+                    options={{ headerShown: false, title: t('appName') }}
+                  />
+                )}
                 <Stack.Screen
-                  name="HomePreview"
-                  component={HomePreviewRoute}
+                  name="Home"
+                  component={HomeRoute}
                   options={{ headerShown: false, title: t('appName') }}
                 />
-              )}
-              <Stack.Screen
-                name="Receive"
-                component={ReceiveRoute}
-                options={{ headerShown: false, title: t('receive.navigation') }}
-              />
-              {__DEV__ && (
+                {__DEV__ && (
+                  <Stack.Screen
+                    name="HomePreview"
+                    component={HomePreviewRoute}
+                    options={{ headerShown: false, title: t('appName') }}
+                  />
+                )}
                 <Stack.Screen
-                  name="ReceivePreview"
-                  component={ReceivePreviewRoute}
+                  name="Receive"
+                  component={ReceiveRoute}
                   options={{ headerShown: false, title: t('receive.navigation') }}
                 />
-              )}
-              <Stack.Screen
-                name="About"
-                component={AboutScreen}
-                options={{ title: t('navigation.about') }}
-              />
-              <Stack.Screen
-                name="DesignSystem"
-                component={DesignSystemScreen}
-                options={{ title: t('navigation.designSystem') }}
-              />
-              {__DEV__ ? (
+                {__DEV__ && (
+                  <Stack.Screen
+                    name="ReceivePreview"
+                    component={ReceivePreviewRoute}
+                    options={{ headerShown: false, title: t('receive.navigation') }}
+                  />
+                )}
                 <Stack.Screen
-                  name="WalletLab"
-                  component={WalletLabScreen}
-                  options={{ title: t('walletLab.title') }}
+                  name="About"
+                  component={AboutScreen}
+                  options={{ title: t('navigation.about') }}
                 />
-              ) : null}
-            </Stack.Navigator>
-          </NavigationContainer>
+                <Stack.Screen
+                  name="Send"
+                  component={SendRoute}
+                  options={{ headerShown: false, title: t('send.navigation') }}
+                />
+                {__DEV__ && (
+                  <Stack.Screen
+                    name="SendPreview"
+                    component={SendPreviewRoute}
+                    options={{ headerShown: false, title: t('send.navigation') }}
+                  />
+                )}
+                <Stack.Screen
+                  name="DesignSystem"
+                  component={DesignSystemScreen}
+                  options={{ title: t('navigation.designSystem') }}
+                />
+                {__DEV__ ? (
+                  <Stack.Screen
+                    name="WalletLab"
+                    component={WalletLabScreen}
+                    options={{ title: t('walletLab.title') }}
+                  />
+                ) : null}
+              </Stack.Navigator>
+            </NavigationContainer>
+          </SendContext.Provider>
         </ReceiveContext.Provider>
       </HomeContext.Provider>
     </Services.Provider>
