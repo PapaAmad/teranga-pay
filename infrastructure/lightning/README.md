@@ -1,6 +1,6 @@
 # Réseau Lightning regtest
 
-Introduit en **T12** par Salam ; PAN relit. Le paiement d'intégration en CI vient en T29. Ce réseau est un outil de test : il ne choisit pas le SDK mobile (T10) et ne prouve pas l'architecture non custodiale du produit.
+Introduit en **T12** par Salam ; PAN relit. Le workflow T29 de paiement regtest est présent ; sa réussite se vérifie sur le SHA concerné. Il utilise les deux nœuds LND et ne prouve pas le raccordement du téléphone. Ce réseau est un outil de test : il ne choisit pas le SDK mobile (T10) et ne prouve pas l'architecture non custodiale du produit.
 
 ## Services
 
@@ -14,7 +14,7 @@ Les versions sont figées pour que la démo reste reproductible. Chaque service 
 
 electrs 0.11.1 est retenu car la 0.12 exige des fonctions REST de Bitcoin Core 30. bitcoind active donc `-rest` (lecture seule, non publié). `lnd-teranga` utilise `--protocol.no-anchors` : le téléphone n'a pas de fonds on-chain pour la réserve des canaux à ancres.
 
-## Téléphone ou émulateur (T15)
+## Téléphone ou émulateur | T15
 
 L'émulateur Android joint l'ordinateur à l'adresse `10.0.2.2`. Le wallet LDK Node y trouve Electrum (`10.0.2.2:50001`) et le pair `teranga` (`10.0.2.2:9735`). Pour un vrai téléphone sur le même Wi-Fi, lancer `REGTEST_BIND=0.0.0.0 npm run regtest:up` **pendant la démo seulement**, puis relancer sans cette variable.
 

@@ -1,4 +1,25 @@
-# Scripts du dépôt
+# 🛠️ Scripts du dépôt
+
+> Des petits outils pour vérifier le dépôt, régénérer la charte graphique, préparer GitHub et lancer les tests Android.
+
+| Commande                                            | Ce qu'elle fait                                                                           |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `npm run repo:check`                                | Vérifie que chaque dossier a son README et que les liens Markdown marchent                |
+| `npm run i18n:check`                                | Refuse les textes écrits en dur dans l'application (tout doit passer par les traductions) |
+| `npm run brand:build`                               | Régénère les icônes et le rapport de contraste des couleurs                               |
+| `npm run e2e:install` / `e2e:check` / `e2e:android` | Installe Maestro, vérifie les parcours, les lance sur Android                             |
+| `npm run test:tooling`                              | Lance les tests de tous ces scripts                                                       |
+| [`github/`](github/README.md)                       | Prépare les labels, les issues et les réglages du dépôt GitHub                            |
+
+```mermaid
+flowchart LR
+    Dev["👩🏾‍💻 Commit"] --> H["Husky<br/>lint + format"]
+    H --> PR["PR GitHub"]
+    PR --> CI["🤖 CI"]
+    CI --> RC["repo:check"] & I18["i18n:check"] & TT["test:tooling"]
+```
+
+## Détails
 
 `operator-logos.test.mjs` vérifie les empreintes des ressources T25 et l’identité
 du SVG utilisé par le composant avec son original conservé. Il s’exécute dans
@@ -12,7 +33,7 @@ L'arbre réservé `.github` utilise `GUIDE.md`, sauf `ISSUE_TEMPLATE` qui utilis
 
 `github/` contient la préparation du dépôt distant, ses réglages, labels et issues. Ces outils restent en prévisualisation tant qu'une application explicite n'est pas demandée.
 
-## Piloter Android avec Maestro | T30
+### Piloter Android avec Maestro | T30
 
 `npm run e2e:install` utilise `install-maestro.mjs` pour télécharger Maestro
 2.12.1, vérifier le SHA256 de l’archive avant extraction et le conserver dans
@@ -58,7 +79,7 @@ de démonstration ; ils ne prouvent pas un paiement du wallet du téléphone.
 
 `subset-brand-fonts.py` produit les deux sous-ensembles Noto avec Python et FontTools 4.68.0 fournis séparément. Il exige les originaux dont les SHA-256 sont épinglés, conserve les plages latines, contrôle les glyphes requis et leurs avances, puis actualise le manifeste et le relevé de glyphes. Aucun téléchargement automatique ; voir la [reproduction des polices](../assets/brand/fonts/README.md). La commande n'appartient pas au démarrage ni au bundle mobile.
 
-## Vérifier les textes mobiles | T09
+### Vérifier les textes mobiles | T09
 
 `npm run i18n:check` analyse `apps/mobile/App.tsx` et les sources TypeScript et JavaScript de `apps/mobile/src` avec l'AST du compilateur TypeScript. La racine déclare directement TypeScript 6.0.3 en dépendance de développement, à la même version que le workspace mobile. `repo:check` exécute aussi le garde, donc la CI existante conserve ce contrôle. PAN porte T09 ; Salam relit.
 
@@ -68,7 +89,7 @@ Les imports directs des catalogues français/wolof sont contrôlés avec ou sans
 
 Ce contrôle ciblé n'est pas une analyse complète des flux de données : il ne détermine pas l'origine d'un texte placé dans une variable ou renvoyé par une fonction quelconque. Les valeurs de données telles que les montants et codes de couleur restent autorisées. La revue humaine et les tests du changement de langue complètent cette limite. `npm run test:tooling` exerce les régressions sur des fixtures isolées, sans modifier les sources mobiles.
 
-## Reproduire les exports T08
+### Reproduire les exports T08
 
 `npm run brand:build` régénère les 16 SVG d’icônes et le rapport des 18 couples de contraste sans réseau ni outil externe. `npm run brand:contrast` et `npm run brand:icons` restent disponibles séparément. `npm run test:tooling` détecte les sources graphiques ou rapports périmés et les fichiers de police ou de licence altérés.
 

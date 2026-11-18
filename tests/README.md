@@ -1,18 +1,25 @@
-# Tests transversaux
+# ✅ Tests de bout en bout
 
-Ce dossier accueille les scénarios traversant plusieurs composants. Les tests unitaires restent proches du code qu'ils vérifient ; ils ne nécessitent pas une copie centralisée.
+> Les tests qui traversent plusieurs parties du projet. Les tests unitaires, eux, restent à côté du code qu'ils vérifient (par exemple `apps/mobile/tests`).
 
-Salam porte l’intégration regtest **T29** et PAN les parcours mobiles **T30**,
-avec relecture croisée. [e2e](e2e/README.md) contient les quatre parcours Maestro
-des ateliers fictifs sur un APK Android de test isolé. Lancer
-`npm run e2e:check` depuis la racine pour leur syntaxe ; le
-[guide Maestro](../docs/guides/tests-maestro.md) décrit le banc Android nécessaire
-à `npm run e2e:android -- --device emulator-5554`.
+```mermaid
+flowchart TB
+    subgraph U["Tests unitaires (à côté du code)"]
+        J["Jest : apps/mobile/tests"]
+        N["node:test : services, infrastructure/seed"]
+    end
+    subgraph E["Tests de bout en bout"]
+        M["📱 Maestro (T30)<br/>tests/e2e : on tape sur l'écran<br/>d'un émulateur Android"]
+        R["⚡ Paiement regtest (T29)<br/>infrastructure/seed : vrais paiements<br/>entre deux nœuds Lightning"]
+    end
+    U --> CI["🤖 CI GitHub"]
+    E --> CI
+```
 
-La présence des parcours ne vaut pas preuve d’exécution native. Le
-[suivi T30](../docs/planning/suivi-t30.md) donne les résultats observés et leurs
-limites. Une réussite de ces ateliers ne prouve pas l’intégration financière du
-wallet du téléphone ni un règlement Lightning ; le test serveur regtest T29
-reste une vérification distincte.
+| Quoi                                  | Où                                                      | Commande                                                                  |
+| ------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Parcours de l'application sur Android | [e2e](e2e/README.md)                                    | `npm run e2e:check`, puis `npm run e2e:android -- --device emulator-5554` |
+| Vrais paiements Lightning de test     | [infrastructure/seed](../infrastructure/seed/README.md) | `npm run regtest:integration`                                             |
+| Tests unitaires                       | chaque dossier                                          | `npm test -- --ci` et `npm run test:tooling`                              |
 
-Les vérifications du socle se lancent depuis la racine avec les commandes du [guide de démarrage](../docs/guides/demarrage.md).
+**À savoir** : les parcours Maestro utilisent l'atelier fictif (sans vrai wallet). Ils prouvent que les écrans réagissent bien, pas qu'un paiement passe. Le test regtest prouve les paiements, pas les écrans. Les deux se complètent. Résultats observés : [suivi T30](../docs/planning/suivi-t30.md).
