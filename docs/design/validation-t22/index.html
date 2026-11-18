@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Encaisser T22</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T22</p>
+      <h1>Encaisser, puis vérifier.</h1>
+      <p>
+        Écrans confirmés par PAN le 10 novembre 2026 avant commit et PR. Publication autorisée et en
+        préparation ; relecture de Salam et CI distante attendues. Les vrais composants sont rendus
+        sur le Web avec des résultats fictifs. Aucun paiement réel n’est montré.
+      </p>
+      <p>
+        Le prix, le QR et son échéance forment la demande présentée au client. Le reçu apparaît
+        seulement après confirmation correspondant à cette demande.
+      </p>
+      <p>
+        <a href="README.md">Vérifications et limites</a> |
+        <a href="mesures.json">Mesures du parcours</a>
+      </p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-montant.png"
+          ><img
+            src="01-montant.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Le prix de la vente | FCFA en premier"
+        /></a>
+        <figcaption>
+          <strong>Le prix de la vente | FCFA en premier</strong>
+          <p>Aucun solde personnel sur cet écran.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-montant-invalide.png"
+          ><img
+            src="02-montant-invalide.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Montant invalide | correction près du champ"
+        /></a>
+        <figcaption>
+          <strong>Montant invalide | correction près du champ</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-verification.png"
+          ><img
+            src="03-verification.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Vérifier le prix | création explicite"
+        /></a>
+        <figcaption>
+          <strong>Vérifier le prix | création explicite</strong>
+          <p>Le devis seul ne crée pas une facture.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-attente.png"
+          ><img
+            src="04-attente.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Présenter au client | prix, QR et délai"
+        /></a>
+        <figcaption>
+          <strong>Présenter au client | prix, QR et délai</strong>
+          <p>Demande fictive de 326 octets, QR décodé depuis le bitmap rendu.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-copie.png"
+          ><img
+            src="05-copie.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Copie exacte | aucune confirmation de règlement"
+        /></a>
+        <figcaption>
+          <strong>Copie exacte | aucune confirmation de règlement</strong>
+          <p>Presse-papiers du navigateur relu après écriture.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-partage.png"
+          ><img
+            src="06-partage.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partager la demande | le paiement reste à vérifier"
+        /></a>
+        <figcaption>
+          <strong>Partager la demande | le paiement reste à vérifier</strong>
+          <p>Partage intercepté en mémoire, aucun envoi externe.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-paye.png"
+          ><img
+            src="07-paye.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Paiement fictif confirmé | reçu simple"
+        /></a>
+        <figcaption>
+          <strong>Paiement fictif confirmé | reçu simple</strong>
+          <p>Le résultat vient du paiement exact, pas de la copie ou du partage.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-recu.png"
+          ><img
+            src="08-recu.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Reçu fictif | date de vérification et référence"
+        /></a>
+        <figcaption>
+          <strong>Reçu fictif | date de vérification et référence</strong>
+          <p>Le prix FCFA est celui demandé ; la date indique la confirmation observée.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-expiration.png"
+          ><img
+            src="09-expiration.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Expiration | retirer les moyens de payer"
+        /></a>
+        <figcaption>
+          <strong>Expiration | retirer les moyens de payer</strong>
+          <p>Vérification de la même demande et nouvelle vente explicites.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-confirmation-apres-delai.png"
+          ><img
+            src="10-confirmation-apres-delai.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Confirmation après le délai | vente à vérifier"
+        /></a>
+        <figcaption>
+          <strong>Confirmation après le délai | vente à vérifier</strong>
+          <p>Cette date ne prétend pas être l’heure réelle du règlement.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-creation-incertaine.png"
+          ><img
+            src="11-creation-incertaine.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Création incertaine | pas de nouvelle facture automatique"
+        /></a>
+        <figcaption>
+          <strong>Création incertaine | pas de nouvelle facture automatique</strong>
+          <p>Une facture a pu être créée : la barrière de session reste active.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-hors-connexion.png"
+          ><img
+            src="12-hors-connexion.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Hors connexion | reprise explicite"
+        /></a>
+        <figcaption>
+          <strong>Hors connexion | reprise explicite</strong>
+          <p>Scénario contrôlé, sans service réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-verrouille.png"
+          ><img
+            src="13-verrouille.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Wallet verrouillé | informations masquées"
+        /></a>
+        <figcaption>
+          <strong>Wallet verrouillé | informations masquées</strong>
+          <p>Scénario contrôlé, sans service réseau.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-devis-indisponible.png"
+          ><img
+            src="14-devis-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Devis indisponible | aucune facture créée"
+        /></a>
+        <figcaption>
+          <strong>Devis indisponible | aucune facture créée</strong>
+          <p>Le montant saisi reste corrigeable.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-autre-paiement.png"
+          ><img
+            src="15-autre-paiement.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Suivi incohérent | aucun paiement confirmé"
+        /></a>
+        <figcaption>
+          <strong>Suivi incohérent | aucun paiement confirmé</strong>
+          <p>Une réponse avec une autre référence ne produit aucun reçu.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="16-facture-dense.png"
+          ><img
+            src="16-facture-dense.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Facture dense | repli lisible et copie intégrale"
+        /></a>
+        <figcaption>
+          <strong>Facture dense | repli lisible et copie intégrale</strong>
+          <p>2048 octets conservés ; aucun QR trop petit pour ses modules.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="17-copie-refusee.png"
+          ><img
+            src="17-copie-refusee.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Copie refusée | autre action disponible"
+        /></a>
+        <figcaption>
+          <strong>Copie refusée | autre action disponible</strong>
+          <p>Échec ou annulation ne change pas le statut du paiement.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="18-partage-annule.png"
+          ><img
+            src="18-partage-annule.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage annulé | attente conservée"
+        /></a>
+        <figcaption>
+          <strong>Partage annulé | attente conservée</strong>
+          <p>Échec ou annulation ne change pas le statut du paiement.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="19-partage-indisponible.png"
+          ><img
+            src="19-partage-indisponible.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Partage indisponible | erreur près des actions"
+        /></a>
+        <figcaption>
+          <strong>Partage indisponible | erreur près des actions</strong>
+          <p>Échec ou annulation ne change pas le statut du paiement.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="20-service-absent.png"
+          ><img
+            src="20-service-absent.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Service absent | aucun QR inventé"
+        /></a>
+        <figcaption>
+          <strong>Service absent | aucun QR inventé</strong>
+          <p>Le contexte normal n’utilise jamais le simulateur comme repli.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="21-attente-320.png"
+          ><img
+            src="21-attente-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | QR entier et action fixe"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | QR entier et action fixe</strong>
+          <p>Contenu défilé pour montrer la demande ; le pied de page reste accessible.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="22-attente-360.png"
+          ><img
+            src="22-attente-360.png"
+            width="360"
+            height="780"
+            loading="lazy"
+            alt="360 pixels | demande à montrer au client"
+        /></a>
+        <figcaption>
+          <strong>360 pixels | demande à montrer au client</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="23-espace-reduit.png"
+          ><img
+            src="23-espace-reduit.png"
+            width="360"
+            height="460"
+            loading="lazy"
+            alt="Saisie | espace vertical réduit"
+        /></a>
+        <figcaption>
+          <strong>Saisie | espace vertical réduit</strong>
+          <p>Fenêtre Web et contenu défilé jusqu’au champ ; ce n’est pas un clavier Android.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="24-montant-maximal.png"
+          ><img
+            src="24-montant-maximal.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | montant maximal complet"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | montant maximal complet</strong>
+          <p>La limite de saisie conserve le prix complet.</p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>Captures du 10 novembre 2026 | écrans confirmés par PAN avant commit et PR.</footer>
+  </body>
+</html>

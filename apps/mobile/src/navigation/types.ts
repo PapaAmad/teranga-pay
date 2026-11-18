@@ -7,6 +7,8 @@ export type RootStackParamList = {
   ReceivePreview: undefined;
   Send: undefined;
   SendPreview: undefined;
+  Collect: undefined;
+  CollectPreview: undefined;
   About: undefined;
   DesignSystem: undefined;
   /** Écran de test du wallet, build de développement uniquement (T15). */

@@ -12,6 +12,7 @@ import type { RootStackParamList } from './src/navigation/types';
 import type { HomeServices } from './src/home/ports';
 import type { ReceiveServices } from './src/receive/ports';
 import type { SendServices } from './src/send/ports';
+import type { CollectServices } from './src/collect/ports';
 import type { OnboardingServices } from './src/onboarding/ports';
 import { appI18n, type AppI18n, TranslationProvider, useTranslation } from './src/translations';
 import { BrandTypographyProvider, tokens } from './src/ui';
@@ -29,6 +30,7 @@ type AppProps = {
   homeServices?: HomeServices;
   receiveServices?: ReceiveServices;
   sendServices?: SendServices;
+  collectServices?: CollectServices;
 };
 
 export default function App({
@@ -38,6 +40,7 @@ export default function App({
   homeServices,
   receiveServices,
   sendServices,
+  collectServices,
 }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
@@ -47,6 +50,7 @@ export default function App({
         homeServices={homeServices}
         receiveServices={receiveServices}
         sendServices={sendServices}
+        collectServices={collectServices}
       />
     </TranslationProvider>
   );
@@ -58,6 +62,7 @@ function AppContent({
   homeServices,
   receiveServices,
   sendServices,
+  collectServices,
 }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
@@ -99,6 +104,7 @@ function AppContent({
               homeServices={homeServices}
               receiveServices={receiveServices}
               sendServices={sendServices}
+              collectServices={collectServices}
             />
           </View>
         </BrandTypographyProvider>

@@ -33,6 +33,7 @@ type Props = {
   onRequireUnlock: () => void;
   onReceive?: () => void;
   onSend?: () => void;
+  onCollect?: () => void;
   onPreview?: () => void;
   onExitPreview?: () => void;
   previewControls?: ReactNode;
@@ -46,6 +47,7 @@ export function HomeScreen({
   onRequireUnlock,
   onReceive,
   onSend,
+  onCollect,
   onPreview,
   onExitPreview,
   previewControls,
@@ -359,7 +361,9 @@ export function HomeScreen({
                       ? t('receive.description')
                       : kind === 'send' && onSend
                         ? t('send.description')
-                        : t('dashboard.actionUnavailable')
+                        : kind === 'collect' && onCollect
+                          ? t('collect.description')
+                          : t('dashboard.actionUnavailable')
                 }
                 accessibilityState={{ disabled: blocked }}
                 disabled={blocked}
@@ -368,7 +372,9 @@ export function HomeScreen({
                     ? onReceive()
                     : kind === 'send' && onSend
                       ? onSend()
-                      : setAction(kind)
+                      : kind === 'collect' && onCollect
+                        ? onCollect()
+                        : setAction(kind)
                 }
                 style={({ pressed }) => [
                   styles.action,

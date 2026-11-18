@@ -18,6 +18,10 @@ import type { ReceiveServices } from '../receive/ports';
 import { createReceivePreviewServices, type ReceivePreviewScenario } from '../receive/preview';
 import { receivePlatform, type ReceivePlatformPort } from '../receive/platform';
 import { SendScreen } from '../send/SendScreen';
+import { CollectScreen } from '../collect/CollectScreen';
+import type { CollectServices } from '../collect/ports';
+import { createCollectPreviewServices, type CollectPreviewScenario } from '../collect/preview';
+import { collectPlatform, type CollectPlatformPort } from '../collect/platform';
 import type { SendServices } from '../send/ports';
 import {
   createSendPreviewServices,
@@ -25,7 +29,7 @@ import {
   sendPreviewInvoice,
   type SendPreviewScenario,
 } from '../send/preview';
-import { tokens, useBrandFonts } from '../ui';
+import { Button, tokens, useBrandFonts } from '../ui';
 
 import { WalletLabScreen } from '../screens/WalletLabScreen';
 import { AboutScreen } from '../screens/AboutScreen';
@@ -38,6 +42,7 @@ const Services = createContext<OnboardingServices | null>(null);
 const HomeContext = createContext<HomeServices>({ mode: 'unavailable' });
 const ReceiveContext = createContext<ReceiveServices>({ mode: 'unavailable' });
 const SendContext = createContext<SendServices>({ mode: 'unavailable' });
+const CollectContext = createContext<CollectServices>({ mode: 'unavailable' });
 
 function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const services = useContext(HomeContext);
@@ -49,6 +54,7 @@ function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'H
       onRequireUnlock={() => navigation.replace('Onboarding')}
       onReceive={() => navigation.navigate('Receive')}
       onSend={() => navigation.navigate('Send')}
+      onCollect={() => navigation.navigate('Collect')}
       onPreview={__DEV__ ? () => navigation.navigate('HomePreview') : undefined}
     />
   );
@@ -78,6 +84,7 @@ function HomePreviewRoute({
       onRequireUnlock={() => navigation.navigate('Onboarding')}
       onReceive={() => navigation.navigate('ReceivePreview')}
       onSend={() => navigation.navigate('SendPreview')}
+      onCollect={() => navigation.navigate('CollectPreview')}
       onExitPreview={() => navigation.goBack()}
       previewControls={
         <View style={previewStyles.panel}>
@@ -367,6 +374,137 @@ function SendPreviewRoute({
   );
 }
 
+function CollectRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Collect'>) {
+  const services = useContext(CollectContext);
+  const active = useIsFocused();
+  return (
+    <CollectScreen
+      services={services}
+      active={active}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onPreview={__DEV__ ? () => navigation.navigate('CollectPreview') : undefined}
+    />
+  );
+}
+type CollectWorkshopScenario =
+  CollectPreviewScenario | 'unavailable' | 'copyFailed' | 'shareDismissed' | 'shareUnavailable';
+function CollectPreviewRoute({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, 'CollectPreview'>) {
+  const [scenario, setScenario] = useState<CollectWorkshopScenario>('waiting');
+  const services = useMemo(
+    () =>
+      createCollectPreviewServices(
+        scenario === 'unavailable' ||
+          scenario === 'copyFailed' ||
+          scenario === 'shareDismissed' ||
+          scenario === 'shareUnavailable'
+          ? 'waiting'
+          : scenario,
+      ),
+    [scenario],
+  );
+  const unavailable = useMemo<CollectServices>(() => ({ mode: 'preview' }), []);
+  const platform = useMemo<CollectPlatformPort>(
+    () => ({
+      copyPaymentRequest:
+        scenario === 'copyFailed' ? async () => false : collectPlatform.copyPaymentRequest,
+      share:
+        scenario === 'shareDismissed'
+          ? async () => 'dismissed'
+          : scenario === 'shareUnavailable'
+            ? async () => {
+                throw new Error('SHARE_UNAVAILABLE');
+              }
+            : collectPlatform.share,
+    }),
+    [scenario],
+  );
+  const { t } = useTranslation();
+  const fonts = useBrandFonts();
+  const active = useIsFocused();
+  const names: CollectWorkshopScenario[] = [
+    'waiting',
+    'paid',
+    'late',
+    'expired',
+    'unknown',
+    'offline',
+    'locked',
+    'error',
+    'mismatch',
+    'longInvoice',
+    'unavailable',
+    'copyFailed',
+    'shareDismissed',
+    'shareUnavailable',
+  ];
+  return (
+    <CollectScreen
+      key={scenario}
+      services={scenario === 'unavailable' ? unavailable : services}
+      clock={services.now}
+      active={active}
+      platform={platform}
+      onBack={() => navigation.goBack()}
+      onRequireUnlock={() => navigation.navigate('Onboarding')}
+      onExitPreview={() => navigation.goBack()}
+      previewControls={
+        <View style={previewStyles.panel}>
+          <Text
+            accessibilityRole="header"
+            style={{
+              ...tokens.typography.label,
+              color: tokens.colors.ink,
+              fontFamily: fonts.title,
+            }}
+          >
+            {t('collect.scenarios.title')}
+          </Text>
+          <Button
+            label={t('collect.scenarios.confirm')}
+            variant="secondary"
+            onPress={() => services.confirmPayment()}
+          />
+          <Button
+            label={t('collect.scenarios.expire')}
+            variant="secondary"
+            onPress={() => services.advanceTime(301000)}
+          />
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t('collect.scenarios.title')}
+            style={previewStyles.choices}
+          >
+            {names.map((key) => (
+              <Pressable
+                key={key}
+                accessibilityRole="radio"
+                accessibilityLabel={t(`collect.scenarios.${key}`)}
+                accessibilityState={{ checked: scenario === key }}
+                aria-checked={scenario === key}
+                onPress={() => setScenario(key)}
+                style={[previewStyles.choice, scenario === key && previewStyles.selected]}
+              >
+                <Text
+                  style={{
+                    ...tokens.typography.label,
+                    fontFamily: fonts.label,
+                    color: scenario === key ? tokens.colors.onPrimary : tokens.colors.ink,
+                  }}
+                >
+                  {t(`collect.scenarios.${key}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      }
+    />
+  );
+}
+
 function OnboardingRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'Onboarding'>) {
   const services = useContext(Services);
   if (!services) throw new Error('Onboarding services unavailable');
@@ -405,96 +543,113 @@ export function RootNavigator({
   homeServices,
   receiveServices,
   sendServices,
+  collectServices,
 }: {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
   homeServices?: HomeServices;
   receiveServices?: ReceiveServices;
   sendServices?: SendServices;
+  collectServices?: CollectServices;
 }) {
   const { t } = useTranslation();
   const [services] = useState(() => onboardingServices ?? createPlatformServices());
   const [dashboard] = useState<HomeServices>(() => homeServices ?? { mode: 'unavailable' });
   const [receiving] = useState<ReceiveServices>(() => receiveServices ?? { mode: 'unavailable' });
   const [sending] = useState<SendServices>(() => sendServices ?? { mode: 'unavailable' });
+  const [collecting] = useState<CollectServices>(() => collectServices ?? { mode: 'unavailable' });
 
   return (
     <Services.Provider value={services}>
       <HomeContext.Provider value={dashboard}>
         <ReceiveContext.Provider value={receiving}>
           <SendContext.Provider value={sending}>
-            <NavigationContainer linking={linking}>
-              <Stack.Navigator
-                initialRouteName={initialRoute}
-                screenOptions={{ headerBackTitle: t('navigation.back') }}
-              >
-                <Stack.Screen
-                  name="Onboarding"
-                  component={OnboardingRoute}
-                  options={{ headerShown: false, title: t('appName') }}
-                />
-                {__DEV__ && (
+            <CollectContext.Provider value={collecting}>
+              <NavigationContainer linking={linking}>
+                <Stack.Navigator
+                  initialRouteName={initialRoute}
+                  screenOptions={{ headerBackTitle: t('navigation.back') }}
+                >
                   <Stack.Screen
-                    name="OnboardingPreview"
-                    component={PreviewRoute}
+                    name="Onboarding"
+                    component={OnboardingRoute}
                     options={{ headerShown: false, title: t('appName') }}
                   />
-                )}
-                <Stack.Screen
-                  name="Home"
-                  component={HomeRoute}
-                  options={{ headerShown: false, title: t('appName') }}
-                />
-                {__DEV__ && (
+                  {__DEV__ && (
+                    <Stack.Screen
+                      name="OnboardingPreview"
+                      component={PreviewRoute}
+                      options={{ headerShown: false, title: t('appName') }}
+                    />
+                  )}
                   <Stack.Screen
-                    name="HomePreview"
-                    component={HomePreviewRoute}
+                    name="Home"
+                    component={HomeRoute}
                     options={{ headerShown: false, title: t('appName') }}
                   />
-                )}
-                <Stack.Screen
-                  name="Receive"
-                  component={ReceiveRoute}
-                  options={{ headerShown: false, title: t('receive.navigation') }}
-                />
-                {__DEV__ && (
+                  {__DEV__ && (
+                    <Stack.Screen
+                      name="HomePreview"
+                      component={HomePreviewRoute}
+                      options={{ headerShown: false, title: t('appName') }}
+                    />
+                  )}
                   <Stack.Screen
-                    name="ReceivePreview"
-                    component={ReceivePreviewRoute}
+                    name="Receive"
+                    component={ReceiveRoute}
                     options={{ headerShown: false, title: t('receive.navigation') }}
                   />
-                )}
-                <Stack.Screen
-                  name="About"
-                  component={AboutScreen}
-                  options={{ title: t('navigation.about') }}
-                />
-                <Stack.Screen
-                  name="Send"
-                  component={SendRoute}
-                  options={{ headerShown: false, title: t('send.navigation') }}
-                />
-                {__DEV__ && (
+                  {__DEV__ && (
+                    <Stack.Screen
+                      name="ReceivePreview"
+                      component={ReceivePreviewRoute}
+                      options={{ headerShown: false, title: t('receive.navigation') }}
+                    />
+                  )}
                   <Stack.Screen
-                    name="SendPreview"
-                    component={SendPreviewRoute}
+                    name="About"
+                    component={AboutScreen}
+                    options={{ title: t('navigation.about') }}
+                  />
+                  <Stack.Screen
+                    name="Send"
+                    component={SendRoute}
                     options={{ headerShown: false, title: t('send.navigation') }}
                   />
-                )}
-                <Stack.Screen
-                  name="DesignSystem"
-                  component={DesignSystemScreen}
-                  options={{ title: t('navigation.designSystem') }}
-                />
-                {__DEV__ ? (
+                  {__DEV__ && (
+                    <Stack.Screen
+                      name="SendPreview"
+                      component={SendPreviewRoute}
+                      options={{ headerShown: false, title: t('send.navigation') }}
+                    />
+                  )}
                   <Stack.Screen
-                    name="WalletLab"
-                    component={WalletLabScreen}
-                    options={{ title: t('walletLab.title') }}
+                    name="DesignSystem"
+                    component={DesignSystemScreen}
+                    options={{ title: t('navigation.designSystem') }}
                   />
-                ) : null}
-              </Stack.Navigator>
-            </NavigationContainer>
+                  <Stack.Screen
+                    name="Collect"
+                    component={CollectRoute}
+                    options={{ headerShown: false, title: t('collect.navigation') }}
+                  />
+                  {__DEV__ && (
+                    <Stack.Screen
+                      name="CollectPreview"
+                      component={CollectPreviewRoute}
+                      options={{ headerShown: false, title: t('collect.navigation') }}
+                    />
+                  )}
+                  {__DEV__ ? (
+                    <Stack.Screen
+                      name="WalletLab"
+                      component={WalletLabScreen}
+                      options={{ title: t('walletLab.title') }}
+                    />
+                  ) : null}
+                </Stack.Navigator>
+              </NavigationContainer>
+            </CollectContext.Provider>
           </SendContext.Provider>
         </ReceiveContext.Provider>
       </HomeContext.Provider>
