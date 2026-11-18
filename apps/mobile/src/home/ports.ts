@@ -32,6 +32,8 @@ export type HomeError = {
   code: string;
   attemptsLeft?: number;
   retryAfterSeconds?: number;
+  /** Contrat T11 : avec PAYMENT_TIMEOUT ou PAYMENT_PENDING, l'envoi à suivre. */
+  paymentId?: string;
 };
 
 export type HomeResult<T> = { ok: true; value: T } | { ok: false; error: HomeError };
