@@ -35,3 +35,7 @@ flowchart LR
 ## Règle d'or
 
 Les PDF décrivent le produit **visé**. Les guides décrivent ce que le dépôt fait **aujourd'hui**. Si un choix change ce que dit un PDF, on l'explique dans une note de [décision](decisions/README.md).
+
+## Préparer la présentation | Brouillon
+
+Le [dossier pitch et soumission](pitch/README.md) contient les textes T38. Les preuves et les répétitions restent à compléter avant toute présentation publique.
