@@ -40,7 +40,9 @@ const checkNames = [...quality.matchAll(/^ {10}- check: (.+)$/gmu)].map(([, chec
 // propriétés : leur résultat est identique en JavaScript pour ces fixtures.
 // actionlint vérifie séparément la syntaxe complète GitHub Actions.
 function evaluate(expression, github, matrix) {
-  return runInNewContext(expression.trim(), { github, matrix }, { timeout: 100 });
+  // Le démarrage d’un contexte VM peut dépasser 100 ms sous la charge Android.
+  // Conserver une borne sans faire dépendre ces assertions du temps CPU disponible.
+  return runInNewContext(expression.trim(), { github, matrix }, { timeout: 1000 });
 }
 
 function interpolate(template, github, matrix) {

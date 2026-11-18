@@ -17,6 +17,8 @@ Salam porte le planning général ; PAN prépare le suivi du socle et les outils
 
 - [Suivi T28](suivi-t28.md) : lectures bornées, états de réseau et reprises sans
   nouvelle opération financière après un délai dépassé.
+- [Suivi T30](suivi-t30.md) : parcours Maestro sur l’APK Android de test,
+  distinction des preuves et relecture de la dépendance T29.
 
 - [Feuille de route T01 à T40](roadmap.md) : phases, responsables, dates et jalons du plan d'équipe.
 - [Publication GitHub](publication-github.md) : état vérifié du dépôt privé, de l'accès, des PR et de la configuration distante.

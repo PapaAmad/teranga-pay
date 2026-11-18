@@ -369,6 +369,7 @@ function OnboardingContent({
             )}
           </Text>
           <TextInput
+            testID="onboarding-pin"
             accessibilityLabel={t(
               state.step === 'pinConfirm' ? 'onboarding.pin.confirmLabel' : 'onboarding.pin.label',
             )}

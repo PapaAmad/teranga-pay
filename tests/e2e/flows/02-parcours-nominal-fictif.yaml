@@ -1,0 +1,163 @@
+appId: pay.teranga.demo.e2e
+tags:
+  - android
+  - fictif
+  - nominal
+---
+- launchApp:
+    appId: pay.teranga.demo.e2e
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Découvrir le projet'
+    timeout: 240000
+- tapOn: 'Découvrir le projet'
+- scrollUntilVisible:
+    element: 'Essayer l’accueil fictif'
+    direction: DOWN
+- tapOn: 'Essayer l’accueil fictif'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+
+# Réception : affichage de l’adresse de démonstration, sans réception réseau.
+- scrollUntilVisible:
+    element: 'Recevoir'
+    direction: DOWN
+- tapOn: 'Recevoir'
+- assertVisible: 'Adresse fictive \| aucun paiement possible'
+- scrollUntilVisible:
+    element: 'exemple@teranga\.example'
+    direction: DOWN
+- assertVisible: 'exemple@teranga\.example'
+- takeScreenshot: '02-reception-adresse-fictive'
+- back
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+
+# Envoi : facture non payable et accord explicite avec six chiffres inventés.
+- scrollUntilVisible:
+    element: 'Envoyer'
+    direction: UP
+- tapOn: 'Envoyer'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Utiliser la demande fictive'
+    direction: DOWN
+- tapOn: 'Utiliser la demande fictive'
+- scrollUntilVisible:
+    element: 'Vérifiez votre envoi'
+    direction: UP
+- assertVisible: 'Vérifiez votre envoi'
+- tapOn:
+    text: 'Confirmer le destinataire'
+    enabled: true
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- scrollUntilVisible:
+    element: 'Atelier fictif \| utilisez 6 chiffres inventés\. Aucun code personnel\.'
+    direction: DOWN
+- assertVisible: 'Atelier fictif \| utilisez 6 chiffres inventés\. Aucun code personnel\.'
+- scrollUntilVisible:
+    element:
+      id: 'send-pin'
+    direction: UP
+- tapOn:
+    id: 'send-pin'
+- inputText: '482615'
+- hideKeyboard
+- tapOn:
+    text: 'Simuler l’envoi de 4.500 FCFA'
+    enabled: true
+- scrollUntilVisible:
+    element: 'Simulation terminée'
+    direction: UP
+- assertVisible: 'Simulation terminée'
+- assertVisible: 'Ce résultat est fictif\. Aucun argent n’a été envoyé\.'
+- takeScreenshot: '02-envoi-resultat-fictif'
+- tapOn: 'Revenir au portefeuille'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+
+# Encaissement : la confirmation est injectée explicitement dans l’atelier.
+- scrollUntilVisible:
+    element: 'Encaisser'
+    direction: UP
+- tapOn: 'Encaisser'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- tapOn:
+    id: 'collect-amount'
+- inputText: '2500'
+- hideKeyboard
+- tapOn:
+    text: 'Continuer'
+    enabled: true
+- assertVisible: 'Vérifiez le prix'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- tapOn:
+    text: 'Afficher le QR'
+    enabled: true
+- assertVisible: 'En attente du paiement'
+- assertNotVisible: 'Paiement fictif confirmé'
+- assertNotVisible: 'Reçu fictif'
+- scrollUntilVisible:
+    element: 'Simuler le règlement'
+    direction: DOWN
+- tapOn: 'Simuler le règlement'
+- scrollUntilVisible:
+    element: 'Paiement fictif confirmé'
+    direction: UP
+- assertVisible: 'Paiement fictif confirmé'
+- assertVisible: 'L’atelier simule ce résultat\. Aucun argent n’a été reçu\.'
+- scrollUntilVisible:
+    element: 'Reçu fictif'
+    direction: DOWN
+- assertVisible: 'Reçu fictif'
+- assertVisible: '2.500 FCFA'
+- takeScreenshot: '02-encaissement-recu-fictif'
+- back
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+
+# Retrait : aucun appel Wave ou Orange Money, aucun débit d’un vrai wallet.
+- scrollUntilVisible:
+    element: 'Retirer en cash'
+    direction: DOWN
+- tapOn: 'Retirer en cash'
+- assertVisible: 'Retrait simulé \| aucun transfert réel'
+- tapOn: 'Choisir Wave'
+- tapOn:
+    id: 'withdraw-amount'
+- inputText: '2500'
+- hideKeyboard
+- tapOn:
+    text: 'Voir les frais'
+    enabled: true
+- assertVisible: 'Vérifiez le retrait\.'
+- assertVisible: 'Retrait simulé \| aucun transfert réel'
+- tapOn:
+    text: 'Confirmer le retrait simulé'
+    enabled: true
+- scrollUntilVisible:
+    element: 'Retrait simulé terminé\.'
+    direction: UP
+- assertVisible: 'Retrait simulé terminé\.'
+- assertVisible: 'Le compte de démonstration Wave a reçu 2.500 FCFA fictifs\. Aucun transfert réel n’a eu lieu\.'
+- takeScreenshot: '02-retrait-wave-simule'
+- tapOn: 'Retour à l’accueil'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+
+# Ce journal est une autre fixture : ce reçu ne provient pas des étapes ci-dessus.
+- scrollUntilVisible:
+    element: 'Voir tout l’historique'
+    direction: DOWN
+- tapOn: 'Voir tout l’historique'
+- assertVisible: 'Aperçu fictif \| aucun paiement réel'
+- assertVisible: 'Vos mouvements\.'
+- scrollUntilVisible:
+    element: 'Argent reçu \| .*12.500.*FCFA \| .* \| Terminée'
+    direction: DOWN
+- tapOn: 'Argent reçu \| .*12.500.*FCFA \| .* \| Terminée'
+- assertVisible: 'Reçu fictif'
+- scrollUntilVisible:
+    element: 'demo-reception-1'
+    direction: DOWN
+- assertVisible: 'demo-reception-1'
+- scrollUntilVisible:
+    element: 'Cette confirmation est fictive\. Aucun argent n’a été transféré\.'
+    direction: DOWN
+- assertVisible: 'Cette confirmation est fictive\. Aucun argent n’a été transféré\.'
+- takeScreenshot: '02-historique-recu-fictif'

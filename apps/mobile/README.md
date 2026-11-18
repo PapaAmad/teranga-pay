@@ -1,5 +1,11 @@
 # Application mobile | Teranga Pay
 
+T30 ajoute des parcours Maestro pour un APK debug Android isolé
+`pay.teranga.demo.e2e`. Ils utilisent les ateliers fictifs et ne composent pas
+le wallet du téléphone. Le [guide T30](../../docs/guides/tests-maestro.md)
+décrit `npm run e2e:build:android`, l’installation et l’exécution ; le
+[suivi](../../docs/planning/suivi-t30.md) distingue les preuves réellement obtenues.
+
 T25 ajoute « Retirer en cash » sous les actions principales. Le parcours
 strictement simulé choisit l’opérateur, prépare un prix avec frais, demande une
 confirmation explicite puis suit la même référence après une panne. Le journal

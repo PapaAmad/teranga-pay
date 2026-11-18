@@ -336,12 +336,12 @@ export function HistoryScreen({
   const notices = (
     <>
       {state.walletState === 'hors_ligne' && (
-        <Text accessibilityRole="status" style={[...body, styles.warning]}>
+        <Text role="status" accessibilityLiveRegion="polite" style={[...body, styles.warning]}>
           {t('history.offline')}
         </Text>
       )}
       {state.walletState === 'synchronisation' && (
-        <Text accessibilityRole="status" style={[...body, styles.warning]}>
+        <Text role="status" accessibilityLiveRegion="polite" style={[...body, styles.warning]}>
           {t('history.syncing')}
         </Text>
       )}
@@ -426,7 +426,11 @@ export function HistoryScreen({
               : money(state.daily.sent.xof)}
           </Text>
         </View>
-        <Text accessibilityRole="status" style={[...label, styles.onPrimary, styles.small]}>
+        <Text
+          role="status"
+          accessibilityLiveRegion="polite"
+          style={[...label, styles.onPrimary, styles.small]}
+        >
           {t(
             state.daily.walletStale
               ? 'history.old'
@@ -648,7 +652,11 @@ export function HistoryScreen({
             </>
           )}
         </View>
-        <Text accessibilityRole="status" style={[...body, status !== 'reussi' && styles.warning]}>
+        <Text
+          role="status"
+          accessibilityLiveRegion="polite"
+          style={[...body, status !== 'reussi' && styles.warning]}
+        >
           {t(
             status === 'en_attente'
               ? 'history.pendingHint'
@@ -670,7 +678,7 @@ export function HistoryScreen({
           </Text>
         </View>
         {feedback && (
-          <Text accessibilityRole="status" accessibilityLiveRegion="polite" style={body}>
+          <Text role="status" accessibilityLiveRegion="polite" style={body}>
             {t(`history.${feedback}`)}
           </Text>
         )}

@@ -16,7 +16,7 @@ export function RecoveryNotice({
   const journal = code === 'JOURNAL_SLOW';
   const operation = committed || code === 'OPERATION_SLOW';
   return (
-    <View style={styles.notice} accessibilityLiveRegion="polite" accessibilityRole="status">
+    <View style={styles.notice} accessibilityLiveRegion="polite" role="status">
       <BrandIcon name={operation ? 'pending' : 'network'} color={tokens.colors.warning} />
       <View style={styles.content}>
         <Text style={[styles.label, { fontFamily: fonts.label }]}>

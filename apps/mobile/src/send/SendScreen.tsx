@@ -605,6 +605,7 @@ export function SendScreen({
               <Text style={label}>{t('send.pinLabel')}</Text>
               <TextInput
                 accessibilityLabel={t('send.pinLabel')}
+                testID="send-pin"
                 value={pin}
                 onChangeText={(value) => setPin(value.replace(/[^0-9]/g, '').slice(0, 6))}
                 secureTextEntry

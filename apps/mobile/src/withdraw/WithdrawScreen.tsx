@@ -250,7 +250,7 @@ export function WithdrawScreen({
       return (
         <View style={styles.gap}>
           <ActivityIndicator color={tokens.colors.primary} />
-          <Text accessibilityRole="status" style={body}>
+          <Text role="status" accessibilityLiveRegion="polite" style={body}>
             {t('withdraw.loading')}
           </Text>
         </View>
@@ -343,6 +343,7 @@ export function WithdrawScreen({
             </Pressable>
           </View>
           <Field
+            testID="withdraw-amount"
             label={t('withdraw.amountLabel')}
             value={state.amountInput}
             onChangeText={(value) => execute(() => controller.setAmount(value))}
@@ -468,7 +469,7 @@ export function WithdrawScreen({
                     : 'withdraw.unknownTitle',
           )}
         </Text>
-        <Text accessibilityRole="status" style={body}>
+        <Text role="status" accessibilityLiveRegion="polite" style={body}>
           {t(
             state.error?.code === 'OPERATION_SLOW'
               ? 'reliability.operationDescription'

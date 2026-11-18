@@ -25,6 +25,7 @@ Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteu
 | [0019](0019-retrait-simule-et-reprise.md)            | Retrait simulé, confirmation et reprise durable           | Écrans T25 confirmés par PAN avant publication ; relecture Salam attendue     |
 | [0020](0020-alerte-et-consentement.md)               | Alerte explicable et décision avant le PIN                | État et limites décrits dans la note                                          |
 | [0021](0021-attentes-et-reprises.md)                 | Attentes bornées et reprises sans double opération        | État et limites décrits dans la note                                          |
+| [0022](0022-maestro-et-preuve-native.md)             | Maestro et portée de la preuve Android                    | État et limites décrits dans la note                                          |
 
 La numérotation tient compte des branches encore ouvertes : les notes 0004 à 0016 sont utilisées ou réservées dans les autres tâches du projet. Vérifier les PR avant de choisir le prochain numéro. Préciser : date, tâche, état, problème, choix, solutions écartées et conséquences. Une décision proposée n'est pas une validation de l'autre membre. Mettre à jour l'index lorsqu'une note est ajoutée ou remplacée.
 
