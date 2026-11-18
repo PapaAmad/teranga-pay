@@ -16,6 +16,7 @@ import { formatHomeNumber } from '../home/format';
 import { receivePlatform, type ReceivePlatformPort } from '../receive/platform';
 import { FormFrame } from '../send/FormFrame';
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import { BrandIcon, BrandMark, Button, tokens, useBrandFonts } from '../ui';
 import { createHistoryController } from './controller';
 import {
@@ -346,9 +347,13 @@ export function HistoryScreen({
       )}
       {state.payments.error && (
         <View style={styles.notice}>
-          <Text accessibilityRole="alert" style={body}>
-            {t('history.walletError')}
-          </Text>
+          {state.payments.error?.code === 'READ_TIMEOUT' ? (
+            <RecoveryNotice code="READ_TIMEOUT" />
+          ) : (
+            <Text accessibilityRole="alert" style={body}>
+              {t('history.walletError')}
+            </Text>
+          )}
           <Button
             variant="secondary"
             label={t('history.retryWallet')}
@@ -356,7 +361,7 @@ export function HistoryScreen({
               if (
                 state.payments.items.length &&
                 state.payments.hasMore &&
-                state.payments.error?.code === 'READ_FAILED'
+                ['READ_FAILED', 'READ_TIMEOUT'].includes(state.payments.error?.code ?? '')
               )
                 void controller.loadMore('wallet');
               else void controller.refresh();
@@ -366,9 +371,13 @@ export function HistoryScreen({
       )}
       {state.withdrawals.error && state.walletState !== 'hors_ligne' && (
         <View style={styles.notice}>
-          <Text accessibilityRole="alert" style={body}>
-            {t('history.withdrawalError')}
-          </Text>
+          {state.withdrawals.error?.code === 'READ_TIMEOUT' ? (
+            <RecoveryNotice code="READ_TIMEOUT" />
+          ) : (
+            <Text accessibilityRole="alert" style={body}>
+              {t('history.withdrawalError')}
+            </Text>
+          )}
           <Button
             variant="secondary"
             label={t('history.retryWithdrawals')}
@@ -376,7 +385,7 @@ export function HistoryScreen({
               if (
                 state.withdrawals.items.length &&
                 state.withdrawals.hasMore &&
-                state.withdrawals.error?.code === 'READ_FAILED'
+                ['READ_FAILED', 'READ_TIMEOUT'].includes(state.withdrawals.error?.code ?? '')
               )
                 void controller.loadMore('bridge_sim');
               else void controller.refresh();
@@ -687,6 +696,7 @@ export function HistoryScreen({
           <Text accessibilityRole="header" accessibilityLiveRegion="polite" style={heading}>
             {t(title)}
           </Text>
+          {!interrupted && <RecoveryNotice code={state.error?.code} />}
           {['idle', 'loading'].includes(state.status) && (
             <ActivityIndicator accessible={false} color={tokens.colors.primary} />
           )}

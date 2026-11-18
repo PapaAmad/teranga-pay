@@ -22,6 +22,12 @@ PAN porte cet écran et son modèle de lecture ; Salam porte le wallet T11/T15. 
 
 Le modèle distingue zéro, absence de taux et lecture indisponible. Il ne déduit jamais une connexion réseau de l'état `pret`. Les données ne sont pas persistées par l'accueil : le passage en arrière-plan, le verrouillage, l'absence du wallet et la destruction de l'écran effacent le snapshot. Les ressources ne conservent une ancienne lecture qu'en mémoire pendant un rafraîchissement ou une erreur ; l'interface doit l'indiquer.
 
+T28 borne chaque lecture d’état, de solde ou d’historique à dix secondes. Un délai
+dépassé devient `READ_TIMEOUT`, sans prétendre détecter une absence de réseau.
+Les ressources indépendantes déjà reçues restent consultables ; une ancienne
+lecture conservée est marquée comme telle. Le réessai est une nouvelle lecture
+explicite et les réponses tardives de l’ancienne tentative restent sans effet.
+
 Commande utile : `npm test -- --runTestsByPath tests/home-model.test.ts tests/home-screen.test.tsx --ci` depuis `apps/mobile`.
 Une actualisation normale emploie l’indicateur de chargement ; les messages de
 lecture précédente sont réservés aux données non vérifiées après une erreur ou

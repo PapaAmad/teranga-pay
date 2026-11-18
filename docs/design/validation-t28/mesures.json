@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-12",
+  "renderer": "Vrais composants React Native | Web | Edge sans fenêtre",
+  "nativeDeviceExecuted": false,
+  "realWalletUsed": false,
+  "realOperatorUsed": false,
+  "errors": [],
+  "checks": [
+    "Six parcours essentiels observés, sans réussite inventée après délai",
+    "Réponses originales fictives réintégrées sans nouveau paiement ni retrait",
+    "Actions de reprise et retour conservées à petite largeur"
+  ],
+  "captures": [
+    {
+      "name": "01-accueil-lecture",
+      "title": "Accueil | anciennes valeurs pendant la lecture",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "02-accueil-delai",
+      "title": "Accueil | délai dépassé, valeurs connues signalées",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "03-accueil-hors-ligne",
+      "title": "Accueil | données locales, sans faux zéro",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "04-recevoir-delai",
+      "title": "Recevoir | lecture bornée et reprise explicite",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "05-recevoir-hors-ligne",
+      "title": "Recevoir | adresse précédente qualifiée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "06-envoi-lecture",
+      "title": "Envoyer | message de délai visible avant les champs",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "07-envoi-incertain",
+      "title": "Envoyer | pas de deuxième envoi après le délai",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "08-envoi-reponse-tardive",
+      "title": "Envoyer | réponse originale intégrée sans relance",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "09-encaisser-prix-lent",
+      "title": "Encaisser | prix lent, aucune facture créée",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "10-encaisser-creation-incertaine",
+      "title": "Encaisser | aucune seconde facture, aucun faux reçu",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "11-historique-partiel",
+      "title": "Historique | une source lente ne masque pas les autres",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "12-retrait-lecture",
+      "title": "Retirer | lecture lente, aucune réservation",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "13-retrait-incertain",
+      "title": "Retirer | résultat attendu et retour immédiat",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": {
+          "width": 342,
+          "height": 60,
+          "top": 768,
+          "bottom": 828,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "14-retrait-320",
+      "title": "320 pixels | retour accessible pendant le suivi",
+      "note": "",
+      "layout": {
+        "width": 320,
+        "height": 640,
+        "documentWidth": 320,
+        "command": {
+          "width": 272,
+          "height": 60,
+          "top": 564,
+          "bottom": 624,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    },
+    {
+      "name": "15-retrait-reponse-tardive",
+      "title": "Retirer | résultat original, même demande",
+      "note": "",
+      "layout": {
+        "width": 390,
+        "height": 844,
+        "documentWidth": 390,
+        "command": null,
+        "overflows": []
+      }
+    },
+    {
+      "name": "16-lecture-espace-reduit",
+      "title": "360 × 460 | reprise hors du défilement",
+      "note": "Fenêtre réduite ; ce n’est pas une mesure du clavier Android.",
+      "layout": {
+        "width": 360,
+        "height": 460,
+        "documentWidth": 360,
+        "command": {
+          "width": 312,
+          "height": 60,
+          "top": 384,
+          "bottom": 444,
+          "inViewport": true
+        },
+        "overflows": []
+      }
+    }
+  ]
+}

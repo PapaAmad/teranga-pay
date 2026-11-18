@@ -396,6 +396,8 @@ describe('T27 | invalidation de la confirmation', () => {
     await test.controller.confirm(testPin);
     response.resolve(low);
     await checking;
+    // La remise refusée relance aussi les lectures bornées du second écran.
+    await drain();
     expect(second.getSnapshot()).toMatchObject({
       phase: 'destination',
       busy: false,

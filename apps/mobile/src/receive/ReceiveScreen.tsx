@@ -12,6 +12,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import { BrandIcon, BrandMark, Button, tokens, useBrandFonts } from '../ui';
 import { createReceiveController } from './controller';
 import { receivePlatform, type ReceivePlatformPort } from './platform';
@@ -281,6 +282,7 @@ export function ReceiveScreen({
           </View>
         )}
 
+        {!interrupted && <RecoveryNotice code={state.error?.code} />}
         {state.status === 'offline' && !interrupted && address && !state.error && (
           <View style={styles.notice}>
             <BrandIcon name="network" size={23} />

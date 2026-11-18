@@ -66,4 +66,11 @@ Les motifs T26 sont traduits avant le PIN ; une analyse indisponible demande un
 choix explicite. PAN a confirmé les écrans le 12 novembre 2026 avant commit ou PR T27.
 La relecture de Salam reste attendue.
 
+T28 prépare les états de réseau et les reprises : [recherche](reseau-recherche.md),
+[matrice des parcours](reseau-direction.md), [décision](../decisions/0021-attentes-et-reprises.md),
+[captures](validation-t28/README.md) et [suivi](../planning/suivi-t28.md).
+Les lectures sont bornées ; les mutations restent suivies sans relance automatique.
+PAN a confirmé les nouveaux états le 12 novembre 2026 avant commit ou PR T28.
+La relecture de Salam reste attendue.
+
 Depuis la racine : `npm run repo:check` vérifie les guides et les liens ; `npm run format:check` vérifie le format. Consulter la validation pour les preuves visuelles et leurs limites.

@@ -11,7 +11,9 @@ export type CollectPreviewScenario =
   | 'locked'
   | 'error'
   | 'mismatch'
-  | 'longInvoice';
+  | 'longInvoice'
+  | 'slowRead'
+  | 'slowCreate';
 
 /** Atelier contrôlé, en mémoire : aucune facture valide, aucune clé, aucun réseau. */
 export function createCollectPreviewServices(
@@ -58,6 +60,7 @@ export function createCollectPreviewServices(
     },
     rates: {
       async quote(amountXof) {
+        if (scenario === 'slowRead') return new Promise<never>(() => {});
         if (scenario === 'error') return { ok: false, error: { code: 'RATE_UNAVAILABLE' } };
         const rate = 45_000_000n;
         const issuedAt = clock();
@@ -96,6 +99,7 @@ export function createCollectPreviewServices(
         };
         records.set(paymentId, { request, payment: null });
         latestId = paymentId;
+        if (scenario === 'slowCreate') return new Promise<never>(() => {});
         if (scenario === 'unknown') throw new Error('création fictive interrompue');
         if (scenario === 'expired' || scenario === 'late') offset += 300_001;
         return { ok: true, value: request };

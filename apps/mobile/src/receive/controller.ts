@@ -1,4 +1,5 @@
 import type { HomeError, HomeWalletEvent, HomeWalletState } from '../home/ports';
+import { readFailure, readWithDeadline } from '../reliability/read';
 import type { ReceiveServices } from './ports';
 
 export type ReceiveSnapshot = Readonly<{
@@ -200,11 +201,11 @@ export function createReceiveController(services: ReceiveServices): ReceiveContr
     });
     let state: unknown;
     try {
-      state = await services.wallet.state();
-    } catch {
+      state = await readWithDeadline(() => services.wallet!.state());
+    } catch (error) {
       if (current(task, token)) {
         clear('error');
-        update({ error: failure('READ_FAILED') });
+        update({ error: failure(readFailure(error)) });
       }
       return;
     }
@@ -221,9 +222,9 @@ export function createReceiveController(services: ReceiveServices): ReceiveContr
     update({ walletState: state, requiresUnlock: false });
     let result: ReturnType<typeof readResult>;
     try {
-      result = readResult(await services.address.current());
-    } catch {
-      result = { ok: false, error: failure('READ_FAILED') };
+      result = readResult(await readWithDeadline(() => services.address!.current()));
+    } catch (error) {
+      result = { ok: false, error: failure(readFailure(error)) };
     }
     if (!current(task, token)) return;
     if (!result.ok) {

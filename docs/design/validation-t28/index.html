@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teranga Pay | Validation visuelle Réseau T28</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fafaf5;
+        color: #142631;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        padding-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(30px, 4.5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        max-width: 850px;
+      }
+      p {
+        max-width: 860px;
+      }
+      .tag {
+        display: inline-block;
+        background: #e5ee73;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-weight: 650;
+      }
+      .proofs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 0;
+      }
+      .proofs span {
+        border: 1px solid #d5dfe2;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      a {
+        color: #255ba6;
+        text-underline-offset: 3px;
+      }
+      a:focus-visible {
+        outline: 3px solid #255ba6;
+        outline-offset: 4px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+        gap: 30px;
+        align-items: start;
+      }
+      figure {
+        margin: 0;
+      }
+      figure a {
+        display: block;
+        border: 1px solid #d5dfe2;
+        border-radius: 24px;
+        overflow: hidden;
+        background: white;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      figcaption {
+        padding: 11px 3px;
+        font-weight: 650;
+        line-height: 1.4;
+      }
+      figcaption small {
+        display: block;
+        padding-top: 5px;
+        font-weight: 400;
+        color: #4f616b;
+      }
+      footer {
+        border-top: 1px solid #d5dfe2;
+      }
+      code {
+        background: #e5e8e1;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="tag">Projet de Salam et PAN | T28</p>
+      <h1>Le réseau hésite.<br />Votre choix reste clair.</h1>
+      <p>
+        Écrans confirmés par PAN le 12 novembre 2026 avant commit et PR. Lectures bornées, valeurs
+        connues qualifiées, et opérations déjà engagées toujours suivies.
+      </p>
+      <p>Composants réels et fournisseurs fictifs, sans paiement réel ni essai Android annoncé.</p>
+      <p><a href="README.md">Preuves et limites</a> | <a href="mesures.json">Mesures</a></p>
+    </header>
+    <main>
+      <figure>
+        <a href="01-accueil-lecture.png"
+          ><img
+            src="01-accueil-lecture.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Accueil | anciennes valeurs pendant la lecture"
+        /></a>
+        <figcaption>
+          <strong>Accueil | anciennes valeurs pendant la lecture</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="02-accueil-delai.png"
+          ><img
+            src="02-accueil-delai.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Accueil | délai dépassé, valeurs connues signalées"
+        /></a>
+        <figcaption>
+          <strong>Accueil | délai dépassé, valeurs connues signalées</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="03-accueil-hors-ligne.png"
+          ><img
+            src="03-accueil-hors-ligne.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Accueil | données locales, sans faux zéro"
+        /></a>
+        <figcaption>
+          <strong>Accueil | données locales, sans faux zéro</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="04-recevoir-delai.png"
+          ><img
+            src="04-recevoir-delai.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Recevoir | lecture bornée et reprise explicite"
+        /></a>
+        <figcaption>
+          <strong>Recevoir | lecture bornée et reprise explicite</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="05-recevoir-hors-ligne.png"
+          ><img
+            src="05-recevoir-hors-ligne.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Recevoir | adresse précédente qualifiée"
+        /></a>
+        <figcaption>
+          <strong>Recevoir | adresse précédente qualifiée</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="06-envoi-lecture.png"
+          ><img
+            src="06-envoi-lecture.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Envoyer | message de délai visible avant les champs"
+        /></a>
+        <figcaption>
+          <strong>Envoyer | message de délai visible avant les champs</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="07-envoi-incertain.png"
+          ><img
+            src="07-envoi-incertain.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Envoyer | pas de deuxième envoi après le délai"
+        /></a>
+        <figcaption>
+          <strong>Envoyer | pas de deuxième envoi après le délai</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="08-envoi-reponse-tardive.png"
+          ><img
+            src="08-envoi-reponse-tardive.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Envoyer | réponse originale intégrée sans relance"
+        /></a>
+        <figcaption>
+          <strong>Envoyer | réponse originale intégrée sans relance</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="09-encaisser-prix-lent.png"
+          ><img
+            src="09-encaisser-prix-lent.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Encaisser | prix lent, aucune facture créée"
+        /></a>
+        <figcaption>
+          <strong>Encaisser | prix lent, aucune facture créée</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="10-encaisser-creation-incertaine.png"
+          ><img
+            src="10-encaisser-creation-incertaine.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Encaisser | aucune seconde facture, aucun faux reçu"
+        /></a>
+        <figcaption>
+          <strong>Encaisser | aucune seconde facture, aucun faux reçu</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="11-historique-partiel.png"
+          ><img
+            src="11-historique-partiel.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Historique | une source lente ne masque pas les autres"
+        /></a>
+        <figcaption>
+          <strong>Historique | une source lente ne masque pas les autres</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="12-retrait-lecture.png"
+          ><img
+            src="12-retrait-lecture.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retirer | lecture lente, aucune réservation"
+        /></a>
+        <figcaption>
+          <strong>Retirer | lecture lente, aucune réservation</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="13-retrait-incertain.png"
+          ><img
+            src="13-retrait-incertain.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retirer | résultat attendu et retour immédiat"
+        /></a>
+        <figcaption>
+          <strong>Retirer | résultat attendu et retour immédiat</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="14-retrait-320.png"
+          ><img
+            src="14-retrait-320.png"
+            width="320"
+            height="640"
+            loading="lazy"
+            alt="320 pixels | retour accessible pendant le suivi"
+        /></a>
+        <figcaption>
+          <strong>320 pixels | retour accessible pendant le suivi</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="15-retrait-reponse-tardive.png"
+          ><img
+            src="15-retrait-reponse-tardive.png"
+            width="390"
+            height="844"
+            loading="lazy"
+            alt="Retirer | résultat original, même demande"
+        /></a>
+        <figcaption>
+          <strong>Retirer | résultat original, même demande</strong>
+          <p></p>
+        </figcaption>
+      </figure>
+      <figure>
+        <a href="16-lecture-espace-reduit.png"
+          ><img
+            src="16-lecture-espace-reduit.png"
+            width="360"
+            height="460"
+            loading="lazy"
+            alt="360 × 460 | reprise hors du défilement"
+        /></a>
+        <figcaption>
+          <strong>360 × 460 | reprise hors du défilement</strong>
+          <p>Fenêtre réduite ; ce n’est pas une mesure du clavier Android.</p>
+        </figcaption>
+      </figure>
+    </main>
+    <footer>12 novembre 2026 | écrans confirmés par PAN ; relecture de Salam attendue.</footer>
+  </body>
+</html>

@@ -116,6 +116,8 @@ export const collectText = {
   },
   scenarios: {
     title: 'Atelier | situations fictives',
+    slowRead: 'Lecture trop lente',
+    slowCreate: 'Création sans réponse',
     waiting: 'En attente',
     paid: 'Paiement confirmé',
     late: 'Confirmation tardive',

@@ -12,6 +12,14 @@ PAN porte cet écran ; Salam porte le wallet et l’adresse Lightning T19. PAN a
 
 L’adresse est réutilisable. T18 ne crée aucune facture, ne lui invente pas d’expiration et ne déduit jamais un paiement reçu d’une ouverture du partage ou d’une copie. Une adresse réellement fournie peut rester visible hors ligne ; le contexte hors ligne doit être indiqué.
 
+T28 borne la lecture d’état et celle de l’adresse à dix secondes chacune. Un délai
+dépassé produit `READ_TIMEOUT`, sans inventer une coupure réseau ; le réessai relit
+les ports et ne crée aucune facture. Si l’actualisation de l’adresse échoue après
+une première lecture réussie, l’adresse précédente reste marquée ancienne. Un
+état wallet impossible à vérifier conserve le comportement prudent de purge.
+Verrouillage, arrière-plan et destruction continuent de retirer l’adresse et les
+réponses tardives ne la réaffichent pas.
+
 Contrats consultés : T11 PR #53 au commit `5a670f13a2aafb06805c946fc2c404e8fa53c13e`, T19 PR #56 au commit `7ee2a91ff29a24d6f638fab0e9db1b03cf2e718a` et réception téléphonique PR #66 au commit `127e951dd81a4ee0b4fda85751a1d0cb79c004e9`. Ces branches ne sont pas importées ni présentées comme intégrées.
 
 Commande utile depuis `apps/mobile` : `npm test -- --runTestsByPath tests/receive-model.test.ts tests/receive-screen.test.tsx tests/receive-qr.test.ts tests/receive-platform.test.ts --ci`.

@@ -15,6 +15,7 @@ import { formatHomeDate, formatHomeNumber } from '../home/format';
 import { FormFrame } from '../send/FormFrame';
 import { parseSendAmount } from '../send/controller';
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import { BrandIcon, BrandMark, Button, tokens, useBrandFonts } from '../ui';
 import { createCollectController } from './controller';
 import { CollectQr } from './CollectQr';
@@ -573,7 +574,13 @@ export function CollectScreen({
             {t(`collect.${feedback}`)}
           </Text>
         )}
-        {state.error && !interrupted && (
+        {!interrupted && (
+          <RecoveryNotice
+            code={state.error?.code}
+            committed={state.phase === 'unknown' || state.phase === 'waiting'}
+          />
+        )}
+        {state.error && state.error.code !== 'READ_TIMEOUT' && !interrupted && (
           <Text accessibilityRole="alert" style={[...body, styles.warning]}>
             {t(errorKey ? `collect.errors.${errorKey}` : 'collect.errors.fallback')}
           </Text>

@@ -98,6 +98,8 @@ export const withdrawText = {
   },
   scenarios: {
     title: 'Atelier | situations fictives',
+    slowRead: 'Lecture trop lente',
+    slowConfirm: 'Confirmation sans réponse',
     ready: 'Parcours réussi',
     pending: 'Demande en attente',
     lostResponse: 'Réponse perdue après succès',

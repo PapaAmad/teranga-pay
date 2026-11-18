@@ -128,6 +128,8 @@ export const sendText = {
   },
   scenarios: {
     title: 'Atelier | situations fictives',
+    slowRead: 'Lecture trop lente',
+    slowSend: 'Envoi sans réponse',
     riskWarning: 'Alerte à confirmer',
     riskHigh: 'Plusieurs points à vérifier',
     riskUnavailable: 'Analyse indisponible',

@@ -14,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { formatHomeDate, formatHomeNumber } from '../home/format';
 import { useTranslation } from '../translations';
+import { RecoveryNotice } from '../reliability/RecoveryNotice';
 import { BrandIcon, Button, tokens, useBrandFonts } from '../ui';
 import { createSendController, parseSendAmount } from './controller';
 import { FormFrame } from './FormFrame';
@@ -387,6 +388,7 @@ export function SendScreen({
             <RiskNotice assessment={state.risk} />
           )}
 
+          {!interrupted && <RecoveryNotice code={state.error?.code} committed={state.committed} />}
           {phase === 'destination' && (
             <>
               <View style={styles.gap}>
@@ -659,7 +661,7 @@ export function SendScreen({
               )}
             </View>
           )}
-          {state.error && !result && !interrupted && (
+          {state.error && state.error.code !== 'READ_TIMEOUT' && !result && !interrupted && (
             <Text
               accessibilityRole="alert"
               accessibilityLiveRegion="polite"

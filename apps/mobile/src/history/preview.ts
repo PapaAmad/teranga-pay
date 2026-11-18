@@ -11,7 +11,8 @@ export type HistoryPreviewScenario =
   | 'unknownAmounts'
   | 'largeAmount'
   | 'locked'
-  | 'pagingError';
+  | 'pagingError'
+  | 'slowRead';
 export type HistoryPreviewServices = HistoryServices & { now(): number; confirmPending(): void };
 
 /** Journal fictif sans réseau : aucun règlement automatique ni donnée personnelle. */
@@ -126,6 +127,7 @@ export function createHistoryPreviewServices(
         return () => listeners.delete(listener);
       },
       async history({ limit = 20, before } = {}) {
+        if (scenario === 'slowRead') return new Promise<never>(() => {});
         if (scenario === 'walletError') return { ok: false, error: { code: 'READ_FAILED' } };
         const anchor = before ? payments.findIndex((p) => p.id === before) : -1;
         if (before && anchor < 0) return { ok: false, error: { code: 'INVALID_PAGINATION' } };

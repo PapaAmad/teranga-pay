@@ -2,6 +2,7 @@ import type { HomeError, HomePayment, HomeWalletEvent, HomeWalletState } from '.
 import { parseSendAmount } from '../send/controller';
 import type { SendQuote } from '../send/ports';
 import type { CollectReceipt, CollectRequest, CollectServices } from './ports';
+import { readFailure, readWithDeadline, startPendingWatch } from '../reliability/read';
 
 export type CollectPhase =
   | 'idle'
@@ -368,7 +369,11 @@ export function createCollectController(
         (item) => item?.request?.paymentId === payment.id,
       );
       if (attempt) applyPayment(attempt, payment);
-      else if (session.current?.state === 'creating') {
+      else if (
+        session.current &&
+        session.current.request === null &&
+        ['creating', 'unknown'].includes(session.current.state)
+      ) {
         const candidate = readIncoming(payment);
         if (
           candidate &&
@@ -392,31 +397,38 @@ export function createCollectController(
     busy = true;
     publish();
     try {
-      for (const attempt of attempts) {
-        if (!current(token) || walletState !== 'pret') return;
-        const request = attempt.request!;
-        try {
-          const result: unknown = await services.invoices.lookup({
-            paymentId: request.paymentId,
-            paymentRequest: request.invoice.paymentRequest,
-          });
-          if (!current(token)) return;
-          // Un événement a pu fournir la preuve pendant cette lecture : elle reste définitive.
-          if (attempt.receipt) continue;
-          if (!record(result) || result.ok !== true || !record(result.value)) {
-            attempt.error = readError(result);
-            continue;
+      await Promise.all(
+        attempts.map(async (attempt) => {
+          if (!current(token) || walletState !== 'pret') return;
+          const request = attempt.request!;
+          try {
+            const result: unknown = await readWithDeadline(() =>
+              services.invoices!.lookup({
+                paymentId: request.paymentId,
+                paymentRequest: request.invoice.paymentRequest,
+              }),
+            );
+            if (!current(token)) return;
+            // Un événement a pu fournir la preuve pendant cette lecture : elle reste définitive.
+            if (attempt.receipt) return;
+            if (!record(result) || result.ok !== true || !record(result.value)) {
+              attempt.error = readError(result);
+              return;
+            }
+            if (result.value.paymentRequest !== request.invoice.paymentRequest) {
+              attempt.error = code('PAYMENT_MISMATCH');
+              return;
+            }
+            if (result.value.payment !== null) applyPayment(attempt, result.value.payment);
+            else if (attempt.error?.code !== 'PAYMENT_MISMATCH') attempt.error = null;
+          } catch (failure) {
+            if (current(token) && !attempt.receipt)
+              attempt.error = code(
+                readFailure(failure) === 'READ_TIMEOUT' ? 'READ_TIMEOUT' : 'LOOKUP_FAILED',
+              );
           }
-          if (result.value.paymentRequest !== request.invoice.paymentRequest) {
-            attempt.error = code('PAYMENT_MISMATCH');
-            continue;
-          }
-          if (result.value.payment !== null) applyPayment(attempt, result.value.payment);
-          else if (attempt.error?.code !== 'PAYMENT_MISMATCH') attempt.error = null;
-        } catch {
-          if (current(token) && !attempt.receipt) attempt.error = code('LOOKUP_FAILED');
-        }
-      }
+        }),
+      );
     } finally {
       if (current(token)) {
         busy = false;
@@ -447,7 +459,7 @@ export function createCollectController(
         if (typeof subscription !== 'function') throw new Error('SUBSCRIPTION_FAILED');
         release = subscription;
       }
-      const state: unknown = await services.wallet.state();
+      const state: unknown = await readWithDeadline(() => services.wallet!.state());
       if (!current(token)) return;
       busy = false;
       if (!isState(state)) {
@@ -467,11 +479,11 @@ export function createCollectController(
       localPhase = draft ? 'review' : 'amount';
       publish();
       await lookupAll();
-    } catch {
+    } catch (failure) {
       if (current(token)) {
         busy = false;
         localPhase = 'error';
-        localError = code('READ_FAILED');
+        localError = code(readFailure(failure));
         publish();
       }
     }
@@ -522,7 +534,7 @@ export function createCollectController(
       busy = true;
       publish();
       try {
-        const result: unknown = await services.rates!.quote(amount);
+        const result: unknown = await readWithDeadline(() => services.rates!.quote(amount));
         if (!current(token)) return;
         const quote = readQuote(result, amount, now());
         draft = quote;
@@ -530,11 +542,11 @@ export function createCollectController(
         localPhase = quote ? 'review' : 'amount';
         localError = quote ? null : readError(result);
         publish();
-      } catch {
+      } catch (failure) {
         if (current(token)) {
           busy = false;
           localPhase = 'amount';
-          localError = code('READ_FAILED');
+          localError = code(readFailure(failure));
           publish();
         }
       }
@@ -558,7 +570,7 @@ export function createCollectController(
       busy = true;
       publish();
       try {
-        const state: unknown = await services.wallet.state();
+        const state: unknown = await readWithDeadline(() => services.wallet!.state());
         if (!current(token)) return;
         busy = false;
         if (state !== 'pret') {
@@ -581,10 +593,10 @@ export function createCollectController(
           publish();
           return;
         }
-      } catch {
+      } catch (failure) {
         if (current(token)) {
           busy = false;
-          localError = code('READ_FAILED');
+          localError = code(readFailure(failure));
           publish();
         }
         return;
@@ -599,10 +611,18 @@ export function createCollectController(
       };
       session.earlyPayments.clear();
       session.current = attempt;
+      const stopWaiting = startPendingWatch(() => {
+        if (attempt.state !== 'creating') return;
+        // Le fournisseur peut encore créer la facture : la barrière reste engagée.
+        attempt.state = 'unknown';
+        attempt.error = code('CREATION_UNKNOWN');
+        notify();
+      });
       try {
         const pending = services.invoices.create({ quote });
         notify();
         const result: unknown = await pending;
+        stopWaiting();
         const candidate = readRequest(result, quote, now());
         // Une nouvelle vente ne peut réutiliser une ancienne facture, même déjà payée.
         // L'identité BOLT11 ignore la casse uniforme, sans modifier le texte affiché ou copié.
@@ -625,6 +645,8 @@ export function createCollectController(
       } catch {
         attempt.state = 'unknown';
         attempt.error = code('CREATION_UNKNOWN');
+      } finally {
+        stopWaiting();
       }
       // La réponse tardive reste dans la session, même si cet écran a été détruit.
       notify();

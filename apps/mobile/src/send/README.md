@@ -27,4 +27,9 @@ L’atelier ajoute les situations d’alerte, d’analyse indisponible et d’an
 Ce sont des réponses fictives du contrat, sans calcul local du score. Le transport
 authentifié et la composition native restent à relier avec Salam.
 
+T28 borne les lectures d’état, solde, destination, prix et rapprochement à dix
+secondes. Une soumission lente conserve sa promesse et sa barrière de session :
+l’écran présente un résultat à vérifier, puis intègre la réponse originale si
+elle arrive, sans nouvel envoi. Le délai ne constitue pas une annulation.
+
 Commande utile depuis la racine : `npm test --workspace @teranga-pay/mobile -- --runTestsByPath tests/send-model.test.ts --ci`.
