@@ -1,0 +1,131 @@
+name: Release APK
+
+# T35 : APK Android signé, somme SHA-256 et consignes, publiés dans une
+# GitHub Release. Déclenché par un tag `v*` (ex. v1.0.0 en T39) ou à la main
+# (brouillon de Release, pour un essai).
+#
+# Noms des secrets déjà présents ; validité des valeurs à vérifier par le responsable :
+#   ANDROID_KEYSTORE_BASE64     keystore encodé en base64 (jamais dans Git)
+#   ANDROID_KEYSTORE_PASSWORD   mot de passe du keystore
+#   ANDROID_KEY_ALIAS           alias de la clé
+#   ANDROID_KEY_PASSWORD        mot de passe de la clé
+# Variables publiques facultatives (intégrées à l'APK, donc non secrètes) :
+#   EXPO_PUBLIC_ELECTRUM_URL, EXPO_PUBLIC_TERANGA_PEER_ID,
+#   EXPO_PUBLIC_TERANGA_PEER_ADDRESS, EXPO_PUBLIC_API_URL
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Nom de la Release brouillon (ex. v0.9.0-essai)'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  HUSKY: '0'
+  CI: 'true'
+
+jobs:
+  apk:
+    name: APK signé
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+      EXPO_PUBLIC_ELECTRUM_URL: ${{ vars.EXPO_PUBLIC_ELECTRUM_URL }}
+      EXPO_PUBLIC_TERANGA_PEER_ID: ${{ vars.EXPO_PUBLIC_TERANGA_PEER_ID }}
+      EXPO_PUBLIC_TERANGA_PEER_ADDRESS: ${{ vars.EXPO_PUBLIC_TERANGA_PEER_ADDRESS }}
+      EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+    steps:
+      - name: Vérifier le nom de la Release
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Nom attendu : vX.Y.Z ou vX.Y.Z-suffixe"
+            exit 1
+          fi
+      - name: Vérifier la présence des secrets de signature
+        env:
+          HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+          HAS_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD != '' }}
+          HAS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS != '' }}
+          HAS_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD != '' }}
+        run: |
+          missing=0
+          for name in HAS_KEYSTORE HAS_STORE_PASSWORD HAS_ALIAS HAS_KEY_PASSWORD; do
+            if [ "${!name}" != "true" ]; then echo "::error::Secret de signature absent ($name)"; missing=1; fi
+          done
+          exit $missing
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm install --global npm@12.2.1
+      - run: npm ci
+      - name: Contrôles avant compilation
+        run: |
+          npm run typecheck
+          npm test -- --ci
+      - name: Générer le projet Android (expo prebuild)
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install --clean
+      - name: Écrire le keystore hors du dépôt
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+      - name: Compiler l'APK signé
+        working-directory: apps/mobile/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        # Propriétés de signature « injectées » d'Android Gradle Plugin : elles
+        # remplacent la signature debug du projet généré, sans fichier en clair.
+        run: >
+          ./gradlew --no-daemon assembleRelease
+          -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore"
+          -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD"
+          -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS"
+          -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+      - name: Effacer le keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"
+      - name: Préparer APK, somme de contrôle et consignes
+        run: |
+          mkdir -p release
+          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk "release/teranga-pay-$RELEASE_TAG.apk"
+          apksigner="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner | sort -V | tail -1)"
+          "$apksigner" verify --print-certs "release/teranga-pay-$RELEASE_TAG.apk" > release/signature.txt
+          node scripts/release/release-notes.mjs "release/teranga-pay-$RELEASE_TAG.apk" release/signature.txt > release/NOTES.md
+          (cd release && sha256sum "teranga-pay-$RELEASE_TAG.apk" > "teranga-pay-$RELEASE_TAG.apk.sha256")
+          cat release/NOTES.md
+      - name: Publier la Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=()
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then flags=(--draft --prerelease); fi
+          gh release create "$RELEASE_TAG" "${flags[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "Teranga Pay $RELEASE_TAG (démo regtest)" \
+            --notes-file release/NOTES.md \
+            "release/teranga-pay-$RELEASE_TAG.apk" \
+            "release/teranga-pay-$RELEASE_TAG.apk.sha256"
