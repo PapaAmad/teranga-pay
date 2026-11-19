@@ -55,4 +55,10 @@ La relecture de Salam et la CI distante restent attendues. Les
 parcours de navigation marchands vérifient séparément l’atelier, l’injection,
 l’absence de fournisseur et la reprise de la même facture. PAN maintient la
 navigation ; Salam relit.
+Les aperçus fictifs (`OnboardingPreview`, `HomePreview`, `ReceivePreview`,
+`SendPreview`, `CollectPreview`, `HistoryPreview`, `WithdrawPreview`) suivent
+`previews.ts` : visibles en développement, ou dans l’APK de démonstration pour
+les jurys compilé avec `EXPO_PUBLIC_DEMO_BUILD=1` (T35). L’atelier wallet et son
+lien profond restent réservés au développement. Test : `tests/demo-build.test.tsx`.
+
 Lancer `npm test -- --ci` depuis la racine pour vérifier les parcours.

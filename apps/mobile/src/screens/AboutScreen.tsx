@@ -2,6 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import type { RootStackParamList } from '../navigation/types';
+import { previewsEnabled } from '../navigation/previews';
 import { useTranslation } from '../translations';
 import { Button, tokens, useBrandFonts } from '../ui';
 
@@ -26,7 +27,7 @@ export function AboutScreen({ navigation }: Props) {
         label={t('about.walletAction')}
         onPress={() => navigation.navigate('Home')}
       />
-      {__DEV__ && (
+      {previewsEnabled && (
         <Button
           variant="accent"
           label={t('about.previewAction')}

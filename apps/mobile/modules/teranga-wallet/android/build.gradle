@@ -11,6 +11,8 @@ android {
   defaultConfig {
     versionCode 1
     versionName '0.0.0'
+    // Règles R8 de LDK Node et JNA pour l'APK release (consumer-rules.pro).
+    consumerProguardFiles 'consumer-rules.pro'
   }
 }
 

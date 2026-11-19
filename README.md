@@ -9,7 +9,40 @@
   Projet de Salam (<a href="https://github.com/AliouneKane">@AliouneKane</a>) et PAN (<a href="https://github.com/PapaAmad">@PapaAmad</a>) pour le hackathon Dakar Bitcoin Trust.
 </p>
 
-> **Bases consolidées | Démonstration uniquement.** Les écrans, le wallet natif, l’API et la passerelle simulée sont réunis dans le dépôt. Le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120) des ports UI au wallet et à l’API reste à terminer. Le réseau prévu est regtest ; les retraits Wave et Orange Money sont **simulés**. Aucun APK signé n’est publié par cette consolidation.
+> **Démonstration uniquement.** Les écrans, le wallet natif, l’API et la passerelle simulée sont raccordés ([#120](https://github.com/PapaAmad/teranga-pay/issues/120)). Le réseau est regtest (bitcoins de test sans valeur) ; les retraits Wave et Orange Money sont **simulés**.
+
+## 📲 Essayer l'application (jurys)
+
+<p align="center">
+  <a href="https://github.com/PapaAmad/teranga-pay/releases/download/v0.9.0-demo/teranga-pay-v0.9.0-demo.apk"><b>⬇️ Télécharger l'APK Android de démonstration</b></a>
+  <br>
+  <sub>Android 7 ou plus récent, téléphone 64 bits (ARM64). Toutes les versions : <a href="https://github.com/PapaAmad/teranga-pay/releases">page des Releases</a>.</sub>
+</p>
+
+### Installer (2 minutes)
+
+1. Sur un téléphone Android, ouvrir le lien ci-dessus et télécharger le fichier `.apk` (environ 50 Mo).
+2. Ouvrir le fichier téléchargé. Si Android le demande, autoriser l'installation depuis le navigateur : c'est normal pour une application hors Play Store.
+3. Ouvrir **Teranga Pay**.
+
+### Parcours conseillé (5 minutes)
+
+Tout est **fictif** : un bandeau jaune « Aperçu fictif | aucun paiement réel » le rappelle sur chaque écran. Pour le code, inventez 6 chiffres (par exemple `482615`).
+
+| Étape                     | Où toucher                                                                                                                                  | Ce que vous voyez                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1. Créer un portefeuille  | **Essayer le parcours fictif**, puis **Créer mon portefeuille**                                                                             | Choix de la langue, code à 6 chiffres saisi deux fois                 |
+| 2. Sauvegarder            | **Créer et voir mes mots**, puis **J'ai noté mes douze mots**                                                                               | 12 mots d'exemple, puis un petit test : retrouver 3 mots de la liste  |
+| 3. Ouvrir l'accueil       | **Quitter l'aperçu**, **Découvrir le projet**, puis **Essayer l'accueil fictif**                                                            | Solde affiché d'abord en FCFA (45 000 FCFA), puis en sats             |
+| 4. Recevoir               | **Recevoir**                                                                                                                                | QR code et adresse Lightning de type e-mail                           |
+| 5. Envoyer                | **Envoyer**, **Utiliser la demande fictive**, **Confirmer le destinataire**, saisir le code sous le récapitulatif, puis **Simuler l'envoi** | Montant, frais maximum et total en FCFA, puis « Simulation terminée » |
+| 6. Encaisser (commerçant) | **Encaisser**, saisir un prix (ex. 2500), **Continuer**, **Afficher le QR**, puis **Simuler le règlement**                                  | QR à faire scanner au client, prix figé 5 minutes, reçu de la vente   |
+| 7. Retirer en cash        | **Retirer en cash**, choisir **Wave** ou **Orange Money**, un montant, **Voir les frais**, puis **Confirmer le retrait simulé**             | Frais affichés avant d'accepter, retrait **simulé** terminé           |
+| 8. Historique             | **Tout voir**                                                                                                                               | Opérations passées et leurs reçus                                     |
+
+**Astuce :** sous chaque écran, la rubrique « Atelier | situations fictives » montre les cas difficiles en un toucher : hors connexion, paiement échoué ou en attente, solde insuffisant, alerte avant un envoi inhabituel…
+
+> **Ce que montre cet APK.** Il fonctionne sans serveur : chaque écran affiche « Aperçu fictif | aucun paiement réel », et aucun argent ne circule. Le vrai wallet Lightning a besoin du réseau regtest de l'équipe, qui n'est pas exposé sur Internet ; ses paiements réels sur émulateur sont décrits dans le [guide de démonstration Lightning](docs/guides/demo-lightning.md). La somme de contrôle SHA-256 accompagne l'APK sur la page de la Release.
 
 ## L'application en images
 
