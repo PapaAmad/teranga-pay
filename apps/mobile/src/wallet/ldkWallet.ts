@@ -6,6 +6,7 @@ import {
   isValidPinFormat,
   ok,
   satsToXof,
+  xofToSats,
   walletErrorCodes,
   type Balance,
   type Invoice,
@@ -100,6 +101,7 @@ export function createLdkWallet(
     now = Date.now,
     sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
     paymentTimeoutMs = 60_000,
+    session = () => 0,
     lightningAddress = {
       fetch: (url, init) => fetch(url, init),
       demo: demoLightningAddressSettings,
@@ -111,6 +113,8 @@ export function createLdkWallet(
     now?: () => number;
     sleep?: (ms: number) => Promise<void>;
     paymentTimeoutMs?: number;
+    /** Identité de session locale ; null interdit de commencer un paiement. */
+    session?: () => number | null;
     lightningAddress?: Pick<LightningAddressDeps, 'fetch' | 'demo' | 'timeoutMs'>;
   } = {},
 ): Wallet {
@@ -164,11 +168,16 @@ export function createLdkWallet(
   }
 
   /** Note la valeur FCFA d'un paiement la première fois qu'on le voit, au taux du moment. */
-  async function noteXof(id: string, amountSats: number): Promise<JournalData> {
+  async function noteXof(
+    id: string,
+    amountSats: number,
+    confirmedXof?: number | null,
+  ): Promise<JournalData> {
     const data = await journal.read();
     if (id in data.xof || data.invoices[id]?.amountXof != null) return data;
     return journal.update((next) => {
-      next.xof[id] ??= xof(amountSats);
+      if (!(id in next.xof))
+        next.xof[id] = confirmedXof === undefined ? xof(amountSats) : confirmedXof;
     });
   }
 
@@ -223,6 +232,9 @@ export function createLdkWallet(
     amount: number,
     maxFee: number,
     requestedAmount: number | undefined,
+    confirmedXof: number | null,
+    expiresAt: string | undefined,
+    isCurrent: () => boolean,
   ): Promise<Result<Payment>> {
     const previousId = (await journal.read()).sends[key];
     if (previousId) {
@@ -258,9 +270,27 @@ export function createLdkWallet(
     // LDK Node identifie un envoi BOLT11 par le hash de la facture : connu avant
     // l'envoi, il est enregistré d'abord pour pouvoir réconcilier après un arrêt.
     const expectedId = (await native.decode(invoice)).paymentHash;
+    const existing = (await native.payments()).find(
+      (payment) => payment.id === expectedId && payment.direction === 'envoye',
+    );
+    if (existing?.status === 'reussi') return fail('ALREADY_PAID');
+    if (existing?.status === 'en_attente')
+      return fail('PAYMENT_PENDING', { paymentId: expectedId });
     await journal.update((data) => {
       data.sends[key] = expectedId;
+      // Une tentative non partie peut avoir laissé un prix ; seul le prix de
+      // cette nouvelle autorisation compte. Un paiement connu est refusé avant.
+      data.xof[expectedId] = confirmedXof;
     });
+
+    if (expiresAt !== undefined && Date.parse(expiresAt) <= now()) {
+      await forgetSend(key, expectedId);
+      return fail('INVOICE_EXPIRED');
+    }
+    if (!isCurrent()) {
+      await forgetSend(key, expectedId);
+      return fail('WALLET_LOCKED');
+    }
 
     const amountForNative = preview.kind === 'facture' ? (requestedAmount ?? null) : null;
     const id = await native.send(invoice, amountForNative, maxFee);
@@ -268,7 +298,7 @@ export function createLdkWallet(
     // ne doit devenir « erreur inconnue ». L'écran reçoit l'identifiant pour suivre
     // le paiement, au lieu de proposer un renvoi qui paierait deux fois.
     try {
-      return await followSend(key, id, amount, preview.payee);
+      return await followSend(key, id, amount, preview.payee, confirmedXof);
     } catch {
       return fail('PAYMENT_TIMEOUT', { paymentId: id });
     }
@@ -280,6 +310,7 @@ export function createLdkWallet(
     id: string,
     amount: number,
     payee: string,
+    confirmedXof: number | null,
   ): Promise<Result<Payment>> {
     const expectedId = (await journal.read()).sends[key];
     if (id !== expectedId) {
@@ -287,7 +318,7 @@ export function createLdkWallet(
         data.sends[key] = id;
       });
     }
-    await noteXof(id, amount);
+    await noteXof(id, amount, confirmedXof);
     const deadline = now() + paymentTimeoutMs;
     // LDK peut marquer l'échec un instant avant que l'événement portant sa raison
     // soit lu : on laisse deux tours de plus pour donner la vraie raison.
@@ -405,8 +436,10 @@ export function createLdkWallet(
       attempt(async () => {
         if (!isValidPinFormat(pin)) return fail('PIN_FORMAT');
         const recoveryWords = await native.create(pin);
-        const unlocked = await native.unlock(pin, settings);
-        if (!unlocked.ok) return pinFailure(unlocked);
+        // Le coffre existe déjà : un échec de démarrage du nœud ne doit pas
+        // faire disparaître l'unique remise des mots à sauvegarder. L'état
+        // reste verrouillé et l'ouverture pourra être réessayée après le backup.
+        await native.unlock(pin, settings).catch(() => undefined);
         return ok({ recoveryWords });
       }),
     restore: (words, pin) =>
@@ -499,12 +532,34 @@ export function createLdkWallet(
       }),
     send: (request) =>
       attempt(async () => {
+        const token = session();
+        if (token === null) return fail('WALLET_LOCKED');
         const pinCheck = await native.verifyPin(request.pin);
         if (!pinCheck.ok) return pinFailure(pinCheck);
         const preview = await decodePreview(request.destination, request.amountSats);
         if (!preview.ok) return preview;
         const amount = preview.value.amountSats;
         if (amount === null) return fail('AMOUNT_INVALID');
+        const { amountXof, xofPerBtc, expiresAt } = request;
+        if (
+          (amountXof !== undefined || xofPerBtc !== undefined) &&
+          (amountXof === undefined ||
+            !Number.isSafeInteger(amountXof) ||
+            amountXof < 0 ||
+            xofPerBtc === undefined ||
+            !Number.isSafeInteger(xofPerBtc) ||
+            xofPerBtc <= 0 ||
+            (xofToSats(amountXof, xofPerBtc) !== amount &&
+              satsToXof(amount, xofPerBtc) !== amountXof))
+        ) {
+          return fail('AMOUNT_INVALID');
+        }
+        if (
+          expiresAt !== undefined &&
+          (!Number.isFinite(Date.parse(expiresAt)) || Date.parse(expiresAt) <= now())
+        ) {
+          return fail('INVOICE_EXPIRED');
+        }
         const requestedMax = request.maxFeeSats;
         // Plafond de frais demandé par l'écran : entier positif ou nul, sinon refusé.
         // Une valeur négative ou NaN ferait sauter le plafond côté natif.
@@ -522,7 +577,16 @@ export function createLdkWallet(
         if (sending.has(key)) return fail('PAYMENT_PENDING');
         sending.add(key);
         try {
-          return await sendReserved(key, preview.value, amount, maxFee, request.amountSats);
+          return await sendReserved(
+            key,
+            preview.value,
+            amount,
+            maxFee,
+            request.amountSats,
+            amountXof ?? preview.value.amountXof,
+            expiresAt,
+            () => session() === token,
+          );
         } finally {
           sending.delete(key);
         }

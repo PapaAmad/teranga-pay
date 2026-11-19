@@ -16,16 +16,33 @@ const request = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-type Call = { url: string; method: string; headers?: Record<string, string>; body?: string };
+type Call = {
+  url: string;
+  method: string;
+  headers?: Record<string, string>;
+  body?: string;
+  redirect?: 'error';
+};
 
 function fakeApi(responses: Array<{ status: number; body?: unknown } | Error>) {
   const calls: Call[] = [];
   const fetch = jest.fn(
     async (
       url: string,
-      init: { method?: string; headers?: Record<string, string>; body?: string },
+      init: {
+        method?: string;
+        headers?: Record<string, string>;
+        body?: string;
+        redirect?: 'error';
+      },
     ) => {
-      calls.push({ url, method: init.method ?? 'GET', headers: init.headers, body: init.body });
+      calls.push({
+        url,
+        method: init.method ?? 'GET',
+        headers: init.headers,
+        body: init.body,
+        redirect: init.redirect,
+      });
       if (init.method === 'POST' && url.includes('/me/requests/')) {
         return { ok: true, status: 204, json: async () => null };
       }
@@ -49,6 +66,44 @@ function options(fetch: InboxOptions['fetch'], events: unknown[] = []): InboxOpt
 }
 
 describe('adresse Lightning du téléphone (réception)', () => {
+  it('transmet le même jeton déjà préparé et refuse tout remplacement dans la réponse', async () => {
+    const token = 'demo'.repeat(10) + 'abc';
+    const { fetch, calls } = fakeApi([
+      { status: 201, body: { address: 'mame@teranga.example', token } },
+      { status: 201, body: { address: 'mame@teranga.example', token: 'other'.repeat(8) + 'abc' } },
+      { status: 201, body: { address: 'someone@teranga.example', token } },
+      { status: 201, body: { address: 'mame@invalid domain', token } },
+    ]);
+    await expect(registerAddress('http://api.test', ' Mame ', fetch, token)).resolves.toEqual({
+      ok: true,
+      address: 'mame@teranga.example',
+      token,
+    });
+    expect(JSON.parse(calls[0]!.body!)).toEqual({ username: 'mame', registrationToken: token });
+    expect(calls[0]!.redirect).toBe('error');
+    for (let index = 0; index < 3; index += 1)
+      await expect(registerAddress('http://api.test', 'mame', fetch, token)).resolves.toEqual({
+        ok: false,
+        code: 'UNKNOWN',
+      });
+  });
+
+  it.each([
+    '',
+    'short',
+    'a'.repeat(42),
+    'a'.repeat(44),
+    'a'.repeat(42) + '!',
+    'a'.repeat(43) + '\n',
+  ])('refuse le jeton client invalide avant transport : %s', async (token) => {
+    const { fetch } = fakeApi([]);
+    await expect(registerAddress('http://api.test', 'mame', fetch, token)).resolves.toEqual({
+      ok: false,
+      code: 'UNKNOWN',
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('réserve un nom et rend le jeton une seule fois', async () => {
     const { fetch, calls } = fakeApi([
       { status: 201, body: { address: 'mame@teranga.example', token: 'jeton' } },

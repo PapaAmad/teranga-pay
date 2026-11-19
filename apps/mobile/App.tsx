@@ -9,7 +9,7 @@ import NotoSansRegular from '../../assets/brand/fonts/NotoSans-Regular.ttf';
 import NotoSansSemiBold from '../../assets/brand/fonts/NotoSans-SemiBold.ttf';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import type { RootStackParamList } from './src/navigation/types';
-import type { HomeServices } from './src/home/ports';
+import type { HomeServices, HomeWalletPort } from './src/home/ports';
 import type { ReceiveServices } from './src/receive/ports';
 import type { SendServices } from './src/send/ports';
 import type { CollectServices } from './src/collect/ports';
@@ -35,6 +35,7 @@ type AppProps = {
   collectServices?: CollectServices;
   historyServices?: HistoryServices;
   withdrawServices?: WithdrawServices;
+  sessionWallet?: Pick<HomeWalletPort, 'state' | 'subscribe'>;
 };
 
 export default function App({
@@ -47,6 +48,7 @@ export default function App({
   collectServices,
   historyServices,
   withdrawServices,
+  sessionWallet,
 }: AppProps = {}) {
   return (
     <TranslationProvider i18n={i18n}>
@@ -59,6 +61,7 @@ export default function App({
         collectServices={collectServices}
         historyServices={historyServices}
         withdrawServices={withdrawServices}
+        sessionWallet={sessionWallet}
       />
     </TranslationProvider>
   );
@@ -73,6 +76,7 @@ function AppContent({
   collectServices,
   historyServices,
   withdrawServices,
+  sessionWallet,
 }: Omit<AppProps, 'i18n'>) {
   const { t } = useTranslation();
   const [loaded, fontError] = useFonts(fontAssets);
@@ -117,6 +121,7 @@ function AppContent({
               collectServices={collectServices}
               historyServices={historyServices}
               withdrawServices={withdrawServices}
+              sessionWallet={sessionWallet}
             />
           </View>
         </BrandTypographyProvider>

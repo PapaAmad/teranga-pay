@@ -13,6 +13,7 @@ type FetchLike = (
     headers?: Record<string, string>;
     body?: string;
     signal?: AbortSignal;
+    redirect?: 'error';
   },
 ) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;
 
@@ -20,25 +21,41 @@ export type AddressRegistration =
   | { ok: true; address: string; token: string }
   | { ok: false; code: 'USERNAME_INVALID' | 'USERNAME_TAKEN' | 'NETWORK_OFFLINE' | 'UNKNOWN' };
 
-/** Réserve `nom@domaine` auprès de l'API. Le jeton n'est donné qu'une fois : le garder secret. */
+/** Le jeton optionnel est déjà conservé au coffre : son rejeu retrouve la réservation. */
 export async function registerAddress(
   apiUrl: string,
   username: string,
   fetch: FetchLike,
+  registrationToken?: string,
 ): Promise<AddressRegistration> {
   const name = username.trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(name)) return { ok: false, code: 'USERNAME_INVALID' };
+  if (
+    registrationToken !== undefined &&
+    (typeof registrationToken !== 'string' ||
+      registrationToken.length !== 43 ||
+      !/^[A-Za-z0-9_-]{43}$/.test(registrationToken))
+  )
+    return { ok: false, code: 'UNKNOWN' };
   try {
     const response = await fetch(`${apiUrl.replace(/\/+$/, '')}/v1/lightning-addresses`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ username: name }),
+      body: JSON.stringify({
+        username: name,
+        ...(registrationToken === undefined ? {} : { registrationToken }),
+      }),
+      redirect: 'error',
     });
     const body = (await response.json().catch(() => null)) as Record<string, unknown> | null;
     if (
       response.status === 201 &&
       typeof body?.address === 'string' &&
-      typeof body.token === 'string'
+      typeof body.token === 'string' &&
+      (registrationToken === undefined ||
+        (body.token === registrationToken &&
+          body.address.startsWith(`${name}@`) &&
+          /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(body.address.slice(name.length + 1))))
     ) {
       return { ok: true, address: body.address, token: body.token };
     }
@@ -118,6 +135,7 @@ export async function pollOnce(
     const response = await fetch(`${base}/v1/lightning-addresses/me/requests`, {
       headers: auth,
       signal: controller.signal,
+      redirect: 'error',
     });
     if (response.status === 401) return 'jeton_refuse';
     if (!response.ok) return 'reseau';
@@ -147,6 +165,7 @@ export async function pollOnce(
         method: 'POST',
         headers: { ...auth, 'content-type': 'application/json' },
         body: JSON.stringify({ paymentRequest }),
+        redirect: 'error',
         ...(stopSignal ? { signal: stopSignal } : {}),
       });
       if (stopSignal?.aborted) return 'arrete';

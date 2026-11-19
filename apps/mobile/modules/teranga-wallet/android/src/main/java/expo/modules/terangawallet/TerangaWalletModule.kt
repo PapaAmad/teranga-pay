@@ -43,6 +43,8 @@ class TerangaWalletModule : Module() {
     get() = requireNotNull(appContext.reactContext) { "contexte Android indisponible" }
 
   private val vault by lazy { SecureSeedStore(context) }
+  private val integration by lazy { SecureIntegrationStore(context, vault) }
+  private val integrationLock = Any()
 
   override fun definition() = ModuleDefinition {
     Name("TerangaWallet")
@@ -107,7 +109,12 @@ class TerangaWalletModule : Module() {
       }
     }
 
-    AsyncFunction("lock") { stopNode() }
+    AsyncFunction("lock") { synchronized(integrationLock) { stopNode() } }
+
+    // Secrets séparés du journal ; seul unlock(PIN, settings) ouvre cette session.
+    AsyncFunction("integrationRead") { withIntegration { integration.read() } }
+    AsyncFunction("integrationWrite") { text: String -> withIntegration { integration.write(text) } }
+    AsyncFunction("integrationImport") { withIntegration { integration.importProvisioning() } }
 
     AsyncFunction("nodeId") { running().nodeId() }
 
@@ -261,7 +268,7 @@ class TerangaWalletModule : Module() {
       }
     }
 
-    OnDestroy { stopNode() }
+    OnDestroy { synchronized(integrationLock) { stopNode() } }
   }
 
   private data class NodeSettings(val electrumUrl: String, val peerId: String, val peerAddress: String) {
@@ -353,6 +360,16 @@ class TerangaWalletModule : Module() {
   private fun journalFile() = AtomicFile(File(context.noBackupFilesDir, "teranga-journal.json"))
 
   private fun running(): Node = node ?: throw WalletException("WALLET_LOCKED", "wallet verrouillé")
+
+  private fun <T> withIntegration(block: () -> T): T = synchronized(integrationLock) {
+    running()
+    try {
+      block()
+    } catch (_: Exception) {
+      // Aucun contenu du fichier, jeton ou diagnostic crypto ne traverse le pont.
+      throw WalletException("UNKNOWN", "stockage d’intégration indisponible")
+    }
+  }
 
   private fun requirePinFormat(pin: String) {
     if (!pin.matches(Regex("^\\d{6}$"))) throw WalletException("PIN_FORMAT", "PIN de 6 chiffres")

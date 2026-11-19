@@ -389,6 +389,64 @@ describe('T25 | intention durable et résultat exact', () => {
     });
     expect(h.getSaved()?.withdrawalId).toBe(id(500));
   });
+  it.each(['resumeBeforeAck', 'resumeAfterAck', 'disposeBeforeAck'] as const)(
+    'une écriture durable retardée ne soumet rien après une sortie de session | %s',
+    async (scenario) => {
+      const h = harness();
+      await review(h);
+      const gate = deferred<void>();
+      const save = h.journal.save.getMockImplementation()!;
+      h.journal.save.mockImplementationOnce(async (intent) => {
+        const saved = await save(intent);
+        await gate.promise;
+        return saved;
+      });
+      const confirming = h.controller.confirm();
+      await drain();
+      const intent = clone(h.getSaved()!);
+      expect(intent).not.toBeNull();
+      expect(h.bridge.confirm).not.toHaveBeenCalled();
+
+      let returning = h.controller;
+      if (scenario === 'disposeBeforeAck') {
+        h.controller.dispose();
+        returning = createWithdrawController(h.services, { now: h.now });
+        await returning.start();
+      } else {
+        h.controller.suspend();
+        if (scenario === 'resumeBeforeAck') await returning.resume();
+      }
+      expect(h.bridge.confirm).not.toHaveBeenCalled();
+      gate.resolve();
+      await confirming;
+      if (scenario === 'resumeAfterAck') await returning.resume();
+
+      expect(returning.getSnapshot()).toMatchObject({
+        phase: 'unknown',
+        busy: false,
+        committed: true,
+        canRefresh: true,
+        canConfirm: false,
+        canNewRequest: false,
+      });
+      expect(h.getSaved()).toEqual(intent);
+      expect(h.journal.clear).not.toHaveBeenCalled();
+      expect(h.bridge.confirm).not.toHaveBeenCalled();
+      expect(h.bridge.retry).not.toHaveBeenCalled();
+      expect(h.bridge.quote).toHaveBeenCalledTimes(1);
+      expect(h.createKey).toHaveBeenCalledTimes(1);
+
+      // L'ancien callback de confirmation ne déclenche pas un second envoi.
+      await returning.confirm(intent.quote.id);
+      expect(h.bridge.confirm).not.toHaveBeenCalled();
+      await returning.refresh();
+      expect(h.bridge.confirm).toHaveBeenCalledTimes(1);
+      expect(h.bridge.confirm).toHaveBeenCalledWith({ quoteId: intent.quote.id, key: intent.key });
+      expect(returning.getSnapshot().phase).toBe('success');
+      expect(h.createKey).toHaveBeenCalledTimes(1);
+      returning.dispose();
+    },
+  );
   it('un échec d’écriture interdit tout POST et impose un effacement acquitté', async () => {
     const h = harness();
     await review(h);

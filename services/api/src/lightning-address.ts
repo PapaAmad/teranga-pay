@@ -1,7 +1,8 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 
 /** Nom d'adresse Lightning : minuscules, chiffres, « . », « _ » et « - » (LUD-16), 3 à 32 caractères. */
-export const usernamePattern = /^[a-z0-9][a-z0-9._-]{2,31}$/;
+export const usernamePattern = /^[a-z0-9][a-z0-9._-]{2,31}$(?![\s\S])/;
+export const registrationTokenPattern = /^[A-Za-z0-9_-]{43}$/;
 const reservedUsernames = new Set(['admin', 'root', 'support', 'teranga', 'api', 'www']);
 
 export type InvoiceRequest = {
@@ -69,11 +70,31 @@ export function createLightningAddressDirectory({
     [...pending.values()].filter((item) => item.username === username && item.expiresAt > now());
 
   return {
-    register(username: string): { token: string } | 'pris' | 'complet' | 'invalide' {
-      if (!usernamePattern.test(username) || reservedUsernames.has(username)) return 'invalide';
-      if (users.has(username)) return 'pris';
+    register(
+      username: string,
+      registrationToken?: string,
+    ): { token: string } | 'pris' | 'complet' | 'invalide' {
+      if (
+        !usernamePattern.test(username) ||
+        reservedUsernames.has(username) ||
+        (registrationToken !== undefined &&
+          (typeof registrationToken !== 'string' ||
+            registrationToken.length !== 43 ||
+            !registrationTokenPattern.test(registrationToken)))
+      )
+        return 'invalide';
+      // Le téléphone conserve ce jeton chiffré avant son premier POST. Son rejeu
+      // prouve la même réservation même si la réponse précédente a été perdue.
+      const existing =
+        registrationToken === undefined
+          ? undefined
+          : usersByTokenHash.get(hashToken(registrationToken));
+      if (users.has(username))
+        return existing === username ? { token: registrationToken! } : 'pris';
+      // Un même jeton ne peut pas déplacer l'authentification vers un autre nom.
+      if (existing !== undefined) return 'pris';
       if (users.size >= maxUsers) return 'complet';
-      const token = randomBytes(32).toString('base64url');
+      const token = registrationToken ?? randomBytes(32).toString('base64url');
       users.add(username);
       usersByTokenHash.set(hashToken(token), username);
       return { token };
@@ -83,7 +104,7 @@ export function createLightningAddressDirectory({
 
     /** Retrouve le nom associé à un jeton ; le jeton lui-même n'est jamais conservé. */
     authenticate(token: string | undefined): string | null {
-      if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
+      if (!token || token.length !== 43 || !registrationTokenPattern.test(token)) return null;
       return usersByTokenHash.get(hashToken(token)) ?? null;
     },
 

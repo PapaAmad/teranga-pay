@@ -776,7 +776,7 @@ export function createWithdrawController(
       };
       session.current = attempt;
       session.busy = true;
-      revision++;
+      const token = ++revision;
       let slow = false;
       const stopWaiting = watchAttempt(attempt, () => {
         slow = true;
@@ -791,6 +791,14 @@ export function createWithdrawController(
           return;
         }
         attempt.saved = true;
+        // L'acquittement peut arriver après une suspension ou une destruction,
+        // même si un nouvel écran a déjà repris la session. Seule une action
+        // explicite peut alors soumettre cette même intention conservée.
+        if (!current(token)) {
+          attempt.phase = 'unknown';
+          attempt.error = code('READ_FAILED');
+          return;
+        }
         if (slow) {
           attempt.phase = 'unknown';
           attempt.error = code('OPERATION_SLOW');

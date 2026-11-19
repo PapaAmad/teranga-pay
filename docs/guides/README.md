@@ -1,5 +1,7 @@
 # Guides de travail
 
+- [Raccordement de l'application](raccordement-application.md) : entrée normale Android, services regtest, provisionnement privé et parcours #120 à vérifier.
+
 Guides pratiques maintenus par PAN pour le socle, puis par le responsable de chaque changement. Salam les relit et les complète pour la livraison T36.
 
 - [Démarrage local](demarrage.md) : prérequis, installation, vérifications et limites actuelles.

@@ -56,6 +56,85 @@ describe('montant inscrit dans une facture regtest', () => {
 });
 
 describe('adresse Lightning (LNURL-pay)', () => {
+  it('retrouve la réservation avec le jeton préparé sans le divulguer ni changer de propriétaire', async () => {
+    const { app, logs } = await api({ longPollMs: 1 });
+    const registrationToken = 'client'.repeat(7) + 'a';
+    const body = { username: 'client-demo', registrationToken };
+    try {
+      const first = await app.inject({
+        method: 'POST',
+        url: '/v1/lightning-addresses',
+        payload: body,
+      });
+      const replay = await app.inject({
+        method: 'POST',
+        url: '/v1/lightning-addresses',
+        payload: body,
+      });
+      assert.equal(first.statusCode, 201);
+      assert.equal(replay.statusCode, 201);
+      assert.deepEqual(replay.json(), {
+        address: 'client-demo@teranga.example',
+        token: registrationToken,
+      });
+      const poll = await app.inject({
+        method: 'GET',
+        url: '/v1/lightning-addresses/me/requests',
+        headers: { authorization: `Bearer ${registrationToken}` },
+      });
+      assert.equal(poll.statusCode, 200);
+      for (const payload of [
+        { username: 'client-demo' },
+        { username: 'client-demo', registrationToken: 'different'.repeat(4) + 'abcdefg' },
+        { username: 'another-demo', registrationToken },
+      ]) {
+        const conflict = await app.inject({
+          method: 'POST',
+          url: '/v1/lightning-addresses',
+          payload,
+        });
+        assert.equal(conflict.statusCode, 409);
+        assert.equal(conflict.json().error.code, 'USERNAME_TAKEN');
+        assert.equal(JSON.stringify(conflict.json()).includes(registrationToken), false);
+      }
+      assert.equal(
+        (await app.inject({ method: 'GET', url: '/.well-known/lnurlp/another-demo' })).statusCode,
+        404,
+      );
+      assert.equal(logs().includes(registrationToken), false);
+      assert.equal(logs().includes('different'.repeat(4) + 'abcdefg'), false);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('refuse un jeton client malformé sans réserver le nom', async () => {
+    const { app } = await api();
+    try {
+      for (const registrationToken of [
+        null,
+        123,
+        true,
+        '',
+        'a'.repeat(42),
+        'a'.repeat(44),
+        'a'.repeat(42) + '!',
+        'a'.repeat(43) + '\n',
+      ]) {
+        const invalid = await app.inject({
+          method: 'POST',
+          url: '/v1/lightning-addresses',
+          payload: { username: 'client-demo', registrationToken },
+        });
+        assert.equal(invalid.statusCode, 400);
+        assert.equal(invalid.json().error.code, 'VALIDATION_ERROR');
+      }
+      await register(app, 'client-demo');
+    } finally {
+      await app.close();
+    }
+  });
+
   it('relaie la demande du payeur au téléphone et renvoie sa facture', async () => {
     const { app, logs } = await api();
     const { address, token } = await register(app);
@@ -139,7 +218,7 @@ describe('adresse Lightning (LNURL-pay)', () => {
       payload: { username: 'mame' },
     });
     assert.equal(taken.json().error.code, 'USERNAME_TAKEN');
-    for (const username of ['MAJ', 'ab', 'admin', 'nom avec espace', 'é-accent']) {
+    for (const username of ['MAJ', 'ab', 'admin', 'nom avec espace', 'é-accent', 'mame\n']) {
       const invalid = await app.inject({
         method: 'POST',
         url: '/v1/lightning-addresses',
@@ -193,6 +272,23 @@ describe('adresse Lightning (LNURL-pay)', () => {
 });
 
 describe('annuaire', () => {
+  it('le rejeu du même jeton fonctionne à capacité atteinte et après redémarrage mémoire', () => {
+    const token = 'demo'.repeat(10) + 'abc';
+    const directory = createLightningAddressDirectory({ maxUsers: 1 });
+    assert.deepEqual(directory.register('client-demo', token), { token });
+    assert.equal(directory.register('other-demo'), 'complet');
+    assert.deepEqual(directory.register('client-demo', token), { token });
+    assert.equal(directory.authenticate(token), 'client-demo');
+    assert.equal(directory.register('client-demo', 'other'.repeat(8) + 'abc'), 'pris');
+    assert.equal(directory.register('other-demo', token), 'pris');
+    assert.equal(directory.authenticate(token), 'client-demo');
+    directory.close();
+    const restarted = createLightningAddressDirectory();
+    assert.deepEqual(restarted.register('client-demo', token), { token });
+    assert.equal(restarted.authenticate(token), 'client-demo');
+    restarted.close();
+  });
+
   it('limite les demandes en attente par adresse', async () => {
     const directory = createLightningAddressDirectory({ maxPendingPerUser: 2 });
     directory.register('mame');

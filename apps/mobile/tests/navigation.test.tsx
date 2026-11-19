@@ -464,6 +464,8 @@ describe('navigation Envoyer T20', () => {
   }
 
   it('relie Envoyer au fournisseur injecté et revient à l’accueil après confirmation', async () => {
+    const reviewAt = Date.now();
+    jest.spyOn(Date, 'now').mockReturnValue(reviewAt);
     const fixture = createSendPreviewServices();
     const send = jest.spyOn(fixture.wallet!, 'send');
     const i18n = createAppI18n();
@@ -488,6 +490,9 @@ describe('navigation Envoyer T20', () => {
       destination: sendPreviewInvoice,
       amountSats: 10_000,
       maxFeeSats: 100,
+      amountXof: 4500,
+      xofPerBtc: 45_000_000,
+      expiresAt: new Date(reviewAt + 300_000).toISOString(),
       pin: '000000',
     });
     fireEvent.press(screen.getByRole('button', { name: fr.send.home }));

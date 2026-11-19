@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import java.security.KeyStore
+import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
@@ -39,6 +40,12 @@ class SecureSeedStore(context: Context) {
   }
 
   fun exists(): Boolean = prefs.contains(KEY_BLOB)
+
+  /** Identité opaque du coffre chiffré : jamais la phrase ni une clé dérivée du PIN. */
+  fun integrationBinding(): ByteArray {
+    val blob = prefs.getString(KEY_BLOB, null) ?: error("coffre absent")
+    return MessageDigest.getInstance("SHA-256").digest(unb64(blob))
+  }
 
   fun save(mnemonic: String, pin: String) {
     val salt = ByteArray(16).also(random::nextBytes)

@@ -1,5 +1,7 @@
 # 🛠️ Scripts du dépôt
 
+`npm run mobile:provision` transmet le jeton de simulation au build Android débogable par stdin/ADB, sans l'afficher. Voir le [guide de raccordement](../docs/guides/raccordement-application.md). La configuration source est ignorée par Git ; aucun jeton n'entre dans le bundle.
+
 > Des petits outils pour vérifier le dépôt, régénérer la charte graphique, préparer GitHub et lancer les tests Android.
 
 | Commande                                            | Ce qu'elle fait                                                                           |
@@ -105,3 +107,13 @@ npm run brand:motion -- --browser "chemin/Chromium" --puppeteer-module "chemin/p
 `release/` prépare les consignes et la somme de contrôle publiées avec l'APK signé (T35).
 
 Les outils de release décrivent une configuration préparée. Aucun APK n’a été compilé, signé ou publié pendant la consolidation.
+
+`verify-native-integration.mjs` vérifie le chiffrement des secrets locaux du
+raccordement #120 sur JVM. Il compile et exécute le véritable `IntegrationCipher.kt`
+avec le JDK et les artefacts Kotlin déjà présents dans un cache Gradle fourni
+explicitement ; il ne télécharge rien. Commande :
+`node scripts/verify-native-integration.mjs --java <exécutable-java> --gradle-cache <dossier-gradle>`.
+Les [cas natifs](../apps/mobile/modules/teranga-wallet/tests/README.md) vérifient
+l'authentification du contenu, l'isolation entre coffres et usages, et le
+renouvellement des IV. Cet essai ne remplace ni Android Keystore ni le parcours
+sur appareil. PAN porte le raccordement, Salam relit la sécurité native.

@@ -21,6 +21,7 @@
     "brand:document": "node scripts/render-brand-document.mjs",
     "brand:motion": "node scripts/render-brand-motion.mjs",
     "mobile": "npm run start --workspace @teranga-pay/mobile",
+    "mobile:provision": "node scripts/provision-mobile.mjs",
     "mobile:android": "npm run android --workspace @teranga-pay/mobile",
     "mobile:ios": "npm run ios --workspace @teranga-pay/mobile",
     "i18n:check": "node scripts/check-mobile-translations.mjs",

@@ -318,6 +318,8 @@ describe('envoyer T20 | saisie et consentement explicites', () => {
   });
 
   it('exige un appui explicite après six chiffres et transmet le plafond relu', async () => {
+    const reviewAt = Date.now();
+    jest.spyOn(Date, 'now').mockReturnValue(reviewAt);
     const services = createSendPreviewServices();
     const send = jest.spyOn(services.wallet!, 'send');
     const { i18n } = renderSend(services);
@@ -338,6 +340,9 @@ describe('envoyer T20 | saisie et consentement explicites', () => {
       destination: sendPreviewInvoice,
       amountSats: 10_000,
       maxFeeSats: 100,
+      amountXof: 4500,
+      xofPerBtc: 45_000_000,
+      expiresAt: new Date(reviewAt + 300_000).toISOString(),
       pin: '000000',
     });
     expect(screen.getByText(fr.send.previewSuccessDescription)).toBeOnTheScreen();
