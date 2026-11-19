@@ -22,6 +22,7 @@ export default function configure({ config }: ConfigContext): ExpoConfig {
           barcodeScannerEnabled: true,
         },
       ],
+      './plugins/with-windows-native.cjs',
     ],
   };
 }

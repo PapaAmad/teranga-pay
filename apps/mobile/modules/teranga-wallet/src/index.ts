@@ -95,6 +95,12 @@ export interface NativeWallet {
   journalRead(): Promise<string | null>;
   /** Remplace le journal d'un bloc (écriture atomique). */
   journalWrite(text: string): Promise<void>;
+  /** Secrets JSON chiffrés, liés au coffre ; accès seulement après unlock réussi. */
+  integrationRead?(): Promise<string | null>;
+  /** Écriture atomique (16 KiB UTF-8 maximum), acquitte l'import validé et fusionné. */
+  integrationWrite?(text: string): Promise<void>;
+  /** DEV : import chiffré durable jusqu'à integrationWrite ; release : null sans lecture. */
+  integrationImport?(): Promise<string | null>;
   addListener(
     eventName: 'onWalletEvent',
     listener: (event: NativeWalletEvent) => void,

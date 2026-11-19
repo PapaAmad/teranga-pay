@@ -1,9 +1,22 @@
-import { NavigationContainer, type LinkingOptions, useIsFocused } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  type LinkingOptions,
+  useIsFocused,
+  useNavigationContainerRef,
+} from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { createContext, useContext, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreen } from '../onboarding/OnboardingScreen';
@@ -11,7 +24,7 @@ import { createPlatformServices } from '../onboarding/platform';
 import type { OnboardingServices } from '../onboarding/ports';
 import { createPreviewServices } from '../onboarding/preview';
 import { HomeScreen } from '../home/HomeScreen';
-import type { HomeServices } from '../home/ports';
+import type { HomeServices, HomeWalletPort } from '../home/ports';
 import { createHomePreviewServices, type HomePreviewScenario } from '../home/preview';
 import { ReceiveScreen } from '../receive/ReceiveScreen';
 import type { ReceiveServices } from '../receive/ports';
@@ -807,6 +820,7 @@ export function RootNavigator({
   collectServices,
   historyServices,
   withdrawServices,
+  sessionWallet,
 }: {
   initialRoute?: keyof RootStackParamList;
   onboardingServices?: OnboardingServices;
@@ -816,8 +830,51 @@ export function RootNavigator({
   collectServices?: CollectServices;
   historyServices?: HistoryServices;
   withdrawServices?: WithdrawServices;
+  sessionWallet?: Pick<HomeWalletPort, 'state' | 'subscribe'>;
 }) {
   const { t } = useTranslation();
+  const navigation = useNavigationContainerRef<RootStackParamList>();
+  const locked = useRef(!!sessionWallet);
+  const enforceSession = useCallback(() => {
+    if (!locked.current || !navigation.isReady()) return;
+    const route = navigation.getCurrentRoute()?.name;
+    if (
+      locked.current &&
+      navigation.isReady() &&
+      route &&
+      ['Home', 'Receive', 'Send', 'Collect', 'History', 'Withdraw'].includes(route)
+    ) {
+      navigation.resetRoot({ index: 0, routes: [{ name: 'Onboarding' }] });
+    }
+  }, [navigation]);
+  useEffect(() => {
+    if (!sessionWallet) return;
+    let mounted = true;
+    let revision = 0;
+    const update = (state: string) => {
+      if (!mounted) return;
+      locked.current = state === 'verrouille' || state === 'absent';
+      enforceSession();
+    };
+    void sessionWallet
+      .state()
+      .then((state) => {
+        if (revision === 0) update(state);
+      })
+      .catch(() => {
+        if (revision === 0) update('verrouille');
+      });
+    const stop = sessionWallet.subscribe((event) => {
+      if (event.type === 'etat') {
+        revision += 1;
+        update(event.state);
+      }
+    });
+    return () => {
+      mounted = false;
+      stop();
+    };
+  }, [sessionWallet, enforceSession]);
   const [services] = useState(() => onboardingServices ?? createPlatformServices());
   const [dashboard] = useState<HomeServices>(() => homeServices ?? { mode: 'unavailable' });
   const [receiving] = useState<ReceiveServices>(() => receiveServices ?? { mode: 'unavailable' });
@@ -835,7 +892,12 @@ export function RootNavigator({
           <SendContext.Provider value={sending}>
             <CollectContext.Provider value={collecting}>
               <HistoryContext.Provider value={history}>
-                <NavigationContainer linking={linking}>
+                <NavigationContainer
+                  ref={navigation}
+                  linking={linking}
+                  onReady={enforceSession}
+                  onStateChange={enforceSession}
+                >
                   <WithdrawContext.Provider value={withdrawal}>
                     <Stack.Navigator
                       initialRouteName={initialRoute}

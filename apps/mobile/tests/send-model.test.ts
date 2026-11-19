@@ -466,6 +466,9 @@ describe('envoyer | confirmation explicite et PIN', () => {
       destination: invoice,
       amountSats: 10_000,
       maxFeeSats: 100,
+      amountXof: 4500,
+      xofPerBtc: 45_000_000,
+      expiresAt: iso(300_000),
       pin: testPin,
     });
     expect(test.controller.getSnapshot()).toMatchObject({

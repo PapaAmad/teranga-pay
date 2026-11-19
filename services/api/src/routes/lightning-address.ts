@@ -84,7 +84,7 @@ export async function lightningAddressRoutes(
 
   // --- Côté téléphone du destinataire ------------------------------------------------
 
-  app.post<{ Body: { username: string } }>(
+  app.post<{ Body: { username: string; registrationToken?: string } }>(
     '/v1/lightning-addresses',
     {
       schema: {
@@ -92,17 +92,26 @@ export async function lightningAddressRoutes(
           type: 'object',
           additionalProperties: false,
           required: ['username'],
-          properties: { username: { type: 'string', minLength: 1, maxLength: 64 } },
+          properties: {
+            username: { type: 'string', minLength: 1, maxLength: 64 },
+            registrationToken: {
+              type: 'string',
+              minLength: 43,
+              maxLength: 43,
+              pattern: '^[A-Za-z0-9_-]{43}$',
+            },
+          },
         },
       },
     },
     async (request, reply) => {
       const username = request.body.username;
-      const result = directory.register(username);
+      const result = directory.register(username, request.body.registrationToken);
       if (result === 'invalide') return sendError(reply, request, 400, errorCodes.usernameInvalid);
       if (result === 'pris') return sendError(reply, request, 409, errorCodes.usernameTaken);
       if (result === 'complet') return sendError(reply, request, 503, errorCodes.capacityReached);
-      // Le jeton n'est montré qu'ici : le serveur ne garde que son empreinte SHA-256.
+      // Le serveur ne garde que l'empreinte SHA-256. Un rejeu peut seulement
+      // rendre le jeton déjà fourni par ce même téléphone, jamais le deviner.
       return reply.code(201).send({ address: `${username}@${config.domain}`, token: result.token });
     },
   );

@@ -179,7 +179,10 @@ export const fail = <T = never>(
 /** Interface que la logique wallet implémente et que les écrans utilisent. */
 export interface Wallet {
   state(): Promise<WalletState>;
-  /** Crée le wallet, protège ses clés par le PIN et renvoie les 12 mots à noter une seule fois. */
+  /**
+   * Crée le coffre et renvoie les 12 mots à noter une seule fois, même si le
+   * démarrage du nœud échoue ensuite. `state()` confirme séparément son ouverture.
+   */
   create(pin: string): Promise<Result<{ recoveryWords: string[] }>>;
   restore(recoveryWords: string[], pin: string): Promise<Result<void>>;
   unlock(pin: string): Promise<Result<void>>;
@@ -215,6 +218,11 @@ export interface Wallet {
     destination: string;
     amountSats?: number;
     maxFeeSats?: number;
+    /** Prix confirmé par l'écran, conservé sans le réévaluer après le PIN. */
+    amountXof?: number;
+    xofPerBtc?: number;
+    /** Première échéance du devis ou de la facture, en UTC. */
+    expiresAt?: string;
     pin: string;
   }): Promise<Result<Payment>>;
   /**

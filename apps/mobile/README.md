@@ -1,6 +1,6 @@
 # 📱 Application mobile
 
-> L’application Android de Teranga Pay prépare les parcours de réception, d’envoi et d’encaissement, avec les montants en FCFA d’abord. Les bases sont consolidées ; le [raccordement natif #120](https://github.com/PapaAmad/teranga-pay/issues/120) des ports UI au wallet et à l’API reste ouvert.
+> L’application Android de Teranga Pay compose les parcours de réception, d’envoi et d’encaissement avec un coffre partagé et l’API, avec les montants en FCFA d’abord. Le [guide d'intégration](../../docs/guides/raccordement-application.md) du raccordement #120 consigne les paiements regtest vérifiés sur Android et les limites liées au temps disponible.
 
 Projet de Salam et PAN. PAN porte les écrans. Salam porte le wallet (le « porte-monnaie » qui garde les clés et fait les paiements).
 

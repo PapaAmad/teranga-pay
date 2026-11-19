@@ -1,5 +1,7 @@
 # Notes de décision
 
+La [décision 0024](0024-raccordement-application.md) documente la composition réelle de l'application, les jetons privés, la reprise de session et les preuves Android du raccordement #120.
+
 Une note garde la raison d'un choix pour l'autre membre et les agents. Son auteur est le responsable de la tâche ; l'autre membre relit. Les décisions communes, notamment T10/T11, se discutent à deux.
 
 | Note                                                 | Sujet                                                     | État                                                                                   |

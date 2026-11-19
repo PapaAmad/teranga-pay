@@ -56,6 +56,7 @@ describe('identité Android isolée T30', () => {
           barcodeScannerEnabled: true,
         },
       ],
+      './plugins/with-windows-native.cjs',
     ]);
   });
 });

@@ -1,12 +1,12 @@
 import { registerRootComponent } from 'expo';
 import { createElement } from 'react';
 
-import App from './App';
+import { RuntimeApp } from './src/runtime/RuntimeApp';
 
-// Expo fournit InitialProps ; le point d’entrée masque ces props à App,
-// dont la seule prop optionnelle est l’instance i18n utilisée par les tests.
+// Les props système d'Expo ne sont pas des services métier. L'entrée compose
+// elle-même les adaptateurs du coffre et de l'API, séparément des ateliers.
 function RootApp() {
-  return createElement(App);
+  return createElement(RuntimeApp);
 }
 
 registerRootComponent(RootApp);

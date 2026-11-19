@@ -927,6 +927,14 @@ export function createSendController(
           destination: preview.destination,
           amountSats,
           maxFeeSats: preview.maxFeeSats,
+          ...(preview.amountXof !== null &&
+          (snapshot.quote?.xofPerBtc ?? snapshot.balance?.rate?.xofPerBtc) !== undefined
+            ? {
+                amountXof: preview.amountXof,
+                xofPerBtc: snapshot.quote?.xofPerBtc ?? snapshot.balance!.rate!.xofPerBtc,
+                ...(snapshot.validUntil ? { expiresAt: snapshot.validUntil } : {}),
+              }
+            : {}),
           pin,
         });
         pin = '';

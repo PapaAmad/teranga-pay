@@ -41,6 +41,10 @@ export interface SendWalletPort {
     destination: string;
     amountSats?: number;
     maxFeeSats?: number;
+    /** Prix et échéance exactement présentés avant la confirmation. */
+    amountXof?: number;
+    xofPerBtc?: number;
+    expiresAt?: string;
     pin: string;
   }): Promise<HomeResult<HomePayment>>;
   history(options?: { limit?: number; before?: string }): Promise<HomeResult<HomePayment[]>>;

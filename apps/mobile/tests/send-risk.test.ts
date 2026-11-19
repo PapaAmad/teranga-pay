@@ -98,6 +98,9 @@ describe('T27 | avertissement avant le PIN', () => {
       destination: sendPreviewInvoice,
       amountSats: 10_000,
       maxFeeSats: 100,
+      amountXof: 4500,
+      xofPerBtc: 45_000_000,
+      expiresAt: new Date(instant + 300_000).toISOString(),
       pin: testPin,
     });
     expect(test.controller.getSnapshot()).toMatchObject({ phase: 'success', committed: true });
