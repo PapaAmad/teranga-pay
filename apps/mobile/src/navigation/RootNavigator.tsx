@@ -33,6 +33,7 @@ import { receivePlatform, type ReceivePlatformPort } from '../receive/platform';
 import { SendScreen } from '../send/SendScreen';
 import { CollectScreen } from '../collect/CollectScreen';
 import type { CollectServices } from '../collect/ports';
+import { previewsEnabled } from './previews';
 import { createCollectPreviewServices, type CollectPreviewScenario } from '../collect/preview';
 import { collectPlatform, type CollectPlatformPort } from '../collect/platform';
 import type { SendServices } from '../send/ports';
@@ -78,7 +79,7 @@ function HomeRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'H
       onCollect={() => navigation.navigate('Collect')}
       onHistory={() => navigation.navigate('History')}
       onWithdraw={() => navigation.navigate('Withdraw')}
-      onPreview={__DEV__ ? () => navigation.navigate('HomePreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('HomePreview') : undefined}
     />
   );
 }
@@ -172,7 +173,7 @@ function ReceiveRoute({ navigation }: NativeStackScreenProps<RootStackParamList,
       active={active}
       onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home'))}
       onRequireUnlock={() => navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] })}
-      onPreview={__DEV__ ? () => navigation.navigate('ReceivePreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('ReceivePreview') : undefined}
     />
   );
 }
@@ -317,7 +318,7 @@ function SendRoute({ navigation }: NativeStackScreenProps<RootStackParamList, 'S
       active={active}
       onBack={() => navigation.goBack()}
       onRequireUnlock={() => navigation.navigate('Onboarding')}
-      onPreview={__DEV__ ? () => navigation.navigate('SendPreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('SendPreview') : undefined}
     />
   );
 }
@@ -421,7 +422,7 @@ function CollectRoute({ navigation }: NativeStackScreenProps<RootStackParamList,
       active={active}
       onBack={() => navigation.goBack()}
       onRequireUnlock={() => navigation.navigate('Onboarding')}
-      onPreview={__DEV__ ? () => navigation.navigate('CollectPreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('CollectPreview') : undefined}
     />
   );
 }
@@ -559,7 +560,7 @@ function HistoryRoute({ navigation }: NativeStackScreenProps<RootStackParamList,
       active={active}
       onBack={() => navigation.goBack()}
       onRequireUnlock={() => navigation.navigate('Onboarding')}
-      onPreview={__DEV__ ? () => navigation.navigate('HistoryPreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('HistoryPreview') : undefined}
     />
   );
 }
@@ -674,7 +675,7 @@ function WithdrawRoute({ navigation }: NativeStackScreenProps<RootStackParamList
       services={services}
       active={active}
       onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home'))}
-      onPreview={__DEV__ ? () => navigation.navigate('WithdrawPreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('WithdrawPreview') : undefined}
     />
   );
 }
@@ -787,7 +788,7 @@ function OnboardingRoute({ navigation }: NativeStackScreenProps<RootStackParamLi
       services={services}
       onDiscover={() => navigation.navigate('About')}
       onFinished={() => navigation.replace('Home')}
-      onPreview={__DEV__ ? () => navigation.navigate('OnboardingPreview') : undefined}
+      onPreview={previewsEnabled ? () => navigation.navigate('OnboardingPreview') : undefined}
     />
   );
 }
@@ -908,7 +909,7 @@ export function RootNavigator({
                         component={OnboardingRoute}
                         options={{ headerShown: false, title: t('appName') }}
                       />
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="OnboardingPreview"
                           component={PreviewRoute}
@@ -930,21 +931,21 @@ export function RootNavigator({
                         component={WithdrawRoute}
                         options={{ headerShown: false, title: t('withdraw.navigation') }}
                       />
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="WithdrawPreview"
                           component={WithdrawPreviewRoute}
                           options={{ headerShown: false, title: t('withdraw.navigation') }}
                         />
                       )}
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="HistoryPreview"
                           component={HistoryPreviewRoute}
                           options={{ headerShown: false, title: t('history.navigation') }}
                         />
                       )}
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="HomePreview"
                           component={HomePreviewRoute}
@@ -956,7 +957,7 @@ export function RootNavigator({
                         component={ReceiveRoute}
                         options={{ headerShown: false, title: t('receive.navigation') }}
                       />
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="ReceivePreview"
                           component={ReceivePreviewRoute}
@@ -973,7 +974,7 @@ export function RootNavigator({
                         component={SendRoute}
                         options={{ headerShown: false, title: t('send.navigation') }}
                       />
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="SendPreview"
                           component={SendPreviewRoute}
@@ -990,7 +991,7 @@ export function RootNavigator({
                         component={CollectRoute}
                         options={{ headerShown: false, title: t('collect.navigation') }}
                       />
-                      {__DEV__ && (
+                      {previewsEnabled && (
                         <Stack.Screen
                           name="CollectPreview"
                           component={CollectPreviewRoute}

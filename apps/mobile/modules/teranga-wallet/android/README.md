@@ -12,6 +12,7 @@ flowchart LR
 | Fichier | Rôle |
 | --- | --- |
 | `build.gradle` | Dépendances Android, dont LDK Node 0.7.0 |
+| `consumer-rules.pro` | Règles R8 de l'APK release : garde JNA et LDK Node, lus par réflexion |
 | `src/main/java/expo/modules/terangawallet/TerangaWalletModule.kt` | Création, déverrouillage, solde, factures, paiements, événements |
 | `src/main/java/expo/modules/terangawallet/SecureSeedStore.kt` | Chiffrement de la phrase (AES-256-GCM, PIN + Keystore), blocage après 5 PIN faux |
 | `src/main/java/expo/modules/terangawallet/IntegrationCipher.kt` | Enveloppe AES-GCM liée au coffre et à l'usage, vérifiable sur JVM |
